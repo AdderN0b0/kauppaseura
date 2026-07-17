@@ -1,12 +1,14 @@
 {
     "source": "http://lakeuden-kauppaseura.local",
-    "generated_at": "2026-07-17T08:49:37+00:00",
+    "generated_at": "2026-07-17T09:25:02+00:00",
     "pages": {
         "http://lakeuden-kauppaseura.local/": "index.html",
         "http://lakeuden-kauppaseura.local/ajankohtaiskatsaus-ja-yritysvierailu/": "ajankohtaiskatsaus-ja-yritysvierailu/index.html",
         "http://lakeuden-kauppaseura.local/blogi/": "blogi/index.html",
         "http://lakeuden-kauppaseura.local/etelapohjalaiset-parjaajiksi-jarviseudun-sanomat-24-5-2023/": "etelapohjalaiset-parjaajiksi-jarviseudun-sanomat-24-5-2023/index.html",
+        "http://lakeuden-kauppaseura.local/kun-hata-on-suurin-on-apukin-lahella-vai-onko/": "kun-hata-on-suurin-on-apukin-lahella-vai-onko/index.html",
         "http://lakeuden-kauppaseura.local/lakeuden-kauppaseura-tampereen-kauppaseuran-vieraana/": "lakeuden-kauppaseura-tampereen-kauppaseuran-vieraana/index.html",
+        "http://lakeuden-kauppaseura.local/maatalous-tarvitsee-tuloksellisempaa-talousneuvontaa/": "maatalous-tarvitsee-tuloksellisempaa-talousneuvontaa/index.html",
         "http://lakeuden-kauppaseura.local/meista/": "meista/index.html",
         "http://lakeuden-kauppaseura.local/pessimismi-ja-todellisuus/": "pessimismi-ja-todellisuus/index.html",
         "http://lakeuden-kauppaseura.local/rakennusala-hataa-karsimassa-julkiset-investoinnit-eivat-enaa-tahditu-tasaamaan-lamaa/": "rakennusala-hataa-karsimassa-julkiset-investoinnit-eivat-enaa-tahditu-tasaamaan-lamaa/index.html",
@@ -26,5 +28,5 @@
         "http://lakeuden-kauppaseura.local/yhteystiedot/": "yhteystiedot/index.html",
         "http://lakeuden-kauppaseura.local/yritystemme-menestyminen-on-ratkaiseva-tekija/": "yritystemme-menestyminen-on-ratkaiseva-tekija/index.html"
     },
-    "asset_count": 40
+    "asset_count": 51
 }
