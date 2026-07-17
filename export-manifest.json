@@ -1,10 +1,11 @@
 {
     "source": "http://lakeuden-kauppaseura.local",
-    "generated_at": "2026-07-17T09:33:42+00:00",
+    "generated_at": "2026-07-17T09:49:45+00:00",
     "pages": {
         "http://lakeuden-kauppaseura.local/": "index.html",
         "http://lakeuden-kauppaseura.local/ajankohtaiskatsaus-ja-yritysvierailu/": "ajankohtaiskatsaus-ja-yritysvierailu/index.html",
         "http://lakeuden-kauppaseura.local/blogi/": "blogi/index.html",
+        "http://lakeuden-kauppaseura.local/edesmenneen-isoaitini-viisi-viisasta-sanaa/": "edesmenneen-isoaitini-viisi-viisasta-sanaa/index.html",
         "http://lakeuden-kauppaseura.local/etelapohjalaiset-parjaajiksi-jarviseudun-sanomat-24-5-2023/": "etelapohjalaiset-parjaajiksi-jarviseudun-sanomat-24-5-2023/index.html",
         "http://lakeuden-kauppaseura.local/kun-hata-on-suurin-on-apukin-lahella-vai-onko/": "kun-hata-on-suurin-on-apukin-lahella-vai-onko/index.html",
         "http://lakeuden-kauppaseura.local/lakeuden-kauppaseura-tampereen-kauppaseuran-vieraana/": "lakeuden-kauppaseura-tampereen-kauppaseuran-vieraana/index.html",
@@ -28,5 +29,5 @@
         "http://lakeuden-kauppaseura.local/yhteystiedot/": "yhteystiedot/index.html",
         "http://lakeuden-kauppaseura.local/yritystemme-menestyminen-on-ratkaiseva-tekija/": "yritystemme-menestyminen-on-ratkaiseva-tekija/index.html"
     },
-    "asset_count": 51
+    "asset_count": 46
 }
