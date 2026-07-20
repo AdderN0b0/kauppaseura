@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://addern0b0.github.io/kauppaseura/sitemap.xml

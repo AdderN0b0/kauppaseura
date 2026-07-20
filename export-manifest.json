@@ -1,6 +1,6 @@
 {
     "source": "http://lakeuden-kauppaseura.local",
-    "generated_at": "2026-07-17T12:13:43+00:00",
+    "generated_at": "2026-07-20T19:17:19+00:00",
     "pages": {
         "http://lakeuden-kauppaseura.local/": "index.html",
         "http://lakeuden-kauppaseura.local/ajankohtaiskatsaus-ja-yritysvierailu/": "ajankohtaiskatsaus-ja-yritysvierailu/index.html",
@@ -26,8 +26,9 @@
         "http://lakeuden-kauppaseura.local/tapahtuma/vuosipaivan-juhla-elamani-biisi/": "tapahtuma/vuosipaivan-juhla-elamani-biisi/index.html",
         "http://lakeuden-kauppaseura.local/tapahtuma/yritysvierailu-painokeskus-proprint-oyssa/": "tapahtuma/yritysvierailu-painokeskus-proprint-oyssa/index.html",
         "http://lakeuden-kauppaseura.local/tapahtumat/": "tapahtumat/index.html",
+        "http://lakeuden-kauppaseura.local/tietosuoja/": "tietosuoja/index.html",
         "http://lakeuden-kauppaseura.local/yhteystiedot/": "yhteystiedot/index.html",
         "http://lakeuden-kauppaseura.local/yritystemme-menestyminen-on-ratkaiseva-tekija/": "yritystemme-menestyminen-on-ratkaiseva-tekija/index.html"
     },
-    "asset_count": 53
+    "asset_count": 89
 }
