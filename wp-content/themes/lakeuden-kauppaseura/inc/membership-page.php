@@ -259,6 +259,10 @@ function lakeuden_kauppaseura_render_membership_form_fallback( $static_preview =
 	<div class="lks-membership-form-fallback" data-lks-static-membership-form<?php echo $hidden ? ' hidden' : ''; ?>>
 		<h3><?php echo esc_html( $title ); ?></h3>
 		<p><?php echo esc_html( $text ); ?></p>
+		<p class="lks-membership-form__privacy">
+			Sähköpostitse lähetettyjen yhteydenottojen käsittely kuvataan
+			<a href="<?php echo esc_url( home_url( '/tietosuoja/' ) ); ?>">tietosuojaselosteessa</a>.
+		</p>
 		<a class="lks-button lks-button--gold" href="<?php echo esc_url( home_url( '/yhteystiedot/' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_static_form_link' ) ); ?></a>
 	</div>
 	<?php

@@ -27,7 +27,7 @@ if ( ! post_type_exists( 'wpforms' ) || ! shortcode_exists( 'wpforms' ) ) {
 	exit( 1 );
 }
 
-const LKS_MEMBERSHIP_FORM_SCHEMA = '3';
+const LKS_MEMBERSHIP_FORM_SCHEMA = '4';
 
 /**
  * Find the configured membership form without hardcoding its database ID.
@@ -107,12 +107,12 @@ function lks_membership_form_data( int $form_id, array $existing ): array {
 			'9'  => array(
 				'id'          => '9',
 				'type'        => 'checkbox',
-				'label'       => 'Tietosuostumus',
+				'label'       => 'Tietosuojan vahvistus',
 				'required'    => '1',
 				'description' => 'Tietosuojaseloste on linkitetty lomakkeen yläpuolelle.',
 				'choices'     => array(
 					'1' => array(
-						'label' => 'Hyväksyn antamieni tietojen käsittelyn yhteydenottoa ja jäsenyysasian käsittelyä varten.',
+						'label' => 'Olen tutustunut tietosuojaselosteeseen ja ymmärrän, että tietojani käsitellään jäsenyyskyselyyn vastaamiseksi.',
 						'value' => '',
 					),
 				),

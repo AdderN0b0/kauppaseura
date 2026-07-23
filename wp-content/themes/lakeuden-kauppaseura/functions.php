@@ -9,9 +9,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once get_stylesheet_directory() . '/inc/site-configuration.php';
 require_once get_stylesheet_directory() . '/inc/page-copy.php';
 require_once get_stylesheet_directory() . '/inc/people.php';
 require_once get_stylesheet_directory() . '/inc/membership-page.php';
+require_once get_stylesheet_directory() . '/inc/privacy-page.php';
+require_once get_stylesheet_directory() . '/inc/structured-data.php';
 
 /**
  * Return an attachment's editor-authored alt text or a safe contextual fallback.
@@ -643,56 +646,6 @@ function lakeuden_kauppaseura_render_contact_page() {
 add_shortcode( 'lks_contact_page', 'lakeuden_kauppaseura_render_contact_page' );
 
 /**
- * Render the minimal, implementation-specific privacy notice.
- *
- * @return string
- */
-function lakeuden_kauppaseura_render_privacy_page() {
-	$privacy_form_retention = lakeuden_kauppaseura_copy( 'privacy_form_retention' );
-
-	ob_start();
-	?>
-	<div id="main" class="lks-page lks-privacy-page" role="main">
-		<section class="lks-subpage-hero" aria-labelledby="lks-privacy-title">
-			<div class="lks-page-shell">
-				<p class="lks-kicker lks-kicker--light"><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_hero_kicker' ) ); ?></p>
-				<h1 id="lks-privacy-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_hero_title' ) ); ?></h1>
-				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_hero_text' ) ); ?></p>
-			</div>
-		</section>
-		<section class="lks-page-section lks-privacy-content">
-			<div class="lks-page-shell lks-reading-width">
-				<h2><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_owner_title' ) ); ?></h2>
-				<p>
-					<?php
-					$privacy_owner_parts = explode( '{email}', lakeuden_kauppaseura_copy( 'privacy_owner_text' ), 2 );
-					echo esc_html( $privacy_owner_parts[0] );
-					if ( isset( $privacy_owner_parts[1] ) ) {
-						$privacy_email = sanitize_email( lakeuden_kauppaseura_copy( 'contact_email' ) );
-						echo ' <a href="' . esc_url( 'mailto:' . $privacy_email ) . '">' . esc_html( $privacy_email ) . '</a>';
-						echo esc_html( $privacy_owner_parts[1] );
-					}
-					?>
-				</p>
-				<h2><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_activity_title' ) ); ?></h2>
-				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_activity_text_1' ) ); ?></p>
-				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_activity_text_2' ) ); ?></p>
-				<?php if ( ! lakeuden_kauppaseura_membership_value_is_unresolved( $privacy_form_retention ) ) : ?>
-					<p data-lks-launch-copy="privacy_form_retention" data-lks-launch-required="true"><strong>Lomaketietojen säilytys ja käyttöoikeudet:</strong> <?php echo esc_html( $privacy_form_retention ); ?></p>
-				<?php endif; ?>
-				<h2><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_external_title' ) ); ?></h2>
-				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_external_text' ) ); ?></p>
-				<p class="lks-privacy-updated"><strong><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_updated' ) ); ?></strong></p>
-			</div>
-		</section>
-	</div>
-	<?php
-
-	return (string) preg_replace( '/>\s+</', '><', (string) ob_get_clean() );
-}
-add_shortcode( 'lks_privacy_page', 'lakeuden_kauppaseura_render_privacy_page' );
-
-/**
  * Replace the block-theme footer-injected skip link with one at body start.
  */
 function lakeuden_kauppaseura_setup_accessibility() {
@@ -754,7 +707,7 @@ function lakeuden_kauppaseura_duplicate_event_target() {
  * @return string
  */
 function lakeuden_kauppaseura_canonical_url() {
-	$base   = 'https://addern0b0.github.io/kauppaseura/';
+	$base   = lakeuden_kauppaseura_production_base_url();
 	$target = lakeuden_kauppaseura_duplicate_event_target();
 	return $base . ( $target ?: lakeuden_kauppaseura_production_path() );
 }
@@ -815,7 +768,7 @@ add_filter( 'pre_get_document_title', 'lakeuden_kauppaseura_membership_document_
  */
 function lakeuden_kauppaseura_production_asset_url( $url ) {
 	$path = wp_parse_url( $url, PHP_URL_PATH );
-	return 'https://addern0b0.github.io/kauppaseura/' . ltrim( (string) $path, '/' );
+	return lakeuden_kauppaseura_production_url( ltrim( (string) $path, '/' ) );
 }
 
 /**
@@ -839,7 +792,7 @@ function lakeuden_kauppaseura_social_image() {
 	}
 
 	return array(
-		'url'    => 'https://addern0b0.github.io/kauppaseura/wp-content/themes/lakeuden-kauppaseura/assets/images/hero/lakeuden-kauppaseura-hero-1920.jpg',
+		'url'    => lakeuden_kauppaseura_production_url( 'wp-content/themes/lakeuden-kauppaseura/assets/images/hero/lakeuden-kauppaseura-hero-1920.jpg' ),
 		'width'  => 1920,
 		'height' => 1280,
 		'alt'    => 'Lakeuden viljapelto avaran taivaan alla',
@@ -886,113 +839,9 @@ function lakeuden_kauppaseura_document_metadata() {
 		echo '<meta http-equiv="refresh" content="0;url=' . esc_url( $canonical ) . '" />';
 	}
 
-	$organization = array(
-		'@type'      => 'Organization',
-		'name'       => 'Lakeuden Kauppaseura ry',
-		'url'        => 'https://addern0b0.github.io/kauppaseura/',
-		'logo'       => 'https://addern0b0.github.io/kauppaseura/wp-content/themes/lakeuden-kauppaseura/assets/lakeuden-kauppaseura-logo-clean.png',
-		'email'      => 'mailto:Aunike62@gmail.com',
-		'telephone'  => '+358509665627',
-		'areaServed' => 'Etel&auml;-Pohjanmaa',
-		'sameAs'     => array( 'https://www.instagram.com/lakeudenkauppaseura/', 'https://www.facebook.com/kauppaseura' ),
-	);
-	$organization['areaServed'] = html_entity_decode( $organization['areaServed'], ENT_QUOTES, 'UTF-8' );
-
-	if ( is_front_page() ) {
-		$organization['@context'] = 'https://schema.org';
-		echo '<script type="application/ld+json">' . wp_json_encode( $organization, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
-	} elseif ( is_singular( 'post' ) && ! $duplicate_target ) {
-		$post_id = get_queried_object_id();
-		$authors = function_exists( 'lks_blog_get_authors' ) ? lks_blog_get_authors( $post_id ) : array();
-		$names   = $authors ? wp_list_pluck( $authors, 'name' ) : array( get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', $post_id ) ) );
-		$schema  = array(
-			'@context'         => 'https://schema.org',
-			'@type'            => 'BlogPosting',
-			'headline'         => get_the_title( $post_id ),
-			'datePublished'    => get_the_date( DATE_W3C, $post_id ),
-			'dateModified'     => get_the_modified_date( DATE_W3C, $post_id ),
-			'author'           => array_map( static function ( $name ) { return array( '@type' => 'Person', 'name' => $name ); }, array_filter( $names ) ),
-			'image'            => array( $image['url'] ),
-			'description'      => $description,
-			'mainEntityOfPage' => $canonical,
-			'publisher'        => $organization,
-		);
+	if ( ! $duplicate_target ) {
+		$schema = lakeuden_kauppaseura_schema_graph( $canonical, $description, $image );
 		echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
-	} elseif ( is_page( 'jaseneksi' ) ) {
-		$faq_entities     = array();
-		$eligibility      = lakeuden_kauppaseura_membership_fact( 'membership_eligibility' );
-		$nonmember_events = lakeuden_kauppaseura_membership_fact( 'membership_nonmember_events' );
-		$nomination       = lakeuden_kauppaseura_membership_fact( 'membership_nomination' );
-		$annual_fee       = lakeuden_kauppaseura_membership_fact( 'membership_annual_fee' );
-		$joining_fee      = lakeuden_kauppaseura_membership_fact( 'membership_joining_fee' );
-		$processing_time  = lakeuden_kauppaseura_membership_fact( 'membership_processing_time' );
-		$membership_items = lakeuden_kauppaseura_membership_fact( 'membership_includes' );
-		$extra_event_fees = lakeuden_kauppaseura_membership_fact( 'membership_extra_event_fees' );
-
-		if ( ! $eligibility['unresolved'] ) {
-			$faq_entities[] = array(
-				'@type'          => 'Question',
-				'name'           => 'Onko minun oltava yrittäjä?',
-				'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $eligibility['value'] ),
-			);
-		}
-
-		if ( ! $nonmember_events['unresolved'] ) {
-			$faq_entities[] = array(
-				'@type'          => 'Question',
-				'name'           => 'Voinko osallistua ennen liittymistä?',
-				'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $nonmember_events['value'] ),
-			);
-		}
-
-		if ( ! $nomination['unresolved'] ) {
-			$faq_entities[] = array(
-				'@type'          => 'Question',
-				'name'           => 'Tarvitsenko esittäjän?',
-				'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $nomination['value'] ),
-			);
-		}
-
-		if ( ! $annual_fee['unresolved'] && ! $joining_fee['unresolved'] ) {
-			$faq_entities[] = array(
-				'@type'          => 'Question',
-				'name'           => 'Mitä jäsenyys maksaa?',
-				'acceptedAnswer' => array(
-					'@type' => 'Answer',
-					'text'  => $annual_fee['label'] . ': ' . $annual_fee['value'] . '. ' . $joining_fee['label'] . ': ' . $joining_fee['value'] . '.',
-				),
-			);
-		}
-
-		if ( ! $processing_time['unresolved'] ) {
-			$faq_entities[] = array(
-				'@type'          => 'Question',
-				'name'           => 'Kuinka kauan käsittely kestää?',
-				'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $processing_time['value'] ),
-			);
-		}
-
-		if ( ! $membership_items['unresolved'] ) {
-			$membership_items_text = implode( ' ', lakeuden_kauppaseura_copy_list( 'membership_includes' ) );
-			if ( ! $extra_event_fees['unresolved'] ) {
-				$membership_items_text .= ' ' . $extra_event_fees['label'] . ': ' . $extra_event_fees['value'] . '.';
-			}
-
-			$faq_entities[] = array(
-				'@type'          => 'Question',
-				'name'           => 'Mitä jäsenyyteen kuuluu?',
-				'acceptedAnswer' => array( '@type' => 'Answer', 'text' => $membership_items_text ),
-			);
-		}
-
-		$faq_schema = array(
-			'@context'   => 'https://schema.org',
-			'@type'      => 'FAQPage',
-			'mainEntity' => $faq_entities,
-		);
-		if ( $faq_entities ) {
-			echo '<script type="application/ld+json">' . wp_json_encode( $faq_schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
-		}
 	}
 }
 remove_action( 'wp_head', 'rel_canonical' );

@@ -48,7 +48,7 @@ added. The configured form contains:
 - organization, role, and municipality;
 - a free-text interest field;
 - preferred contact method;
-- required privacy consent;
+- required acknowledgement that the privacy notice has been read;
 - separate optional communications consent.
 
 WPForms provides accessible labels, required markers, field validation,
@@ -73,8 +73,8 @@ Before enabling **Lomake on tuotantovalmis**:
    review its remote processing and one-year backup expiry in the privacy
    notice first.
 5. Confirm the anti-spam option and test an invalid submission.
-6. Complete the privacy retention and access text under **Sivujen tekstit →
-   Tietosuoja**.
+6. Complete the legal and retention checklist in
+   `docs/PRIVACY_AND_STRUCTURED_DATA.md` and obtain the association's approval.
 7. Enable **Sivujen tekstit → Jäseneksi → Lomake on tuotantovalmis**.
 
 Until then, visitors see an explicit contact fallback. The fallback contains
@@ -99,7 +99,8 @@ until every placeholder has been replaced.
 The complete page and production form still require:
 
 - every `[VAHVISTETAAN]` membership fact is confirmed;
-- the privacy retention/access field is confirmed;
+- the privacy, retention, recipient, and mail-delivery launch checklist is
+  approved;
 - all three testimonial records use approved names, quotes, and any optional
   organization, professional role, portrait, and profile link;
 - the form-delivery checklist above is complete.
@@ -107,7 +108,7 @@ The complete page and production form still require:
 Developer markers:
 
 ```powershell
-rg "TODO\(lks-membership-(launch|privacy)\)|TODO\(lks-people-launch\)" wp-content/themes/lakeuden-kauppaseura
+rg "TODO\(lks-membership-launch\)|TODO\(lks-privacy-legal-review\)|TODO\(lks-people-launch\)" wp-content/themes/lakeuden-kauppaseura
 ```
 
 Run the preview and validator with:

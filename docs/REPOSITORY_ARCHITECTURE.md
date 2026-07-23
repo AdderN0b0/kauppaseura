@@ -46,6 +46,7 @@ Edit only site-owned source:
 - `wp-content/plugins/lks-instagram-feed/`
 - `wp-content/mu-plugins/lks-instagram-feed-loader.php`
 - `tools/*.php`
+- `tools/site-config.json` (public production URL and timezone only)
 - publication scripts and documentation
 
 Content editors may also edit WordPress pages, posts, events, board members,
@@ -162,6 +163,12 @@ rotate without changing the public image.
 
 The validator compares the sitemap with the canonical URLs found in indexable
 HTML instead of assuming a fixed page count.
+
+Canonical URLs, Open Graph URLs, sitemap URLs, robots output, structured data,
+and publication output read the public base URL from
+`tools/site-config.json`. Update that one file during a custom-domain
+migration; never commit secrets or Local paths to it. See
+`docs/PRIVACY_AND_STRUCTURED_DATA.md`.
 
 ## GitHub repository setting
 

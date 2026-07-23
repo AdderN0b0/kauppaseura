@@ -175,7 +175,15 @@ try {
         return {width: rect.width, height: rect.height};
     })(),
     submitHeight: document.querySelector(".wpforms-submit").getBoundingClientRect().height,
-    choiceLabelHeight: document.querySelector(".wpforms-field-label-inline").getBoundingClientRect().height
+    choiceLabelHeight: document.querySelector(".wpforms-field-label-inline").getBoundingClientRect().height,
+    privacyAcknowledgement: {
+        label: document.querySelector('[name="wpforms[fields][9][]"]')?.closest(".wpforms-field")?.querySelector(".wpforms-field-label")?.textContent.trim(),
+        required: document.querySelector('[name="wpforms[fields][9][]"]')?.required
+    },
+    communicationsConsent: {
+        label: document.querySelector('[name="wpforms[fields][10][]"]')?.closest(".wpforms-field")?.querySelector(".wpforms-field-label")?.textContent.trim(),
+        required: document.querySelector('[name="wpforms[fields][10][]"]')?.required
+    }
 })
 '@
     Add-Check ($initial.ready -eq "complete") "Membership page loads in the browser"
@@ -185,6 +193,8 @@ try {
     Add-Check ($initial.spinnerAlt -eq "" -and $initial.spinnerHidden -eq "true") "Decorative form spinner is hidden from assistive technology"
     Add-Check ($initial.triggerSize.width -ge 44 -and $initial.triggerSize.height -ge 44) "Mobile menu trigger is at least 44 by 44 CSS pixels"
     Add-Check ($initial.submitHeight -ge 44 -and $initial.choiceLabelHeight -ge 44) "Form submit and choice labels provide 44-pixel touch targets"
+    Add-Check ($initial.privacyAcknowledgement.required -and $initial.privacyAcknowledgement.label -match "Tietosuojan") "Privacy acknowledgement is required and is not labelled as marketing consent"
+    Add-Check (-not $initial.communicationsConsent.required -and $initial.communicationsConsent.label -match "Vapaaehtoinen") "Communications consent remains explicitly optional"
 
     $opened = Get-BrowserValue @'
 (() => {
@@ -354,43 +364,124 @@ try {
     $focusHrefs = $focusOrder.href
     Add-Check ($focusHrefs -contains "#main" -and ($focusHrefs -match "/meista/$").Count -ge 1 -and ($focusHrefs -match "/jaseneksi/$").Count -ge 1) "Desktop keyboard order reaches skip link, navigation, and membership CTA"
 
+    $homeMetadata = Get-BrowserValue @'
+(() => {
+    const scripts = [...document.querySelectorAll('script[type="application/ld+json"]')];
+    const schema = scripts.length === 1 ? JSON.parse(scripts[0].textContent) : {};
+    const types = (schema["@graph"] || []).flatMap((node) => Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]).filter(Boolean);
+    return {
+        scripts: scripts.length,
+        types,
+        canonical: document.querySelector('link[rel="canonical"]')?.href,
+        ogUrl: document.querySelector('meta[property="og:url"]')?.content,
+        hasLocalUrl: scripts.some((script) => script.textContent.includes("lakeuden-kauppaseura.local"))
+    };
+})()
+'@
+    $missingHomeTypes = @("Organization", "WebSite", "WebPage", "BreadcrumbList") | Where-Object { $_ -notin $homeMetadata.types }
+    Add-Check ($homeMetadata.scripts -eq 1 -and $missingHomeTypes.Count -eq 0) "Homepage exposes one graph with Organization, WebSite, WebPage, and BreadcrumbList"
+    Add-Check ($homeMetadata.canonical -eq $homeMetadata.ogUrl -and -not $homeMetadata.hasLocalUrl) "Homepage canonical, Open Graph, and schema URLs are production-safe"
+
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/maatalous-tarvitsee-tuloksellisempaa-talousneuvontaa/"})
     Start-Sleep -Seconds 2
     $article = Get-BrowserValue @'
-({
-    nav: [...document.querySelectorAll(".lks-article-nav a")].map((link) => ({
-        text: link.textContent.trim().replace(/\s+/g, " "),
-        tabIndex: link.tabIndex
-    })),
-    heroAlt: document.querySelector(".lks-article__hero-image img")?.alt,
-    authorAlt: document.querySelector(".lks-author-card img")?.alt
-})
+(() => {
+    const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+    const types = (schema["@graph"] || []).flatMap((node) => Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]).filter(Boolean);
+    return {
+        nav: [...document.querySelectorAll(".lks-article-nav a")].map((link) => ({
+            text: link.textContent.trim().replace(/\s+/g, " "),
+            tabIndex: link.tabIndex
+        })),
+        heroAlt: document.querySelector(".lks-article__hero-image img")?.alt,
+        authorAlt: document.querySelector(".lks-author-card img")?.alt,
+        schemaTypes: types
+    };
+})()
 '@
     Add-Check ($article.heroAlt -and $article.heroAlt -notmatch "^Kirjoituksen kuvitus") "Article featured image uses media-library alt text"
     Add-Check ($article.authorAlt -eq "Heikki Kangas") "Author portrait uses media-library alt text"
     Add-Check ($article.nav.Count -ge 1 -and ($article.nav | Where-Object { $_.tabIndex -ne 0 }).Count -eq 0) "Article navigation links remain keyboard reachable"
+    Add-Check ($article.schemaTypes -contains "BlogPosting") "Article preserves BlogPosting structured data"
 
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/tapahtumat/"})
     Start-Sleep -Seconds 2
     $events = Get-BrowserValue @'
-({
-    cta: [...document.querySelectorAll(".lks-event-link")].slice(0, 3).map((link) => ({
-        text: link.textContent.trim(),
-        tabIndex: link.tabIndex,
-        visible: link.getClientRects().length > 0,
-        height: link.getBoundingClientRect().height
-    })),
-    dates: [...document.querySelectorAll(".lks-event-card time")].slice(0, 3).map((time) => ({
-        text: time.textContent.trim(),
-        datetime: time.dateTime
-    })),
-    calendarControls: document.querySelectorAll("[data-calendar], .calendar, [class*=calendar]").length
-})
+(() => {
+    const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+    const types = (schema["@graph"] || []).flatMap((node) => Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]).filter(Boolean);
+    return {
+        cta: [...document.querySelectorAll(".lks-event-link")].slice(0, 3).map((link) => ({
+            text: link.textContent.trim(),
+            tabIndex: link.tabIndex,
+            visible: link.getClientRects().length > 0,
+            height: link.getBoundingClientRect().height
+        })),
+        dates: [...document.querySelectorAll(".lks-event-card time")].slice(0, 3).map((time) => ({
+            text: time.textContent.trim(),
+            datetime: time.dateTime
+        })),
+        calendarControls: document.querySelectorAll("[data-calendar], .calendar, [class*=calendar]").length,
+        schemaTypes: types
+    };
+})()
 '@
     Add-Check ($events.cta.Count -ge 1 -and ($events.cta | Where-Object { -not $_.visible -or $_.tabIndex -ne 0 }).Count -eq 0) "Event detail CTAs are visible and keyboard reachable"
     Add-Check (($events.cta | Where-Object { $_.height -lt 24 }).Count -eq 0) "Event detail CTAs meet the 24-pixel minimum target size"
     Add-Check ($events.dates.Count -ge 1 -and ($events.dates | Where-Object { -not $_.datetime }).Count -eq 0) "Event-card dates use machine-readable time elements"
     Add-Check ($events.calendarControls -eq 0) "No unsupported calendar controls are exposed"
+    Add-Check ($events.schemaTypes -contains "WebPage" -and $events.schemaTypes -notcontains "Event") "Events archive exposes WebPage data without misrepresenting the archive as one Event"
+
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/tapahtuma/syksyn-verkostoitumisilta-seinajoella/"})
+    Start-Sleep -Seconds 2
+    $eventMetadata = Get-BrowserValue @'
+(() => {
+    const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+    const event = (schema["@graph"] || []).find((node) => node["@type"] === "Event");
+    return {
+        hasEvent: Boolean(event),
+        name: event?.name,
+        description: event?.description,
+        startDate: event?.startDate,
+        status: event?.eventStatus,
+        attendance: event?.eventAttendanceMode,
+        location: event?.location,
+        organizer: event?.organizer,
+        url: event?.url,
+        placeholder: JSON.stringify(event || {}).includes("[VAHVISTETAAN]")
+    };
+})()
+'@
+    Add-Check ($eventMetadata.hasEvent -and $eventMetadata.name -and $eventMetadata.description -and $eventMetadata.startDate -and $eventMetadata.organizer -and $eventMetadata.url) "Event page exposes required Event structured data"
+    Add-Check ($eventMetadata.status -eq "https://schema.org/EventScheduled" -and $eventMetadata.attendance -eq "https://schema.org/OfflineEventAttendanceMode") "Event state and attendance mode use Schema.org URLs"
+    Add-Check (-not $eventMetadata.placeholder) "Event structured data omits unresolved placeholders"
+
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/tietosuoja/"})
+    Start-Sleep -Seconds 2
+    $privacy = Get-BrowserValue @'
+(() => {
+    const main = document.querySelector("#main");
+    const text = main.textContent.replace(/\s+/g, " ");
+    const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+    const types = (schema["@graph"] || []).flatMap((node) => Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]).filter(Boolean);
+    return {
+        h1: main.querySelectorAll("h1").length,
+        forms: main.querySelectorAll("form").length,
+        legalMarkers: main.querySelectorAll('[data-lks-legal-review="required"]').length,
+        hasMembership: text.includes("senyyskiinnostus"),
+        hasEvents: text.includes("Tapahtumiin ilmoittautuminen"),
+        hasNotifications: text.includes("Tapahtumailmoitusten tilaus"),
+        optionalMarketing: text.includes("Vapaaehtoinen toiminta- ja tapahtumaviestint") && text.includes("tapahtumailmoittautumisen edellytys"),
+        hasComplaintLink: Boolean(main.querySelector('a[href*="tietosuoja.fi/ilmoitus-tietosuojavaltuutetulle"]')),
+        schemaTypes: types
+    };
+})()
+'@
+    Add-Check ($privacy.h1 -eq 1 -and $privacy.forms -eq 0) "Privacy page renders one H1 and no misleading public form"
+    Add-Check ($privacy.hasMembership -and $privacy.hasEvents -and $privacy.hasNotifications) "Privacy page distinguishes membership, event registration, and absent notification processing"
+    Add-Check ($privacy.optionalMarketing) "Privacy page makes optional communications consent independent of required processing"
+    Add-Check ($privacy.hasComplaintLink -and $privacy.legalMarkers -ge 2) "Privacy page links to the Finnish authority and retains legal-review markers"
+    Add-Check ($privacy.schemaTypes -contains "WebPage") "Privacy page exposes WebPage structured data"
 }
 finally {
     if ($socket) {
@@ -408,7 +499,22 @@ finally {
         $profile -ne $tempRoot -and
         (Test-Path -LiteralPath $profile)
     ) {
-        Remove-Item -LiteralPath $profile -Recurse -Force
+        for ($attempt = 1; $attempt -le 10; $attempt++) {
+            if (-not (Test-Path -LiteralPath $profile)) {
+                break
+            }
+
+            try {
+                Remove-Item -LiteralPath $profile -Recurse -Force -ErrorAction Stop
+                break
+            } catch {
+                if ($attempt -eq 10) {
+                    Write-Warning "Could not fully remove the temporary Edge profile: $profile"
+                    break
+                }
+                Start-Sleep -Milliseconds 250
+            }
+        }
     }
 }
 

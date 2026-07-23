@@ -9,11 +9,21 @@ $ErrorActionPreference = "Stop"
 $SourceRoot = [System.IO.Path]::GetFullPath((Split-Path -Parent $MyInvocation.MyCommand.Path))
 $Exporter = Join-Path $SourceRoot "tools\export-static.php"
 $Validator = Join-Path $SourceRoot "tools\validate-static.php"
+$SiteConfig = Join-Path $SourceRoot "tools\site-config.json"
 $Deliverables = Join-Path $SourceRoot "deliverables"
 $BuildDir = Join-Path $Deliverables "lakeuden-kauppaseura-build"
 $PublishDir = Join-Path $Deliverables "lakeuden-kauppaseura-offline"
 $WordPressUrl = "http://lakeuden-kauppaseura.local/"
 $ExpectedBranch = "gh-pages"
+
+if (-not (Test-Path -LiteralPath $SiteConfig -PathType Leaf)) {
+    throw "Missing public site configuration: '$SiteConfig'."
+}
+
+$PublicSiteUrl = (Get-Content -LiteralPath $SiteConfig -Raw | ConvertFrom-Json).productionUrl
+if (-not [Uri]::IsWellFormedUriString($PublicSiteUrl, [UriKind]::Absolute)) {
+    throw "tools/site-config.json must contain a valid productionUrl."
+}
 
 function Get-FullPath {
     param([Parameter(Mandatory = $true)][string]$Path)
@@ -256,4 +266,4 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "Published validated output:"
-Write-Host "https://addern0b0.github.io/kauppaseura/"
+Write-Host $PublicSiteUrl

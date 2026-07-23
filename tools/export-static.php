@@ -15,6 +15,17 @@ $workspace     = dirname( __DIR__ );
 $output        = $argv[1] ?? $workspace . '/deliverables/lakeuden-kauppaseura-build';
 $output        = str_replace( '\\', '/', $output );
 $allowed_root  = str_replace( '\\', '/', $workspace . '/deliverables/' );
+$config_file   = $workspace . '/tools/site-config.json';
+$configuration = is_file( $config_file ) ? json_decode( (string) file_get_contents( $config_file ), true ) : null;
+
+if ( ! is_array( $configuration ) || ! filter_var( $configuration['productionUrl'] ?? '', FILTER_VALIDATE_URL ) ) {
+	fwrite( STDERR, "tools/site-config.json must contain a valid productionUrl.\n" );
+	exit( 1 );
+}
+
+$production_base = rtrim( (string) $configuration['productionUrl'], '/' ) . '/';
+$production_path = '/' . trim( (string) ( parse_url( $production_base, PHP_URL_PATH ) ?: '' ), '/' );
+$production_path = '/' === $production_path ? '/' : $production_path . '/';
 
 if ( ! str_starts_with( $output . '/', $allowed_root ) ) {
 	fwrite( STDERR, "Refusing to write outside the workspace deliverables directory.\n" );
@@ -662,7 +673,6 @@ try {
 		echo "Downloaded asset: {$asset_url}\n";
 	}
 
-	$production_base = 'https://addern0b0.github.io/kauppaseura/';
 	$redirects       = array(
 		'/syksyn-verkostoitumisilta-seinajoella/' => 'tapahtuma/syksyn-verkostoitumisilta-seinajoella/',
 		'/ajankohtaiskatsaus-ja-yritysvierailu/' => 'tapahtuma/ajankohtaiskatsaus-ja-yritysvierailu/',
@@ -773,7 +783,7 @@ try {
 		$canonical_urls
 	);
 	$sitemap = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n" . implode( "\n", $sitemap_entries ) . "\n</urlset>\n";
-	$robots = "User-agent: *\nAllow: /\nSitemap: https://addern0b0.github.io/kauppaseura/sitemap.xml\n";
+	$robots = "User-agent: *\nAllow: /\nSitemap: {$production_base}sitemap.xml\n";
 
 	$not_found = <<<'HTML'
 <!doctype html>
@@ -797,6 +807,7 @@ try {
 </body>
 </html>
 HTML;
+	$not_found = str_replace( '/kauppaseura/', $production_path, $not_found );
 
 	write_generated_file( $output, 'robots.txt', $robots );
 	write_generated_file( $output, 'sitemap.xml', $sitemap );

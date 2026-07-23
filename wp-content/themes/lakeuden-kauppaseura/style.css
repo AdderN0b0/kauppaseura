@@ -1903,30 +1903,48 @@ body.lks-menu-open {
 .lks-about-strategy__statements {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
+	overflow: hidden;
+	background: linear-gradient(125deg, var(--lks-navy-dark) 0%, #123c5c 100%);
 }
 
 .lks-about-strategy__statements article {
 	display: flex;
-	min-height: 22rem;
+	min-height: clamp(22rem, 30vw, 27rem);
 	flex-direction: column;
-	justify-content: space-between;
-	padding: clamp(2rem, 4vw, 4rem);
-	background: var(--lks-navy-dark);
+	justify-content: flex-start;
+	padding: clamp(2.5rem, 4vw, 3.75rem);
+	background: transparent;
 	color: var(--lks-white);
 }
 
 .lks-about-strategy__statements article:last-child {
-	background: #123c5c;
+	border-left: 1px solid rgba(255, 255, 255, 0.16);
+	background: transparent;
+}
+
+.lks-about-strategy__statements .lks-kicker {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	margin-bottom: 0;
+}
+
+.lks-about-strategy__statements .lks-kicker::after {
+	content: "";
+	width: 2.5rem;
+	height: 1px;
+	background: rgba(227, 189, 79, 0.72);
 }
 
 .lks-about-strategy__statements blockquote {
-	max-width: 14ch;
-	margin: 3rem 0 0;
+	max-width: 18ch;
+	margin: clamp(2.75rem, 4vw, 3.75rem) 0 0;
 	color: var(--lks-white);
 	font-family: var(--lks-serif);
-	font-size: clamp(2rem, 3.6vw, 3.7rem);
+	font-size: clamp(2.15rem, 3.2vw, 3.25rem);
 	letter-spacing: -0.04em;
-	line-height: 1.06;
+	line-height: 1.04;
+	text-wrap: balance;
 }
 
 .lks-about-strategy__values {
@@ -2321,16 +2339,40 @@ body.lks-menu-open {
 	font-size: clamp(1.8rem, 3vw, 2.6rem);
 }
 
-.lks-privacy-content h2:first-child {
+.lks-privacy-content h2:first-of-type {
 	margin-top: 0;
 }
 
-.lks-privacy-content p {
+.lks-privacy-content h3 {
+	margin: 1.5rem 0 0.5rem;
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-font-serif);
+	font-size: clamp(1.25rem, 2vw, 1.6rem);
+}
+
+.lks-privacy-content p,
+.lks-privacy-content li {
 	line-height: 1.75;
 }
 
+.lks-privacy-content li + li {
+	margin-top: 0.65rem;
+}
+
 .lks-privacy-updated {
-	margin-top: 2.5rem;
+	margin: 0 0 2.5rem;
+	color: var(--lks-muted);
+}
+
+.lks-privacy-callout {
+	margin: 1.5rem 0;
+	padding: 1.25rem 1.5rem;
+	border-inline-start: 0.25rem solid var(--lks-gold);
+	background: var(--lks-warm-white);
+}
+
+.lks-privacy-callout p:last-child {
+	margin-bottom: 0;
 }
 
 /* Contact */
@@ -4230,7 +4272,19 @@ body.lks-menu-open {
 	}
 
 	.lks-about-strategy__statements article {
-		min-height: 19rem;
+		min-height: auto;
+		padding: 2.5rem 1.5rem 3rem;
+	}
+
+	.lks-about-strategy__statements article:last-child {
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+		border-left: 0;
+	}
+
+	.lks-about-strategy__statements blockquote {
+		max-width: none;
+		margin-top: 2.5rem;
+		font-size: clamp(2.2rem, 10.5vw, 3.15rem);
 	}
 
 	.lks-about-strategy__values {
