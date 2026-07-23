@@ -466,6 +466,35 @@ function lks_blog_render_author_line( $post_id ) {
 }
 
 /**
+ * Resolve an informative attachment alternative without using a filename.
+ *
+ * @param int    $attachment_id Attachment post ID.
+ * @param string $fallback      Contextual Finnish fallback.
+ * @return string
+ */
+function lks_blog_attachment_alt( $attachment_id, $fallback ) {
+	if ( function_exists( 'lakeuden_kauppaseura_attachment_alt' ) ) {
+		return lakeuden_kauppaseura_attachment_alt( $attachment_id, $fallback );
+	}
+
+	$alt = trim( wp_strip_all_tags( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) );
+	return $alt ?: $fallback;
+}
+
+/**
+ * Return the featured-image alt used on a single article.
+ *
+ * @param WP_Post $post Article.
+ * @return string
+ */
+function lks_blog_featured_image_alt( $post ) {
+	return lks_blog_attachment_alt(
+		get_post_thumbnail_id( $post ),
+		sprintf( 'Kirjoituksen kuvitus: %s', get_the_title( $post ) )
+	);
+}
+
+/**
  * Render full author cards for an article.
  *
  * @param int $post_id Post ID.
@@ -490,11 +519,11 @@ function lks_blog_render_author_cards( $post_id ) {
 				$initials = implode( '', array_map( static function ( $part ) { return mb_substr( $part, 0, 1 ); }, array_slice( preg_split( '/\s+/', $author->name ), 0, 2 ) ) );
 				?>
 				<div class="lks-author-card">
-					<div class="lks-author-card__photo" aria-hidden="true">
+					<div class="lks-author-card__photo">
 						<?php if ( $photo_id ) : ?>
-							<?php echo wp_get_attachment_image( $photo_id, 'thumbnail', false, array( 'loading' => 'lazy', 'alt' => '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo wp_get_attachment_image( $photo_id, 'thumbnail', false, array( 'loading' => 'lazy', 'alt' => lks_blog_attachment_alt( $photo_id, $author->name ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<?php else : ?>
-							<span><?php echo esc_html( mb_strtoupper( $initials ) ); ?></span>
+							<span aria-hidden="true"><?php echo esc_html( mb_strtoupper( $initials ) ); ?></span>
 						<?php endif; ?>
 					</div>
 					<div>
@@ -696,7 +725,7 @@ function lks_blog_render_single() {
 
 		<?php if ( $image ) : ?>
 			<figure class="lks-article__hero-image">
-				<?php echo get_the_post_thumbnail( $post, 'full', array( 'alt' => '', 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo get_the_post_thumbnail( $post, 'full', array( 'alt' => lks_blog_featured_image_alt( $post ), 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 			</figure>
 		<?php endif; ?>
 

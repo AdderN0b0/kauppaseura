@@ -54,3 +54,6 @@ https://addern0b0.github.io/kauppaseura/
 
 Detailed setup and recovery instructions are in
 `docs/REPOSITORY_ARCHITECTURE.md`.
+
+Image-text rules and the keyboard/accessibility launch checklist are in
+`docs/ACCESSIBILITY.md`.

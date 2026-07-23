@@ -21,6 +21,7 @@
 !/tools/
 /tools/*
 !/tools/*.php
+!/tools/*.ps1
 
 # Site-owned WordPress code only.
 !/wp-content/

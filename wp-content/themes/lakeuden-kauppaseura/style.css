@@ -172,6 +172,7 @@ img {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.55rem;
+	min-height: 2.75rem;
 	color: var(--lks-navy);
 	font-size: 0.88rem;
 	font-weight: 750;
@@ -443,6 +444,25 @@ body.lks-menu-open {
 		opacity: 1;
 		transform: translateY(0);
 	}
+}
+
+/* Shared entrance treatment for the remaining landing-page banners. */
+.lks-blog-archive__hero-grid > div:first-child > *,
+.lks-contact-hero__grid > div:first-child > *,
+.lks-membership-hero__grid > div:first-child > * {
+	animation: lks-content-rise 720ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.lks-blog-archive__hero-grid > div:first-child > h1,
+.lks-contact-hero__grid > div:first-child > h1,
+.lks-membership-hero__grid > div:first-child > h1 {
+	animation-delay: 80ms;
+}
+
+.lks-blog-archive__intro,
+.lks-contact-hero__intro,
+.lks-membership-hero__intro {
+	animation: lks-content-rise 720ms 160ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
 /* Shared section headings */
@@ -1758,7 +1778,7 @@ body.lks-menu-open {
 	bottom: 1.35rem;
 	display: flex;
 	gap: 1.1rem;
-	color: rgba(255, 255, 255, 0.42);
+	color: rgba(255, 255, 255, 0.55);
 	font-size: 0.61rem;
 	font-weight: 800;
 	letter-spacing: 0.15em;
@@ -3222,8 +3242,15 @@ body.lks-menu-open {
 }
 
 :focus-visible {
-	outline: 3px solid var(--lks-gold);
+	outline: 3px solid currentColor;
 	outline-offset: 3px;
+}
+
+.lks-blog-card:focus-within,
+.lks-post-feature:focus-within,
+.lks-events-section--past .lks-event-card:focus-within,
+.lks-person-card:focus-within {
+	box-shadow: 0 0 0 3px var(--lks-navy);
 }
 
 @media (max-width: 980px) {
@@ -3375,9 +3402,9 @@ body.lks-menu-open {
 		align-items: center;
 		gap: 0.7rem;
 		justify-content: center;
-		width: 2.65rem;
-		max-width: 2.65rem;
-		min-height: 2.65rem;
+		width: 2.75rem;
+		max-width: 2.75rem;
+		min-height: 2.75rem;
 		padding: 0;
 		border: 1px solid var(--lks-line);
 		color: var(--lks-navy-dark);
@@ -3494,8 +3521,8 @@ body.lks-menu-open {
 		display: inline-flex !important;
 		align-items: center;
 		justify-content: center;
-		width: 2.65rem;
-		height: 2.65rem;
+		width: 2.75rem;
+		height: 2.75rem;
 		padding: 0;
 		border: 1px solid var(--lks-line);
 		background: transparent;
@@ -4407,7 +4434,13 @@ body.lks-menu-open {
 @media (prefers-reduced-motion: reduce) {
 	.lks-about-hero__title > *,
 	.lks-about-hero__intro,
-	.lks-events-hero__content > * {
+	.lks-events-hero__content > *,
+	.lks-blog-archive__hero-grid > div:first-child > *,
+	.lks-blog-archive__intro,
+	.lks-contact-hero__grid > div:first-child > *,
+	.lks-contact-hero__intro,
+	.lks-membership-hero__grid > div:first-child > *,
+	.lks-membership-hero__intro {
 		animation: none;
 	}
 
@@ -5088,7 +5121,7 @@ body.lks-menu-open {
 .lks-membership-form-section textarea:focus,
 .lks-membership-form-section select:focus {
 	border-color: var(--lks-navy) !important;
-	box-shadow: 0 0 0 3px rgba(111, 164, 199, 0.35) !important;
+	box-shadow: 0 0 0 3px var(--lks-white), 0 0 0 6px var(--lks-navy) !important;
 	outline: 2px solid transparent !important;
 }
 
@@ -5109,6 +5142,9 @@ body.lks-menu-open {
 }
 
 .lks-membership-form-section .wpforms-field-label-inline {
+	display: inline-block !important;
+	min-height: 2.75rem;
+	padding-block: 0.55rem;
 	color: var(--lks-ink) !important;
 	font-size: 0.92rem !important;
 	line-height: 1.55 !important;
@@ -5159,7 +5195,7 @@ body.lks-menu-open {
 }
 
 .lks-membership-form-section button[type="submit"].wpforms-submit:focus-visible {
-	box-shadow: 0 0 0 3px var(--lks-white), 0 0 0 6px var(--lks-blue) !important;
+	box-shadow: 0 0 0 3px var(--lks-white), 0 0 0 6px var(--lks-navy) !important;
 	outline: 2px solid transparent !important;
 }
 
@@ -5250,15 +5286,15 @@ body.lks-menu-open {
 	.lks-site-header__navigation.wp-block-group-is-layout-flex {
 		display: flex !important;
 		width: auto !important;
-		min-width: 2.65rem;
+		min-width: 2.75rem;
 		flex: 0 0 auto;
 		margin-left: auto !important;
 	}
 
 	.lks-mobile-menu {
 		display: block !important;
-		width: 2.65rem;
-		flex: 0 0 2.65rem;
+		width: 2.75rem;
+		flex: 0 0 2.75rem;
 		visibility: visible !important;
 		opacity: 1 !important;
 	}

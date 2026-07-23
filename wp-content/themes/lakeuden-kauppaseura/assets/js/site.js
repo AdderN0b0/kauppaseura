@@ -124,6 +124,89 @@
 
 	initPastEventsArchive();
 
+	function appendIdReference(element, attribute, id) {
+		var values = (element.getAttribute(attribute) || '').split(/\s+/).filter(Boolean);
+
+		if (values.indexOf(id) === -1) {
+			values.push(id);
+			element.setAttribute(attribute, values.join(' '));
+		}
+	}
+
+	function removeIdReference(element, attribute, id) {
+		var values = (element.getAttribute(attribute) || '').split(/\s+/).filter(function (value) {
+			return value && value !== id;
+		});
+
+		if (values.length) {
+			element.setAttribute(attribute, values.join(' '));
+		} else {
+			element.removeAttribute(attribute);
+		}
+	}
+
+	function syncMembershipFormAccessibility() {
+		document.querySelectorAll('.lks-membership-form-live form').forEach(function (form) {
+			form.querySelectorAll('.wpforms-submit-spinner').forEach(function (spinner) {
+				spinner.setAttribute('alt', '');
+				spinner.setAttribute('aria-hidden', 'true');
+			});
+
+			form.querySelectorAll('[aria-errormessage]').forEach(function (control) {
+				var errorId = control.getAttribute('aria-errormessage');
+				var error = errorId ? document.getElementById(errorId) : null;
+				var hasError = Boolean(error && error.textContent.trim() && !error.hidden);
+
+				if (hasError) {
+					control.setAttribute('aria-invalid', 'true');
+					appendIdReference(control, 'aria-describedby', errorId);
+				} else {
+					control.removeAttribute('aria-invalid');
+					if (errorId) {
+						removeIdReference(control, 'aria-describedby', errorId);
+					}
+				}
+			});
+
+			form.querySelectorAll('.wpforms-error-container, .wpforms-error-alert').forEach(function (alert) {
+				alert.setAttribute('role', 'alert');
+				alert.setAttribute('aria-live', 'assertive');
+			});
+		});
+
+		document.querySelectorAll('.lks-membership-form-section .wpforms-confirmation-container-full').forEach(function (confirmation) {
+			confirmation.setAttribute('role', 'status');
+			confirmation.setAttribute('aria-live', 'polite');
+			confirmation.setAttribute('tabindex', '-1');
+
+			if (!confirmation.hasAttribute('data-lks-announced')) {
+				confirmation.setAttribute('data-lks-announced', 'true');
+				confirmation.focus();
+			}
+		});
+	}
+
+	var membershipFormSection = document.querySelector('.lks-membership-form-section');
+
+	if (membershipFormSection) {
+		syncMembershipFormAccessibility();
+		membershipFormSection.addEventListener('invalid', function (event) {
+			event.target.setAttribute('aria-invalid', 'true');
+		}, true);
+		membershipFormSection.addEventListener('input', function (event) {
+			if (event.target.matches('input, textarea, select') && event.target.validity && event.target.validity.valid) {
+				event.target.removeAttribute('aria-invalid');
+			}
+		});
+
+		new MutationObserver(syncMembershipFormAccessibility).observe(membershipFormSection, {
+			childList: true,
+			subtree: true,
+			attributes: true,
+			attributeFilter: ['class', 'hidden']
+		});
+	}
+
 	var menu = document.querySelector('.lks-mobile-menu');
 
 	if (!menu) {
@@ -147,6 +230,10 @@
 		var isOpen = menu.hasAttribute('open');
 		document.body.classList.toggle('lks-menu-open', isOpen);
 		setBackgroundInert(isOpen);
+
+		if (summary) {
+			summary.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+		}
 	}
 
 	function closeMenu(returnFocus) {
@@ -174,6 +261,23 @@
 		if (event.key === 'Escape' && menu.hasAttribute('open')) {
 			event.preventDefault();
 			closeMenu(true);
+			return;
+		}
+
+		if (event.key === 'Tab' && menu.hasAttribute('open')) {
+			var focusable = Array.prototype.slice.call(menu.querySelectorAll('summary, a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(function (element) {
+				return !element.hidden && element.getClientRects().length > 0;
+			});
+			var first = focusable[0];
+			var last = focusable[focusable.length - 1];
+
+			if (event.shiftKey && document.activeElement === first) {
+				event.preventDefault();
+				last.focus();
+			} else if (!event.shiftKey && document.activeElement === last) {
+				event.preventDefault();
+				first.focus();
+			}
 		}
 	});
 

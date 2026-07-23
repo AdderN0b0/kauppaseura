@@ -14,6 +14,29 @@ require_once get_stylesheet_directory() . '/inc/people.php';
 require_once get_stylesheet_directory() . '/inc/membership-page.php';
 
 /**
+ * Return an attachment's editor-authored alt text or a safe contextual fallback.
+ *
+ * WordPress attachment titles frequently start as filenames. Those are not
+ * useful alternatives, so they are never exposed as alt text by this helper.
+ *
+ * @param int    $attachment_id Attachment post ID.
+ * @param string $fallback      Context known by the calling component.
+ * @return string
+ */
+function lakeuden_kauppaseura_attachment_alt( $attachment_id, $fallback = '' ) {
+	$attachment_id = absint( $attachment_id );
+	$alt           = $attachment_id ? trim( wp_strip_all_tags( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) ) : '';
+	$file          = $attachment_id ? (string) get_attached_file( $attachment_id ) : '';
+	$file_stem     = $file ? pathinfo( $file, PATHINFO_FILENAME ) : '';
+
+	if ( $alt && ( ! $file_stem || sanitize_title( $alt ) !== sanitize_title( $file_stem ) ) ) {
+		return $alt;
+	}
+
+	return trim( wp_strip_all_tags( $fallback ) );
+}
+
+/**
  * Load the parent theme and the site styles.
  */
 function lakeuden_kauppaseura_enqueue_styles() {
@@ -806,12 +829,11 @@ function lakeuden_kauppaseura_social_image() {
 		$image_id = get_post_thumbnail_id( $post_id );
 		$image    = wp_get_attachment_image_src( $image_id, 'full' );
 		if ( $image ) {
-			$alt = get_post_meta( $image_id, '_wp_attachment_image_alt', true );
 			return array(
 				'url'    => lakeuden_kauppaseura_production_asset_url( $image[0] ),
 				'width'  => (int) $image[1],
 				'height' => (int) $image[2],
-				'alt'    => $alt ? (string) $alt : get_the_title( $post_id ),
+				'alt'    => lakeuden_kauppaseura_attachment_alt( $image_id, get_the_title( $post_id ) ),
 			);
 		}
 	}

@@ -394,14 +394,18 @@ final class LKS_Events_Manager {
 				<article class="lks-event-card <?php echo esc_attr( 'past' === $status ? 'is-past' : 'is-upcoming' ); ?>">
 					<?php if ( has_post_thumbnail( $event ) ) : ?>
 						<a class="lks-event-card__image" href="<?php echo esc_url( get_permalink( $event ) ); ?>" tabindex="-1" aria-hidden="true">
-							<?php echo get_the_post_thumbnail( $event, 'medium_large', array( 'loading' => 'lazy', 'decoding' => 'async' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							<?php echo get_the_post_thumbnail( $event, 'medium_large', array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $meta_bits ) || ( 'upcoming' === $status && $status_label ) ) : ?>
 						<p class="lks-event-meta">
 							<?php foreach ( array_values( $meta_bits ) as $meta_index => $meta_bit ) : ?>
-								<span><?php echo esc_html( $meta_bit ); ?></span>
+								<?php if ( 0 === $meta_index && $date ) : ?>
+									<time datetime="<?php echo esc_attr( $date ); ?>"><?php echo esc_html( $meta_bit ); ?></time>
+								<?php else : ?>
+									<span><?php echo esc_html( $meta_bit ); ?></span>
+								<?php endif; ?>
 								<?php if ( 0 === $meta_index && 'upcoming' === $status && $status_label ) : ?>
 									<span class="lks-event-status"><?php echo esc_html( $status_label ); ?></span>
 								<?php endif; ?>
@@ -472,8 +476,12 @@ final class LKS_Events_Manager {
 					<a class="lks-article__back" href="<?php echo esc_url( home_url( '/tapahtumat/' ) ); ?>">&#8592; Kaikki tapahtumat</a>
 					<?php if ( ! empty( $meta_bits ) ) : ?>
 						<div class="lks-article__meta">
-							<?php foreach ( $meta_bits as $meta_bit ) : ?>
-								<span><?php echo esc_html( $meta_bit ); ?></span>
+							<?php foreach ( array_values( $meta_bits ) as $meta_index => $meta_bit ) : ?>
+								<?php if ( 0 === $meta_index && $date ) : ?>
+									<time datetime="<?php echo esc_attr( $date ); ?>"><?php echo esc_html( $meta_bit ); ?></time>
+								<?php else : ?>
+									<span><?php echo esc_html( $meta_bit ); ?></span>
+								<?php endif; ?>
 							<?php endforeach; ?>
 						</div>
 					<?php endif; ?>
@@ -485,7 +493,7 @@ final class LKS_Events_Manager {
 
 			<?php if ( has_post_thumbnail( $event ) ) : ?>
 				<figure class="lks-article__hero-image">
-					<?php echo get_the_post_thumbnail( $event, 'full', array( 'fetchpriority' => 'high', 'alt' => '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo get_the_post_thumbnail( $event, 'full', array( 'fetchpriority' => 'high', 'loading' => 'eager', 'decoding' => 'async', 'alt' => self::featured_image_alt( $event ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</figure>
 			<?php endif; ?>
 
@@ -494,7 +502,7 @@ final class LKS_Events_Manager {
 					<?php if ( $is_upcoming ) : ?>
 						<dl class="lks-event-facts" aria-label="Tapahtuman tiedot">
 							<div><dt>Päivä</dt><dd><time datetime="<?php echo esc_attr( $date ); ?>"><?php echo esc_html( self::format_date( $date ) ); ?></time></dd></div>
-							<div><dt>Aika</dt><dd><?php echo esc_html( $time ? self::format_time( $time ) : 'Vahvistetaan' ); ?></dd></div>
+							<div><dt>Aika</dt><dd><?php if ( $time && preg_match( '/^\d{2}:\d{2}$/', $time ) ) : ?><time datetime="<?php echo esc_attr( $time ); ?>"><?php echo esc_html( self::format_time( $time ) ); ?></time><?php else : ?><?php echo esc_html( $time ? self::format_time( $time ) : 'Vahvistetaan' ); ?><?php endif; ?></dd></div>
 							<div><dt><?php echo esc_html( $place_label ); ?></dt><dd><?php echo esc_html( $place ?: 'Vahvistetaan' ); ?></dd></div>
 							<div><dt>Kenelle</dt><dd><?php echo esc_html( $audience ?: 'Vahvistetaan' ); ?></dd></div>
 							<?php if ( $show_price ) : ?><div><dt>Hinta</dt><dd><?php echo esc_html( $price ); ?></dd></div><?php endif; ?>
@@ -552,6 +560,24 @@ final class LKS_Events_Manager {
 		}
 
 		return 'klo ' . $time;
+	}
+
+	/**
+	 * Return media-library alt text or a safe event-title fallback.
+	 *
+	 * @param WP_Post $event Event post.
+	 * @return string
+	 */
+	private static function featured_image_alt( $event ) {
+		$fallback      = sprintf( 'Tapahtuman kuvitus: %s', get_the_title( $event ) );
+		$attachment_id = get_post_thumbnail_id( $event );
+
+		if ( function_exists( 'lakeuden_kauppaseura_attachment_alt' ) ) {
+			return lakeuden_kauppaseura_attachment_alt( $attachment_id, $fallback );
+		}
+
+		$alt = trim( wp_strip_all_tags( (string) get_post_meta( $attachment_id, '_wp_attachment_image_alt', true ) ) );
+		return $alt ?: $fallback;
 	}
 
 	private static function status_label( $status ) {

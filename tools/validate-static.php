@@ -52,6 +52,44 @@ foreach ( $files as $file ) {
 	expect( $xpath->query( '//footer' )->length === 1, $errors, $relative, 'must contain exactly one footer landmark' );
 	expect( $xpath->query( '//a[contains(concat(" ", normalize-space(@class), " "), " lks-skip-link ") and @href="#main"]' )->length === 1, $errors, $relative, 'must contain one skip link' );
 
+	$h1 = $xpath->query( '//h1' )->item( 0 );
+	a11y_expect( ! $h1 || '' !== normalized_text( $h1 ), $errors, $relative, 'H1 must have a meaningful accessible name' );
+
+	$previous_heading_level = 0;
+	foreach ( $xpath->query( '//h1 | //h2 | //h3 | //h4 | //h5 | //h6' ) as $heading ) {
+		$heading_level = (int) substr( $heading->nodeName, 1 );
+		a11y_expect( '' !== normalized_text( $heading ), $errors, $relative, strtoupper( $heading->nodeName ) . ' must not be empty' );
+		if ( $previous_heading_level > 0 ) {
+			a11y_expect( $heading_level <= $previous_heading_level + 1, $errors, $relative, "heading level skips from H{$previous_heading_level} to H{$heading_level}" );
+		}
+		$previous_heading_level = $heading_level;
+	}
+
+	foreach ( $xpath->query( '//a[@href] | //button' ) as $control ) {
+		if ( element_or_ancestor_has_attribute( $control, 'aria-hidden', 'true' ) ) {
+			continue;
+		}
+		a11y_expect( '' !== accessible_name( $control ), $errors, $relative, $control->nodeName . ' must have an accessible name' );
+	}
+
+	$labels = array();
+	foreach ( $xpath->query( '//label[@for]' ) as $label ) {
+		$labels[ $label->getAttribute( 'for' ) ] = true;
+	}
+	foreach ( $xpath->query( '//input[not(translate(@type,"HIDDEN","hidden")="hidden") and not(translate(@type,"SUBMIT","submit")="submit") and not(translate(@type,"BUTTON","button")="button") and not(translate(@type,"RESET","reset")="reset")] | //textarea | //select' ) as $control ) {
+		$id         = $control->getAttribute( 'id' );
+		$labelled   = ( $id && isset( $labels[ $id ] ) ) || $control->hasAttribute( 'aria-label' ) || $control->hasAttribute( 'aria-labelledby' );
+		$parent     = $control->parentNode;
+		while ( ! $labelled && $parent instanceof DOMElement ) {
+			$labelled = 'label' === $parent->nodeName;
+			$parent   = $parent->parentNode;
+		}
+		a11y_expect( $labelled, $errors, $relative, $control->nodeName . ( $id ? "#{$id}" : '' ) . ' must have an explicit label' );
+	}
+	foreach ( $xpath->query( '//fieldset' ) as $fieldset ) {
+		a11y_expect( $xpath->query( './legend[normalize-space()]', $fieldset )->length === 1, $errors, $relative, 'fieldset must have one non-empty legend' );
+	}
+
 	if ( preg_match_all( '/\[[^\]]*(?:VAHVISTETAAN|ESIMERKKI|LISÄTÄÄN|ENNEN JULKAISUA)[^\]]*\]/u', $html, $placeholder_matches ) ) {
 		$unresolved_output_placeholders += count( $placeholder_matches[0] );
 		$errors[] = "{$relative}: contains unpublished placeholder content";
@@ -153,8 +191,34 @@ foreach ( $files as $file ) {
 		if ( 'high' === strtolower( $image->getAttribute( 'fetchpriority' ) ) ) {
 			++$high_priority;
 		}
+
+		if ( $image->hasAttribute( 'alt' ) ) {
+			$alt = trim( $image->getAttribute( 'alt' ) );
+			if ( '' === $alt ) {
+				$is_decorative = element_or_ancestor_has_attribute( $image, 'aria-hidden', 'true' )
+					|| element_or_ancestor_has_attribute( $image, 'role', 'presentation' )
+					|| element_or_ancestor_has_attribute( $image, 'role', 'none' );
+				a11y_expect( $is_decorative, $errors, $relative, 'empty image alt is only allowed for explicitly decorative images' );
+			} else {
+				$src_path = (string) parse_url( $image->getAttribute( 'src' ), PHP_URL_PATH );
+				$stem     = pathinfo( rawurldecode( $src_path ), PATHINFO_FILENAME );
+				a11y_expect( ! preg_match( '/\.(?:avif|gif|jpe?g|png|svg|webp)$/i', $alt ), $errors, $relative, "image alt must not be a filename ({$alt})" );
+				a11y_expect( '' === $stem || normalized_token( $alt ) !== normalized_token( $stem ), $errors, $relative, "image alt must not repeat its filename ({$alt})" );
+			}
+		}
 	}
 	expect( $high_priority <= 1, $errors, $relative, 'contains more than one high-priority image' );
+
+	foreach ( $xpath->query( '//time' ) as $time ) {
+		$datetime = trim( $time->getAttribute( 'datetime' ) );
+		a11y_expect( '' !== $datetime, $errors, $relative, 'time element must include datetime' );
+		a11y_expect( '' !== normalized_text( $time ), $errors, $relative, 'time element must contain readable text' );
+	}
+
+	foreach ( $xpath->query( '//*[@target="_blank"]' ) as $external ) {
+		$rel = preg_split( '/\s+/', strtolower( trim( $external->getAttribute( 'rel' ) ) ) ) ?: array();
+		a11y_expect( in_array( 'noopener', $rel, true ), $errors, $relative, 'target="_blank" link must use rel="noopener"' );
+	}
 
 	foreach ( array( 'href', 'src', 'poster' ) as $attribute ) {
 		foreach ( $xpath->query( "//*[@{$attribute}]" ) as $node ) {
@@ -216,7 +280,8 @@ foreach ( array( 'robots.txt', '404.html', 'favicon.ico', 'favicon-32x32.png', '
 	expect( file_exists( $root . '/' . $required_file ), $errors, $required_file, 'is missing' );
 }
 
-echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields, {$unresolved_board_members} temporary board members, {$unresolved_testimonials} temporary testimonials and {$unresolved_output_placeholders} unpublished placeholders.\n";
+$accessibility_errors = count( array_filter( $errors, static fn( $error ) => str_contains( $error, '[accessibility]' ) ) );
+echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$accessibility_errors} accessibility errors, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields, {$unresolved_board_members} temporary board members, {$unresolved_testimonials} temporary testimonials and {$unresolved_output_placeholders} unpublished placeholders.\n";
 if ( $errors ) {
 	echo count( $errors ) . " error(s):\n- " . implode( "\n- ", $errors ) . "\n";
 	exit( 1 );
@@ -233,4 +298,81 @@ function expect( bool $condition, array &$errors, string $file, string $message 
 	if ( ! $condition ) {
 		$errors[] = "{$file}: {$message}";
 	}
+}
+
+/**
+ * Record an accessibility-specific failed assertion.
+ *
+ * @param array<int,string> $errors Error collection.
+ */
+function a11y_expect( bool $condition, array &$errors, string $file, string $message ): void {
+	if ( ! $condition ) {
+		$errors[] = "{$file}: [accessibility] {$message}";
+	}
+}
+
+/**
+ * Normalize visible text for empty-name checks.
+ */
+function normalized_text( DOMNode $node ): string {
+	return trim( (string) preg_replace( '/\s+/u', ' ', $node->textContent ) );
+}
+
+/**
+ * Return a conservative accessible name for static validation.
+ */
+function accessible_name( DOMElement $element ): string {
+	foreach ( array( 'aria-label', 'title' ) as $attribute ) {
+		if ( $element->hasAttribute( $attribute ) && '' !== trim( $element->getAttribute( $attribute ) ) ) {
+			return trim( $element->getAttribute( $attribute ) );
+		}
+	}
+
+	$text = normalized_text( $element );
+	if ( '' !== $text ) {
+		return $text;
+	}
+
+	foreach ( $element->getElementsByTagName( 'img' ) as $image ) {
+		if ( '' !== trim( $image->getAttribute( 'alt' ) ) ) {
+			return trim( $image->getAttribute( 'alt' ) );
+		}
+	}
+
+	return '';
+}
+
+/**
+ * Check an element and its ancestors for one exact attribute value.
+ */
+function element_or_ancestor_has_attribute( DOMNode $node, string $attribute, string $value ): bool {
+	$current = $node;
+	while ( $current instanceof DOMElement ) {
+		if ( strtolower( trim( $current->getAttribute( $attribute ) ) ) === strtolower( $value ) ) {
+			return true;
+		}
+		$current = $current->parentNode;
+	}
+
+	return false;
+}
+
+/**
+ * Normalize text and filenames for an obvious filename-as-alt comparison.
+ */
+function normalized_token( string $value ): string {
+	$value = trim( $value );
+	if ( function_exists( 'mb_strtolower' ) ) {
+		$value = mb_strtolower( $value, 'UTF-8' );
+	} else {
+		$value = strtolower( strtr( $value, array(
+			'Å' => 'å',
+			'Ä' => 'ä',
+			'Ö' => 'ö',
+			'Š' => 'š',
+			'Ž' => 'ž',
+		) ) );
+	}
+
+	return (string) preg_replace( '/[^\p{L}\p{N}]+/u', '', $value );
 }

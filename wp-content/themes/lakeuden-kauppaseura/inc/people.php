@@ -706,7 +706,10 @@ function lakeuden_kauppaseura_render_person_portrait( $post, $context ) {
 	$role_meta_key = 'board' === $context ? Lakeuden_Kauppaseura_People::META_BOARD_ROLE : Lakeuden_Kauppaseura_People::META_PROFESSIONAL_ROLE;
 	$role          = get_post_meta( $post->ID, $role_meta_key, true );
 	$alt_parts     = array_filter( array( $name, $role, $organization ) );
-	$alt           = implode( ', ', $alt_parts );
+	$fallback_alt  = implode( ', ', $alt_parts );
+	$alt           = function_exists( 'lakeuden_kauppaseura_attachment_alt' )
+		? lakeuden_kauppaseura_attachment_alt( $thumbnail_id, $fallback_alt )
+		: $fallback_alt;
 
 	if ( $thumbnail_id ) {
 		return wp_get_attachment_image(
@@ -722,11 +725,8 @@ function lakeuden_kauppaseura_render_person_portrait( $post, $context ) {
 		);
 	}
 
-	$label = lakeuden_kauppaseura_people_value_is_placeholder( $name )
-		? 'Väliaikainen neutraali henkilökuva'
-		: 'Muotokuva puuttuu: ' . $name;
-
-	return '<span class="lks-person-avatar" role="img" aria-label="' . esc_attr( $label ) . '"><span aria-hidden="true">' . esc_html( lakeuden_kauppaseura_person_initials( $name ) ) . '</span></span>';
+	// The initials repeat the adjacent visible name and are therefore decorative.
+	return '<span class="lks-person-avatar" aria-hidden="true"><span>' . esc_html( lakeuden_kauppaseura_person_initials( $name ) ) . '</span></span>';
 }
 
 /**

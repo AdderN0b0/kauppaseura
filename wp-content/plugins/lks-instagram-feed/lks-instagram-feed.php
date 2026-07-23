@@ -268,11 +268,16 @@ final class LKS_Instagram_Feed {
 				<?php
 				$permalink = ! empty( $item['permalink'] ) ? $item['permalink'] : $settings['profile_url'];
 				$label     = ! empty( $item['media_type'] ) && 'VIDEO' === $item['media_type'] ? 'Lakeuden Kauppaseuran Instagram-video' : 'Lakeuden Kauppaseuran Instagram-julkaisu';
+				$alt       = isset( $item['alt'] ) ? trim( wp_strip_all_tags( (string) $item['alt'] ) ) : '';
+				if ( '' === $alt || 'Lakeuden Kauppaseura Instagram image' === $alt ) {
+					$alt = $label;
+				}
 				$is_lcp    = 0 === $item_index && false !== strpos( $extra_class, 'lks-events-hero__gallery' );
 				?>
 				<figure class="lks-instagram-item">
-					<a class="lks-instagram-media" href="<?php echo esc_url( $permalink ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr( $label . ' (avautuu uuteen välilehteen)' ); ?>">
-						<img loading="<?php echo $is_lcp ? 'eager' : 'lazy'; ?>" decoding="async"<?php echo $is_lcp ? ' fetchpriority="high"' : ''; ?> src="<?php echo esc_url( $item['image_url'] ); ?>" alt="" />
+					<a class="lks-instagram-media" href="<?php echo esc_url( $permalink ); ?>" target="_blank" rel="noopener noreferrer">
+						<img loading="<?php echo $is_lcp ? 'eager' : 'lazy'; ?>" decoding="async"<?php echo $is_lcp ? ' fetchpriority="high"' : ''; ?> src="<?php echo esc_url( $item['image_url'] ); ?>" alt="<?php echo esc_attr( $alt ); ?>" />
+						<span class="screen-reader-text">(avautuu uuteen välilehteen)</span>
 					</a>
 				</figure>
 			<?php endforeach; ?>
@@ -409,7 +414,7 @@ final class LKS_Instagram_Feed {
 				'id'         => isset( $media['id'] ) ? sanitize_text_field( $media['id'] ) : '',
 				'image_url'  => $image_url,
 				'permalink'  => esc_url_raw( $media['permalink'] ),
-				'alt'        => '' !== $caption ? wp_trim_words( $caption, 14, '' ) : 'Lakeuden Kauppaseura Instagram image',
+				'alt'        => '' !== $caption ? wp_trim_words( $caption, 14, '' ) : 'Lakeuden Kauppaseuran Instagram-julkaisu',
 				'media_type' => isset( $media['media_type'] ) ? sanitize_text_field( $media['media_type'] ) : '',
 				'timestamp'  => isset( $media['timestamp'] ) ? sanitize_text_field( $media['timestamp'] ) : '',
 			);
@@ -582,19 +587,19 @@ final class LKS_Instagram_Feed {
 			array(
 				'image_url'  => $base_url . '3c1d1a_acb109394a6e43c986b9d450bca58908mv2.png',
 				'permalink'  => $profile_url,
-				'alt'        => 'Lakeuden Kauppaseura event discussion',
+				'alt'        => 'Keskustelu Lakeuden Kauppaseuran tapahtumassa',
 				'media_type' => 'IMAGE',
 			),
 			array(
 				'image_url'  => $base_url . '3c1d1a_e84053badb3047eea17cb3794dd55171mv2.png',
 				'permalink'  => $profile_url,
-				'alt'        => 'Lakeuden Kauppaseura current topics',
+				'alt'        => 'Lakeuden Kauppaseuran ajankohtaisia aiheita',
 				'media_type' => 'IMAGE',
 			),
 			array(
 				'image_url'  => $base_url . '3c1d1a_b91dd6f0cada4463975398082e5346cfmv2-1024x768.jpg',
 				'permalink'  => $profile_url,
-				'alt'        => 'Lakeuden Kauppaseura gathering',
+				'alt'        => 'Lakeuden Kauppaseuran kokoontuminen',
 				'media_type' => 'IMAGE',
 			),
 		);
