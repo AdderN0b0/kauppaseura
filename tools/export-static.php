@@ -88,6 +88,8 @@ function fetch_url_with_curl_exe( string $url ): array {
 		'Lakeuden Kauppaseura offline exporter',
 		'--header',
 		'Accept: */*',
+		'--header',
+		'X-LKS-Static-Export: 1',
 		'--dump-header',
 		$headers_file,
 		'--output',
@@ -154,6 +156,7 @@ function fetch_url( string $url ): array {
 		$headers = array(
 			'Accept: */*',
 			'User-Agent: Lakeuden Kauppaseura offline exporter',
+			'X-LKS-Static-Export: 1',
 		);
 		$context = stream_context_create(
 			array(
@@ -202,7 +205,7 @@ function fetch_url( string $url ): array {
 			CURLOPT_CONNECTTIMEOUT => 15,
 			CURLOPT_TIMEOUT        => 60,
 			CURLOPT_USERAGENT      => 'Lakeuden Kauppaseura offline exporter',
-			CURLOPT_HTTPHEADER     => array( 'Accept: */*' ),
+			CURLOPT_HTTPHEADER     => array( 'Accept: */*', 'X-LKS-Static-Export: 1' ),
 		)
 	);
 

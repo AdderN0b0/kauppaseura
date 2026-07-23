@@ -308,6 +308,8 @@ add_shortcode( 'lks_homepage', 'lakeuden_kauppaseura_render_homepage' );
  * @return string
  */
 function lakeuden_kauppaseura_render_about_page() {
+	$board_cards = lakeuden_kauppaseura_render_board_members();
+
 	ob_start();
 	?>
 	<div id="main" class="lks-page lks-about-page" role="main">
@@ -422,28 +424,30 @@ function lakeuden_kauppaseura_render_about_page() {
 			</div>
 		</section>
 
-		<section class="lks-page-section lks-about-board" aria-labelledby="lks-board-title">
-			<div class="lks-page-shell">
-				<div class="lks-about-board__heading">
-					<div>
-						<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_kicker' ) ); ?></p>
-						<h2 id="lks-board-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_title' ) ); ?></h2>
+		<?php if ( $board_cards ) : ?>
+			<section class="lks-page-section lks-about-board" aria-labelledby="lks-board-title">
+				<div class="lks-page-shell">
+					<div class="lks-about-board__heading">
+						<div>
+							<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_kicker' ) ); ?></p>
+							<h2 id="lks-board-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_title' ) ); ?></h2>
+						</div>
+						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_intro' ) ); ?></p>
 					</div>
-					<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_intro' ) ); ?></p>
+					<?php echo $board_cards; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<div class="lks-about-board__notes">
+						<article>
+							<h3>Työskentelytapa</h3>
+							<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_note' ) ); ?></p>
+						</article>
+						<article>
+							<h3>Vastuualueet</h3>
+							<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_responsibilities' ) ); ?></p>
+						</article>
+					</div>
 				</div>
-				<?php echo lakeuden_kauppaseura_render_board_members(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<div class="lks-about-board__notes">
-					<article>
-						<h3>Työskentelytapa</h3>
-						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_note' ) ); ?></p>
-					</article>
-					<article>
-						<h3>Vastuualueet</h3>
-						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_responsibilities' ) ); ?></p>
-					</article>
-				</div>
-			</div>
-		</section>
+			</section>
+		<?php endif; ?>
 
 		<section id="jasenyys" class="lks-about-membership" aria-labelledby="lks-membership-title">
 			<div class="lks-page-shell lks-about-membership__grid">

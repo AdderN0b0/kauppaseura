@@ -135,13 +135,20 @@ foreach ( $files as $file ) {
 	}
 
 	if ( 'meista/index.html' === $relative ) {
-		expect( 1 === $xpath->query( '//section[contains(concat(" ", normalize-space(@class), " "), " lks-about-board ")]' )->length, $errors, $relative, 'must contain one board section' );
-		expect( 8 === $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " lks-board-member-card ")]' )->length, $errors, $relative, 'must contain exactly eight board-member cards' );
+		$board_sections = $xpath->query( '//section[contains(concat(" ", normalize-space(@class), " "), " lks-about-board ")]' );
+		expect( $board_sections->length <= 1, $errors, $relative, 'must not contain duplicate board sections' );
+		if ( 1 === $board_sections->length ) {
+			expect( $xpath->query( './/*[contains(concat(" ", normalize-space(@class), " "), " lks-board-member-card ")]', $board_sections->item( 0 ) )->length >= 1, $errors, $relative, 'an enabled board section must contain at least one approved board member' );
+		}
 	}
 
 	if ( 'jaseneksi/index.html' === $relative ) {
 		$fallbacks = $xpath->query( '//*[@data-lks-static-membership-form]' );
-		expect( 3 === $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " lks-member-testimonial-card ")]' )->length, $errors, $relative, 'must contain exactly three member-testimonial cards' );
+		$testimonial_sections = $xpath->query( '//section[contains(concat(" ", normalize-space(@class), " "), " lks-membership-testimonials ")]' );
+		expect( $testimonial_sections->length <= 1, $errors, $relative, 'must not contain duplicate member-testimonial sections' );
+		if ( 1 === $testimonial_sections->length ) {
+			expect( $xpath->query( './/*[contains(concat(" ", normalize-space(@class), " "), " lks-member-testimonial-card ")]', $testimonial_sections->item( 0 ) )->length >= 1, $errors, $relative, 'an enabled testimonial section must contain at least one approved testimonial' );
+		}
 		expect( 1 === $fallbacks->length, $errors, $relative, 'must contain exactly one static membership-form fallback' );
 		expect( 0 === $xpath->query( '//*[@data-lks-live-membership-form] | //form' )->length, $errors, $relative, 'must not contain a live form in static output' );
 		if ( 1 === $fallbacks->length ) {
@@ -232,6 +239,9 @@ foreach ( $files as $file ) {
 				expect( schema_has_type( $schema, $required_type ), $errors, $relative, "JSON-LD graph must contain {$required_type}" );
 			}
 			expect( 'https://schema.org' === ( $schema['@context'] ?? '' ), $errors, $relative, 'JSON-LD graph must use the Schema.org context' );
+			if ( in_array( $relative, array( 'meista/index.html', 'jaseneksi/index.html' ), true ) ) {
+				expect( ! schema_has_type( $schema, 'Person' ), $errors, $relative, 'placeholder people must not generate Person structured data' );
+			}
 		}
 
 		if ( 'jaseneksi/index.html' === $relative ) {

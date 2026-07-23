@@ -13,7 +13,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Small, non-public content types for people shown by the theme.
  *
  * TODO(lks-people-launch): Replace every seeded placeholder record with
- * approved content and verify portrait and contact publication permissions.
+ * approved content, enable its production section, and verify portrait and
+ * contact publication permissions.
  */
 final class Lakeuden_Kauppaseura_People {
 	const BOARD_POST_TYPE       = 'lks_board_member';
@@ -301,7 +302,7 @@ final class Lakeuden_Kauppaseura_People {
 			<p>
 				<label for="lks-testimonial-order"><strong>Näyttöjärjestys</strong></label><br />
 				<input id="lks-testimonial-order" min="0" name="lks_people[display_order]" step="1" type="number" value="<?php echo esc_attr( (string) $post->menu_order ); ?>" />
-				<span class="description">Jäseneksi-sivulla näytetään järjestyksen kolme ensimmäistä julkaistua korttia.</span>
+				<span class="description">Jäseneksi-sivulla näytetään enintään kolme ensimmäistä julkaisukelpoista korttia. Yksi tai kaksi hyväksyttyä korttia riittää.</span>
 			</p>
 		</div>
 		<?php
@@ -667,6 +668,68 @@ function lakeuden_kauppaseura_count_people_placeholders( $post_type ) {
 }
 
 /**
+ * Detect a production-facing request for reusable people sections.
+ *
+ * Local WordPress keeps the clearly marked seeds visible for editing and
+ * layout review. The exporter sends an explicit header so generated output
+ * follows the production visibility settings even when WordPress runs in its
+ * normal local environment.
+ *
+ * @return bool
+ */
+function lakeuden_kauppaseura_people_is_production_context() {
+	$export_header = isset( $_SERVER['HTTP_X_LKS_STATIC_EXPORT'] )
+		? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_LKS_STATIC_EXPORT'] ) )
+		: '';
+
+	return '1' === $export_header || 'production' === wp_get_environment_type();
+}
+
+/**
+ * Return only people records that contain approved, non-placeholder content.
+ *
+ * A portrait is deliberately not part of this readiness check.
+ *
+ * @param WP_Post[] $people Candidate records.
+ * @return WP_Post[]
+ */
+function lakeuden_kauppaseura_approved_people( $people ) {
+	return array_values(
+		array_filter(
+			$people,
+			static function ( $person ) {
+				return $person instanceof WP_Post && ! lakeuden_kauppaseura_person_has_placeholder( $person );
+			}
+		)
+	);
+}
+
+/**
+ * Prepare one people collection for local editing or production output.
+ *
+ * @param string $post_type People post type.
+ * @param string $setting   Page-copy visibility setting.
+ * @param int    $limit     Maximum results, or -1 for all.
+ * @return WP_Post[]
+ */
+function lakeuden_kauppaseura_people_for_display( $post_type, $setting, $limit = -1 ) {
+	$people = lakeuden_kauppaseura_get_people( $post_type );
+
+	if ( lakeuden_kauppaseura_people_is_production_context() ) {
+		if ( '1' !== lakeuden_kauppaseura_copy( $setting ) ) {
+			return array();
+		}
+		$people = lakeuden_kauppaseura_approved_people( $people );
+	}
+
+	if ( -1 !== $limit ) {
+		$people = array_slice( $people, 0, max( 0, absint( $limit ) ) );
+	}
+
+	return $people;
+}
+
+/**
  * Create a short fallback monogram from a person's name.
  *
  * @param string $name Person name.
@@ -786,7 +849,10 @@ function lakeuden_kauppaseura_render_board_member_card( $post ) {
  * @return string
  */
 function lakeuden_kauppaseura_render_board_members() {
-	$members = lakeuden_kauppaseura_get_people( Lakeuden_Kauppaseura_People::BOARD_POST_TYPE );
+	$members = lakeuden_kauppaseura_people_for_display(
+		Lakeuden_Kauppaseura_People::BOARD_POST_TYPE,
+		'about_board_enabled'
+	);
 	if ( ! $members ) {
 		return '';
 	}
@@ -838,13 +904,17 @@ function lakeuden_kauppaseura_render_member_testimonial_card( $post ) {
 }
 
 /**
- * Render exactly the first three published testimonials.
+ * Render up to three published testimonials, with no minimum count.
  *
  * @param int $limit Maximum number of cards.
  * @return string
  */
 function lakeuden_kauppaseura_render_member_testimonials( $limit = 3 ) {
-	$testimonials = lakeuden_kauppaseura_get_people( Lakeuden_Kauppaseura_People::TESTIMONIAL_POST_TYPE, max( 1, absint( $limit ) ) );
+	$testimonials = lakeuden_kauppaseura_people_for_display(
+		Lakeuden_Kauppaseura_People::TESTIMONIAL_POST_TYPE,
+		'join_testimonials_enabled',
+		max( 1, absint( $limit ) )
+	);
 	if ( ! $testimonials ) {
 		return '';
 	}

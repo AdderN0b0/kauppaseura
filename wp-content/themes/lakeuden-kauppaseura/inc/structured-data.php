@@ -184,10 +184,7 @@ function lakeuden_kauppaseura_event_schema_location( $post_id, $overrides = arra
  */
 function lakeuden_kauppaseura_event_schema_offer( $post_id, $overrides = array() ) {
 	$registration_url = lakeuden_kauppaseura_event_schema_meta( $post_id, '_lks_event_registration_url', $overrides );
-	if ( ! wp_http_validate_url( (string) $registration_url ) ) {
-		$legacy = lakeuden_kauppaseura_event_schema_meta( $post_id, '_lks_event_registration', $overrides );
-		$registration_url = wp_http_validate_url( (string) $legacy ) ? $legacy : '';
-	}
+	$registration_url = wp_http_validate_url( (string) $registration_url ) ? $registration_url : '';
 
 	$status = lakeuden_kauppaseura_event_schema_status( $post_id, $overrides );
 	$date   = (string) lakeuden_kauppaseura_event_schema_meta( $post_id, '_lks_event_date', $overrides );

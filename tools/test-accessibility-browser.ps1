@@ -183,7 +183,8 @@ try {
     communicationsConsent: {
         label: document.querySelector('[name="wpforms[fields][10][]"]')?.closest(".wpforms-field")?.querySelector(".wpforms-field-label")?.textContent.trim(),
         required: document.querySelector('[name="wpforms[fields][10][]"]')?.required
-    }
+    },
+    localTestimonialPlaceholders: document.querySelectorAll('[data-lks-testimonial-placeholder="true"]').length
 })
 '@
     Add-Check ($initial.ready -eq "complete") "Membership page loads in the browser"
@@ -195,6 +196,7 @@ try {
     Add-Check ($initial.submitHeight -ge 44 -and $initial.choiceLabelHeight -ge 44) "Form submit and choice labels provide 44-pixel touch targets"
     Add-Check ($initial.privacyAcknowledgement.required -and $initial.privacyAcknowledgement.label -match "Tietosuojan") "Privacy acknowledgement is required and is not labelled as marketing consent"
     Add-Check (-not $initial.communicationsConsent.required -and $initial.communicationsConsent.label -match "Vapaaehtoinen") "Communications consent remains explicitly optional"
+    Add-Check ($initial.localTestimonialPlaceholders -eq 3) "Local editing preview keeps the three clearly marked testimonial placeholders visible"
 
     $opened = Get-BrowserValue @'
 (() => {
@@ -382,6 +384,24 @@ try {
     Add-Check ($homeMetadata.scripts -eq 1 -and $missingHomeTypes.Count -eq 0) "Homepage exposes one graph with Organization, WebSite, WebPage, and BreadcrumbList"
     Add-Check ($homeMetadata.canonical -eq $homeMetadata.ogUrl -and -not $homeMetadata.hasLocalUrl) "Homepage canonical, Open Graph, and schema URLs are production-safe"
 
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/meista/"})
+    Start-Sleep -Seconds 2
+    $localBoard = Get-BrowserValue @'
+(() => {
+    const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
+    const types = (schema["@graph"] || []).flatMap((node) => Array.isArray(node["@type"]) ? node["@type"] : [node["@type"]]).filter(Boolean);
+    return {
+        cards: document.querySelectorAll(".lks-board-member-card").length,
+        placeholders: document.querySelectorAll('.lks-board-member-card[data-lks-person-placeholder="true"]').length,
+        fallbackAvatars: document.querySelectorAll(".lks-board-member-card .lks-person-avatar").length,
+        personSchema: types.includes("Person")
+    };
+})()
+'@
+    Add-Check ($localBoard.cards -eq 8 -and $localBoard.placeholders -eq 8) "Local editing preview keeps all eight clearly marked board records visible"
+    Add-Check ($localBoard.fallbackAvatars -ge 1) "Board cards without photographs use the neutral monogram fallback"
+    Add-Check (-not $localBoard.personSchema) "Board placeholders do not generate Person structured data"
+
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/maatalous-tarvitsee-tuloksellisempaa-talousneuvontaa/"})
     Start-Sleep -Seconds 2
     $article = Get-BrowserValue @'
@@ -448,13 +468,62 @@ try {
         location: event?.location,
         organizer: event?.organizer,
         url: event?.url,
-        placeholder: JSON.stringify(event || {}).includes("[VAHVISTETAAN]")
+        image: event?.image || null,
+        offer: event?.offers || null,
+        placeholder: JSON.stringify(event || {}).includes("[VAHVISTETAAN]"),
+        publicState: document.querySelector(".lks-event-registration")?.dataset.lksEventState,
+        publicMessage: document.querySelector(".lks-event-registration p")?.textContent.trim(),
+        registrationActions: document.querySelectorAll(".lks-event-registration__action").length,
+        enquiryHref: document.querySelector(".lks-event-registration__enquiry")?.getAttribute("href"),
+        forms: document.querySelectorAll(".lks-event-single form").length,
+        heroImages: document.querySelectorAll(".lks-article__hero-image img").length,
+        timeFact: [...document.querySelectorAll(".lks-event-facts > div")].find((item) => item.querySelector("dt")?.textContent.trim() === "Aika")?.querySelector("dd")?.textContent.trim()
     };
 })()
 '@
     Add-Check ($eventMetadata.hasEvent -and $eventMetadata.name -and $eventMetadata.description -and $eventMetadata.startDate -and $eventMetadata.organizer -and $eventMetadata.url) "Event page exposes required Event structured data"
     Add-Check ($eventMetadata.status -eq "https://schema.org/EventScheduled" -and $eventMetadata.attendance -eq "https://schema.org/OfflineEventAttendanceMode") "Event state and attendance mode use Schema.org URLs"
     Add-Check (-not $eventMetadata.placeholder) "Event structured data omits unresolved placeholders"
+    Add-Check ($eventMetadata.publicState -eq "details_later" -and [bool]$eventMetadata.publicMessage) "Future event without a registration URL shows the safe automatic fallback"
+    Add-Check ($eventMetadata.registrationActions -eq 0 -and $null -eq $eventMetadata.offer -and $eventMetadata.forms -eq 0) "Event without a registration URL exposes no form, registration action, or Offer"
+    Add-Check ($eventMetadata.enquiryHref -like "mailto:*") "Event fallback provides a static-safe email enquiry link when the association email is configured"
+    Add-Check ($eventMetadata.heroImages -eq 0 -and $null -eq $eventMetadata.image -and [bool]$eventMetadata.timeFact) "Event without a featured image or time renders safely and omits an invented schema image"
+
+    [void](Send-Cdp "Emulation.setDeviceMetricsOverride" @{
+        width = 390
+        height = 844
+        deviceScaleFactor = 1
+        mobile = $true
+    })
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/tapahtuma/syksyn-verkostoitumisilta-seinajoella/"})
+    Start-Sleep -Seconds 2
+    $mobileEvent = Get-BrowserValue @'
+(() => {
+    const enquiry = document.querySelector(".lks-event-registration__enquiry");
+    const status = document.querySelector(".lks-event-status--header");
+    const statusRect = status?.getBoundingClientRect();
+    enquiry?.focus();
+    return {
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+        registrationWidth: document.querySelector(".lks-event-registration")?.getBoundingClientRect().width,
+        viewportWidth: window.innerWidth,
+        statusFits: Boolean(statusRect && statusRect.left >= 0 && statusRect.right <= window.innerWidth + 1 && status.scrollWidth <= status.clientWidth + 1),
+        enquiryVisible: Boolean(enquiry?.getClientRects().length),
+        enquiryFocused: document.activeElement === enquiry,
+        enquiryHeight: enquiry?.getBoundingClientRect().height || 0
+    };
+})()
+'@
+    Add-Check (-not $mobileEvent.overflow -and $mobileEvent.registrationWidth -le $mobileEvent.viewportWidth) "Event registration state fits the 390-pixel mobile viewport"
+    Add-Check ($mobileEvent.statusFits) "Long automatic event status wraps inside the mobile viewport"
+    Add-Check ($mobileEvent.enquiryVisible -and $mobileEvent.enquiryFocused -and $mobileEvent.enquiryHeight -ge 44) "Event email action is visible, keyboard focusable, and has a 44-pixel touch target"
+
+    [void](Send-Cdp "Emulation.setDeviceMetricsOverride" @{
+        width = 1280
+        height = 800
+        deviceScaleFactor = 1
+        mobile = $false
+    })
 
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/tietosuoja/"})
     Start-Sleep -Seconds 2

@@ -91,6 +91,25 @@ $cancelled         = lakeuden_kauppaseura_event_schema( $event_id, $cancelled_fi
 fixture_expect( 'https://schema.org/EventCancelled' === ( $cancelled['eventStatus'] ?? '' ), $errors, 'cancelled checkbox maps to EventCancelled' );
 fixture_expect( ! isset( $cancelled['offers'] ), $errors, 'cancelled event omits offers' );
 
+$no_deadline_fixture = array_merge( $base_fixture, array( '_lks_event_registration_deadline' => '' ) );
+$no_deadline         = lakeuden_kauppaseura_event_schema( $event_id, $no_deadline_fixture );
+fixture_expect( isset( $no_deadline['offers'] ), $errors, 'future event with registration URL and no deadline keeps an offer' );
+fixture_expect( ! isset( $no_deadline['offers']['validThrough'] ), $errors, 'offer without a configured deadline omits validThrough' );
+
+$expired_fixture = array_merge( $base_fixture, array( '_lks_event_registration_deadline' => '2020-01-01' ) );
+$expired         = lakeuden_kauppaseura_event_schema( $event_id, $expired_fixture );
+fixture_expect( ! isset( $expired['offers'] ), $errors, 'event with an expired registration deadline omits offers' );
+
+$past_fixture = array_merge(
+	$base_fixture,
+	array(
+		'_lks_event_date'                  => '2020-01-02',
+		'_lks_event_registration_deadline' => '',
+	)
+);
+$past = lakeuden_kauppaseura_event_schema( $event_id, $past_fixture );
+fixture_expect( ! isset( $past['offers'] ), $errors, 'past event omits offers even when a registration URL remains stored' );
+
 $postponed_fixture = array_merge( $base_fixture, array( '_lks_event_status' => 'postponed' ) );
 $postponed         = lakeuden_kauppaseura_event_schema( $event_id, $postponed_fixture );
 fixture_expect( 'https://schema.org/EventPostponed' === ( $postponed['eventStatus'] ?? '' ), $errors, 'postponed state maps to EventPostponed' );
@@ -141,7 +160,7 @@ if ( $errors ) {
 	exit( 1 );
 }
 
-echo "Structured-data validation passed: homepage, membership, blog article, events archive, event page, complete event, incomplete event, cancelled event, postponed event, rescheduled event, canonical URLs and Open Graph URLs.\n";
+echo "Structured-data validation passed: homepage, membership, blog article, events archive, event page, complete event, incomplete event, active/no-deadline/expired/past registration, cancelled event, postponed event, rescheduled event, canonical URLs and Open Graph URLs.\n";
 
 /**
  * Record one fixture assertion.

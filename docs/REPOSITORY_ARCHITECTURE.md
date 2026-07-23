@@ -113,11 +113,21 @@ Start Local, then run:
 
 ```powershell
 php tools/export-static.php
+php tools/validate-event-workflow.php
 php tools/validate-static.php
+php tools/validate-structured-data.php
 ```
 
 The default exporter output and validator target are
 `deliverables/lakeuden-kauppaseura-build`.
+
+The exporter identifies its requests with `X-LKS-Static-Export: 1`. The theme
+uses that signal to apply production visibility settings while keeping
+clearly marked board and testimonial placeholders visible in the normal Local
+editing preview. Disabled people sections are omitted from generated HTML.
+
+See `docs/EVENT_WORKFLOW.md` for the event editor's deliberately minimal
+registration workflow.
 
 For an explicit validation target on Windows, resolve it first:
 

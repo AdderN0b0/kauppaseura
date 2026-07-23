@@ -1942,8 +1942,10 @@ body.lks-menu-open {
 	color: var(--lks-white);
 	font-family: var(--lks-serif);
 	font-size: clamp(2.15rem, 3.2vw, 3.25rem);
+	hyphens: auto;
 	letter-spacing: -0.04em;
 	line-height: 1.04;
+	overflow-wrap: break-word;
 	text-wrap: balance;
 }
 
@@ -3115,8 +3117,19 @@ body.lks-menu-open {
 }
 
 .lks-event-status--header {
+	display: inline-block;
+	max-width: 100%;
 	margin-bottom: 1.25rem;
 	background: var(--lks-gold);
+	overflow-wrap: break-word;
+	white-space: normal;
+}
+
+.lks-event-status--cancelled,
+.lks-event-status--past,
+.lks-event-status--registration_closed {
+	border: 1px solid currentColor;
+	background: var(--lks-paper-light);
 }
 
 .lks-event-facts {
@@ -3147,6 +3160,32 @@ body.lks-menu-open {
 	color: var(--lks-navy-dark);
 	font-weight: 700;
 	line-height: 1.45;
+}
+
+.lks-event-registration {
+	margin: 0 0 2.5rem;
+	padding: clamp(1.25rem, 3vw, 2rem);
+	border: 1px solid var(--lks-line);
+	background: var(--lks-paper);
+}
+
+.lks-event-registration h2 {
+	margin-bottom: 0.65rem;
+	font-size: clamp(1.55rem, 3vw, 2.2rem);
+}
+
+.lks-event-registration p {
+	margin: 0 0 1rem;
+}
+
+.lks-event-registration__action {
+	display: inline-flex;
+}
+
+.lks-event-registration__enquiry {
+	display: inline-flex;
+	min-height: 44px;
+	align-items: center;
 }
 
 .lks-event-title,
@@ -4259,7 +4298,12 @@ body.lks-menu-open {
 		margin-bottom: 2.5rem;
 	}
 
-	.lks-about-strategy__heading h2,
+	.lks-about-strategy__heading h2 {
+		font-size: clamp(2.4rem, 10vw, 3.25rem);
+		hyphens: auto;
+		overflow-wrap: anywhere;
+	}
+
 	.lks-about-board__heading h2 {
 		font-size: clamp(3rem, 14vw, 4.2rem);
 	}
@@ -4273,6 +4317,7 @@ body.lks-menu-open {
 
 	.lks-about-strategy__statements article {
 		min-height: auto;
+		min-width: 0;
 		padding: 2.5rem 1.5rem 3rem;
 	}
 
@@ -4282,9 +4327,12 @@ body.lks-menu-open {
 	}
 
 	.lks-about-strategy__statements blockquote {
+		width: 100%;
 		max-width: none;
 		margin-top: 2.5rem;
-		font-size: clamp(2.2rem, 10.5vw, 3.15rem);
+		font-size: clamp(2rem, 8vw, 2.5rem);
+		overflow-wrap: anywhere;
+		text-wrap: wrap;
 	}
 
 	.lks-about-strategy__values {

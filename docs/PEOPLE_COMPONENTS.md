@@ -4,8 +4,8 @@
 
 The theme adds two simple, non-public WordPress content areas:
 
-- **Hallitus** for eight board-member cards on the Meistä page;
-- **Jäsenkokemukset** for the three testimonial cards on the Jäseneksi page.
+- **Hallitus** for ordered board-member cards on the Meistä page;
+- **Jäsenkokemukset** for up to three testimonial cards on the Jäseneksi page.
 
 These records are not separate public pages and are excluded from search. No
 external plugin is required.
@@ -47,9 +47,12 @@ templates.
    Contact values remain hidden unless the corresponding **Näytä … julkisella
    sivulla** checkbox is selected.
 10. Select **Päivitä** and preview `/meista/`.
+11. When at least one real entry is ready, open **Sivujen tekstit → Meistä**,
+    select **Näytä hallitus tuotannossa**, and save.
 
 Organization/title, portrait, email, and telephone may be left empty. The card
-layout remains balanced.
+layout remains balanced. A portrait is never required: the theme renders a
+neutral initials monogram when one is missing.
 
 ## Replacing a testimonial placeholder
 
@@ -62,11 +65,13 @@ layout remains balanced.
    should not be shown.
 6. Replace or remove the temporary professional role.
 7. Optionally add an approved profile URL.
-8. Set **Näyttöjärjestys**. The Jäseneksi page shows the first three published
-   records.
+8. Set **Näyttöjärjestys**. The Jäseneksi page shows up to the first three
+   approved published records. There is no minimum count.
 9. Optionally select an approved portrait. Without one, the initials avatar is
    used.
 10. Select **Päivitä** and preview `/jaseneksi/`.
+11. When at least one real testimonial is approved, open **Sivujen tekstit →
+    Jäseneksi**, select **Näytä jäsenkokemukset tuotannossa**, and save.
 
 ## Development placeholders
 
@@ -91,8 +96,15 @@ The static validator rejects:
 
 - every board or testimonial card still marked as temporary;
 - any rendered `[... LISÄTÄÄN ...]` content;
-- a Jäseneksi page without exactly three testimonial cards;
-- a Meistä page without the board section and exactly eight board cards.
+- an enabled people section without at least one approved card;
+- duplicate board or testimonial sections;
+- Person structured data on the Meistä or Jäseneksi page.
+
+The local editing site deliberately keeps published placeholder cards visible
+so they are easy to replace and their layout can be reviewed. Static exports
+and WordPress environments marked `production` follow the two visibility
+checkboxes and remove all placeholder records. Leaving either section disabled
+is valid. Enabling a section never makes a portrait mandatory.
 
 Run before publication:
 
@@ -101,7 +113,9 @@ php tools/export-static.php
 php tools/validate-static.php
 ```
 
-Production publication must wait until all temporary people content has been
-replaced. A missing portrait is not a launch blocker.
+TODO(lks-people-launch): replace the remaining temporary records before their
+sections are enabled. Disabled placeholder records may remain in the local
+editing database and are not a launch blocker. A missing portrait is not a
+launch blocker.
 
 **Do not manually edit exported index.html files. They are regenerated from WordPress and will be overwritten.**
