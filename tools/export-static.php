@@ -374,6 +374,13 @@ function asset_file_path( string $url, string $source_host ): string {
 		$extension = 'bin';
 	}
 
+	$is_instagram_cdn = (bool) preg_match( '/(?:^|\.)cdninstagram\.com$/i', $host );
+	if ( $is_instagram_cdn ) {
+		// Instagram rotates signed query parameters and edge hostnames even when
+		// the public image is unchanged. Its path contains the stable media ID.
+		return 'assets/external/cdninstagram.com/' . sha1( $path ) . '.' . $extension;
+	}
+
 	$host_directory = preg_replace( '/[^A-Za-z0-9.-]+/', '-', $host ) ?: 'external';
 	return 'assets/external/' . $host_directory . '/' . sha1( $url ) . '.' . $extension;
 }

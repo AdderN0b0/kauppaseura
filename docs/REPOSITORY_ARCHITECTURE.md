@@ -144,7 +144,9 @@ The publisher:
 
 The export manifest deliberately excludes a generated timestamp. This keeps
 the build deterministic enough that an unchanged WordPress render does not
-create a timestamp-only publication commit.
+create a timestamp-only publication commit. Instagram CDN assets are keyed by
+their stable media path because signed query parameters and edge hostnames
+rotate without changing the public image.
 
 ## GitHub repository setting
 
