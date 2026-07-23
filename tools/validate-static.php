@@ -29,6 +29,7 @@ $errors      = array();
 $image_count = 0;
 $json_count  = 0;
 $references  = 0;
+$canonical_urls = array();
 
 foreach ( $files as $file ) {
 	$relative = ltrim( substr( $file, strlen( $root ) ), '/' );
@@ -74,7 +75,9 @@ foreach ( $files as $file ) {
 		}
 		$canonical = $xpath->query( '//link[translate(@rel,"CANONICAL","canonical")="canonical"]' )->item( 0 );
 		if ( $canonical ) {
-			expect( str_starts_with( $canonical->getAttribute( 'href' ), 'https://addern0b0.github.io/kauppaseura/' ), $errors, $relative, 'canonical must use the production base' );
+			$canonical_url = $canonical->getAttribute( 'href' );
+			expect( str_starts_with( $canonical_url, 'https://addern0b0.github.io/kauppaseura/' ), $errors, $relative, 'canonical must use the production base' );
+			$canonical_urls[] = $canonical_url;
 		}
 	}
 
@@ -142,7 +145,15 @@ if ( is_file( $sitemap_file ) ) {
 	$sitemap = simplexml_load_file( $sitemap_file );
 	expect( false !== $sitemap, $errors, 'sitemap.xml', 'is invalid XML' );
 	if ( false !== $sitemap ) {
-		expect( count( $sitemap->url ) === 25, $errors, 'sitemap.xml', 'must contain 25 canonical URLs' );
+		$sitemap_urls = array();
+		foreach ( $sitemap->url as $entry ) {
+			$sitemap_urls[] = trim( (string) $entry->loc );
+		}
+		$sitemap_urls   = array_values( array_unique( $sitemap_urls ) );
+		$canonical_urls = array_values( array_unique( $canonical_urls ) );
+		sort( $sitemap_urls );
+		sort( $canonical_urls );
+		expect( $sitemap_urls === $canonical_urls, $errors, 'sitemap.xml', 'URLs must exactly match canonical URLs from indexable HTML' );
 	}
 }
 

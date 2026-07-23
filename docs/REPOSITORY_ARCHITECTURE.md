@@ -149,6 +149,9 @@ create a timestamp-only publication commit. Instagram CDN assets are keyed by
 their stable media path because signed query parameters and edge hostnames
 rotate without changing the public image.
 
+The validator compares the sitemap with the canonical URLs found in indexable
+HTML instead of assuming a fixed page count.
+
 ## GitHub repository setting
 
 GitHub Pages must be configured to deploy:
