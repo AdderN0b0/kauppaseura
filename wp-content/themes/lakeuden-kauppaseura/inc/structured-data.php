@@ -183,13 +183,15 @@ function lakeuden_kauppaseura_event_schema_location( $post_id, $overrides = arra
  * @return array<string,mixed>
  */
 function lakeuden_kauppaseura_event_schema_offer( $post_id, $overrides = array() ) {
+	$registration_required = lakeuden_kauppaseura_event_schema_meta( $post_id, '_lks_event_registration_required', $overrides );
 	$registration_url = lakeuden_kauppaseura_event_schema_meta( $post_id, '_lks_event_registration_url', $overrides );
 	$registration_url = wp_http_validate_url( (string) $registration_url ) ? $registration_url : '';
 
 	$status = lakeuden_kauppaseura_event_schema_status( $post_id, $overrides );
 	$date   = (string) lakeuden_kauppaseura_event_schema_meta( $post_id, '_lks_event_date', $overrides );
 	if (
-		! $registration_url
+		! LKS_Events_Manager::is_truthy( $registration_required )
+		|| ! $registration_url
 		|| 'https://schema.org/EventCancelled' === $status
 		|| ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) && $date < wp_date( 'Y-m-d' ) )
 	) {

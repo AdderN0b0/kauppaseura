@@ -48,6 +48,7 @@ $base_fixture = array(
 	'_lks_event_place'                 => 'Testipaikka',
 	'_lks_event_city'                  => 'Seinäjoki',
 	'_lks_event_attendance_mode'       => 'offline',
+	'_lks_event_registration_required' => '1',
 	'_lks_event_registration_url'      => 'https://example.com/ilmoittautuminen',
 	'_lks_event_registration_deadline' => '2099-07-10',
 	'_lks_event_price'                 => 'Maksuton',
@@ -85,6 +86,10 @@ foreach ( array( 'endDate', 'eventAttendanceMode', 'location', 'offers' ) as $pr
 	fixture_expect( ! isset( $incomplete[ $property ] ), $errors, "incomplete event omits unknown {$property}" );
 }
 fixture_expect( ! str_contains( wp_json_encode( $incomplete, JSON_UNESCAPED_UNICODE ), '[VAHVISTETAAN]' ), $errors, 'incomplete event omits placeholders' );
+
+$not_required_fixture = array_merge( $base_fixture, array( '_lks_event_registration_required' => '0' ) );
+$not_required         = lakeuden_kauppaseura_event_schema( $event_id, $not_required_fixture );
+fixture_expect( ! isset( $not_required['offers'] ), $errors, 'event with registration disabled omits offers even when a URL is stored' );
 
 $cancelled_fixture = array_merge( $base_fixture, array( '_lks_event_cancelled' => '1' ) );
 $cancelled         = lakeuden_kauppaseura_event_schema( $event_id, $cancelled_fixture );
@@ -160,7 +165,7 @@ if ( $errors ) {
 	exit( 1 );
 }
 
-echo "Structured-data validation passed: homepage, membership, blog article, events archive, event page, complete event, incomplete event, active/no-deadline/expired/past registration, cancelled event, postponed event, rescheduled event, canonical URLs and Open Graph URLs.\n";
+echo "Structured-data validation passed: homepage, membership, blog article, events archive, event page, registration-disabled event, complete event, incomplete event, active/no-deadline/expired/past registration, cancelled event, postponed event, rescheduled event, canonical URLs and Open Graph URLs.\n";
 
 /**
  * Record one fixture assertion.

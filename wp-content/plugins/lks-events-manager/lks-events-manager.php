@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LKS Events Manager
  * Description: Lightweight event management for Lakeuden Kauppaseura.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: OpenAI
  */
 
@@ -20,18 +20,23 @@ final class LKS_Events_Manager {
 	const META_AUDIENCE = '_lks_event_audience';
 	const META_PRICE = '_lks_event_price';
 	const META_REGISTRATION = '_lks_event_registration';
+	const META_REGISTRATION_REQUIRED = '_lks_event_registration_required';
 	const META_REGISTRATION_URL = '_lks_event_registration_url';
 	const META_REGISTRATION_DEADLINE = '_lks_event_registration_deadline';
 	const META_CANCELLED = '_lks_event_cancelled';
 	const META_STATUS = '_lks_event_status';
 	const META_CTA_LABEL = '_lks_event_cta_label';
 	const META_CONTACT_SUBJECT = '_lks_event_contact_subject';
+	const MIGRATION_OPTION = 'lks_events_registration_required_migration_version';
+	const MIGRATION_VERSION = '1';
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'init', array( __CLASS__, 'register_meta' ) );
+		add_action( 'init', array( __CLASS__, 'maybe_migrate_registration_required' ), 20 );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'register_meta_box' ) );
 		add_action( 'save_post_' . self::POST_TYPE, array( __CLASS__, 'save_event_meta' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
 		add_shortcode( 'lks_events', array( __CLASS__, 'render_events_shortcode' ) );
 		add_shortcode( 'lks_event_single', array( __CLASS__, 'render_event_single_shortcode' ) );
 		add_filter( 'manage_' . self::POST_TYPE . '_posts_columns', array( __CLASS__, 'register_admin_columns' ) );
@@ -42,6 +47,8 @@ final class LKS_Events_Manager {
 
 	public static function activate() {
 		self::register_post_type();
+		self::register_meta();
+		self::maybe_migrate_registration_required();
 		flush_rewrite_rules();
 	}
 
@@ -179,17 +186,20 @@ final class LKS_Events_Manager {
 			)
 		);
 
-		register_post_meta(
-			self::POST_TYPE,
-			self::META_CANCELLED,
-			array_merge(
-				$common,
-				array(
-					'type'              => 'boolean',
-					'sanitize_callback' => 'rest_sanitize_boolean',
+		foreach ( array( self::META_REGISTRATION_REQUIRED, self::META_CANCELLED ) as $boolean_meta ) {
+			register_post_meta(
+				self::POST_TYPE,
+				$boolean_meta,
+				array_merge(
+					$common,
+					array(
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
+						'default'           => false,
+					)
 				)
-			)
-		);
+			);
+		}
 	}
 
 	public static function sanitize_event_date( $value ) {
@@ -226,6 +236,93 @@ final class LKS_Events_Manager {
 		return $url && in_array( $scheme, array( 'http', 'https' ), true ) ? $url : '';
 	}
 
+	/**
+	 * Treat only explicit truthy values as enabled.
+	 *
+	 * @param mixed $value Candidate value.
+	 * @return bool
+	 */
+	public static function is_truthy( $value ) {
+		return in_array( strtolower( trim( (string) $value ) ), array( '1', 'true', 'yes', 'on', 'kyllä' ), true );
+	}
+
+	/**
+	 * Derive the compatibility flag from a stored external URL.
+	 *
+	 * @param mixed $registration_url Existing registration URL.
+	 * @return string Stored boolean value.
+	 */
+	public static function registration_required_for_migration( $registration_url ) {
+		return self::sanitize_registration_url( $registration_url ) ? '1' : '0';
+	}
+
+	/**
+	 * Add the opt-in registration flag to existing events exactly once.
+	 *
+	 * Existing explicit flags are preserved. A valid external URL opts an old
+	 * event in; all other old events become explicitly disabled. No post title,
+	 * prose, date, or other event metadata is changed.
+	 */
+	public static function maybe_migrate_registration_required() {
+		if ( self::MIGRATION_VERSION === (string) get_option( self::MIGRATION_OPTION, '' ) || wp_installing() ) {
+			return;
+		}
+
+		$event_ids = get_posts(
+			array(
+				'post_type'              => self::POST_TYPE,
+				'post_status'            => 'any',
+				'posts_per_page'         => -1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'orderby'                => 'ID',
+				'order'                  => 'ASC',
+				'suppress_filters'       => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		foreach ( $event_ids as $event_id ) {
+			if ( metadata_exists( 'post', $event_id, self::META_REGISTRATION_REQUIRED ) ) {
+				continue;
+			}
+
+			update_post_meta(
+				$event_id,
+				self::META_REGISTRATION_REQUIRED,
+				self::registration_required_for_migration( get_post_meta( $event_id, self::META_REGISTRATION_URL, true ) )
+			);
+		}
+
+		update_option( self::MIGRATION_OPTION, self::MIGRATION_VERSION, false );
+	}
+
+	/**
+	 * Load the tiny conditional-field controller only in the event editor.
+	 *
+	 * @param string $hook_suffix Current admin page.
+	 */
+	public static function enqueue_admin_assets( $hook_suffix ) {
+		if ( ! in_array( $hook_suffix, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || self::POST_TYPE !== $screen->post_type ) {
+			return;
+		}
+
+		$script_path = plugin_dir_path( __FILE__ ) . 'assets/event-editor.js';
+		wp_enqueue_script(
+			'lks-event-editor',
+			plugin_dir_url( __FILE__ ) . 'assets/event-editor.js',
+			array(),
+			is_file( $script_path ) ? (string) filemtime( $script_path ) : '1.2.0',
+			true
+		);
+	}
+
 	public static function register_meta_box() {
 		add_meta_box(
 			'lks-event-details',
@@ -245,6 +342,7 @@ final class LKS_Events_Manager {
 		$audience         = get_post_meta( $post->ID, self::META_AUDIENCE, true );
 		$price            = get_post_meta( $post->ID, self::META_PRICE, true );
 		$registration     = get_post_meta( $post->ID, self::META_REGISTRATION, true );
+		$registration_required = self::is_truthy( get_post_meta( $post->ID, self::META_REGISTRATION_REQUIRED, true ) );
 		$registration_url = get_post_meta( $post->ID, self::META_REGISTRATION_URL, true );
 		$deadline         = get_post_meta( $post->ID, self::META_REGISTRATION_DEADLINE, true );
 		$cancelled        = '1' === (string) get_post_meta( $post->ID, self::META_CANCELLED, true );
@@ -286,15 +384,25 @@ final class LKS_Events_Manager {
 			<small>Vapaaehtoinen lisätieto, esimerkiksi kenelle tapahtuma on tarkoitettu.</small>
 		</p>
 		<p>
-			<label for="lks-event-registration-url"><strong>Ilmoittautumislinkki</strong></label><br />
-			<input id="lks-event-registration-url" name="lks_event_registration_url" type="url" value="<?php echo esc_attr( $registration_url ); ?>" placeholder="https://" style="width:100%" /><br />
-			<small>Vapaaehtoinen ulkoisen ilmoittautumissivun osoite.</small>
+			<label>
+				<input id="lks-event-registration-required" name="lks_event_registration_required" type="checkbox" value="1" aria-controls="lks-event-registration-fields" aria-expanded="<?php echo $registration_required ? 'true' : 'false'; ?>"<?php checked( $registration_required ); ?> />
+				<strong>Tapahtuma vaatii ilmoittautumisen</strong>
+			</label><br />
+			<small>Valitse vain, jos osallistujan täytyy ilmoittautua etukäteen.</small>
 		</p>
-		<p>
-			<label for="lks-event-registration-deadline"><strong>Ilmoittautuminen päättyy</strong></label><br />
-			<input id="lks-event-registration-deadline" name="lks_event_registration_deadline" type="date" value="<?php echo esc_attr( $deadline ); ?>" style="width:100%" /><br />
-			<small>Jätä tyhjäksi, niin ilmoittautuminen pysyy avoinna tapahtumapäivään asti.</small>
-		</p>
+		<div id="lks-event-registration-fields" data-lks-event-registration-fields<?php echo $registration_required ? '' : ' hidden'; ?>>
+			<p>
+				<label for="lks-event-registration-url"><strong>Ilmoittautumislinkki</strong></label><br />
+				<input id="lks-event-registration-url" name="lks_event_registration_url" type="url" value="<?php echo esc_attr( $registration_url ); ?>" placeholder="https://" style="width:100%"<?php disabled( ! $registration_required ); ?> /><br />
+				<small>Ulkoisen ilmoittautumissivun osoite. Kenttä ei ole pakollinen.</small>
+			</p>
+			<p>
+				<label for="lks-event-registration-deadline"><strong>Ilmoittautuminen päättyy</strong></label><br />
+				<input id="lks-event-registration-deadline" name="lks_event_registration_deadline" type="date" value="<?php echo esc_attr( $deadline ); ?>" style="width:100%"<?php disabled( ! $registration_required ); ?> /><br />
+				<small>Jätä tyhjäksi, niin ilmoittautuminen pysyy avoinna tapahtumapäivään asti.</small>
+			</p>
+			<p class="lks-event-registration-error" role="status" aria-live="polite" hidden></p>
+		</div>
 		<p>
 			<label>
 				<input name="lks_event_cancelled" type="checkbox" value="1"<?php checked( $cancelled ); ?> />
@@ -328,16 +436,21 @@ final class LKS_Events_Manager {
 		$date  = isset( $_POST['lks_event_date'] ) ? self::sanitize_event_date( wp_unslash( $_POST['lks_event_date'] ) ) : '';
 		$time  = isset( $_POST['lks_event_time'] ) ? self::sanitize_event_time( wp_unslash( $_POST['lks_event_time'] ) ) : '';
 		$place = isset( $_POST['lks_event_place'] ) ? sanitize_text_field( wp_unslash( $_POST['lks_event_place'] ) ) : '';
-		$registration_url = isset( $_POST['lks_event_registration_url'] ) ? self::sanitize_registration_url( wp_unslash( $_POST['lks_event_registration_url'] ) ) : '';
-		$deadline = isset( $_POST['lks_event_registration_deadline'] ) ? self::sanitize_event_date( wp_unslash( $_POST['lks_event_registration_deadline'] ) ) : '';
+		$registration_required = isset( $_POST['lks_event_registration_required'] ) && '1' === (string) wp_unslash( $_POST['lks_event_registration_required'] );
 		$cancelled = isset( $_POST['lks_event_cancelled'] ) && '1' === (string) wp_unslash( $_POST['lks_event_cancelled'] );
 
 		self::update_or_delete_meta( $post_id, self::META_DATE, $date );
 		self::update_or_delete_meta( $post_id, self::META_TIME, $time );
 		self::update_or_delete_meta( $post_id, self::META_PLACE, $place );
-		self::update_or_delete_meta( $post_id, self::META_REGISTRATION_URL, $registration_url );
-		self::update_or_delete_meta( $post_id, self::META_REGISTRATION_DEADLINE, $deadline );
+		update_post_meta( $post_id, self::META_REGISTRATION_REQUIRED, $registration_required ? '1' : '0' );
 		self::update_or_delete_meta( $post_id, self::META_CANCELLED, $cancelled ? '1' : '' );
+
+		if ( $registration_required ) {
+			$registration_url = isset( $_POST['lks_event_registration_url'] ) ? self::sanitize_registration_url( wp_unslash( $_POST['lks_event_registration_url'] ) ) : '';
+			$deadline = isset( $_POST['lks_event_registration_deadline'] ) ? self::sanitize_event_date( wp_unslash( $_POST['lks_event_registration_deadline'] ) ) : '';
+			self::update_or_delete_meta( $post_id, self::META_REGISTRATION_URL, $registration_url );
+			self::update_or_delete_meta( $post_id, self::META_REGISTRATION_DEADLINE, $deadline );
+		}
 
 		foreach (
 			array(
@@ -374,7 +487,8 @@ final class LKS_Events_Manager {
 		$date             = self::sanitize_event_date( $details['date'] ?? '' );
 		$deadline         = self::sanitize_event_date( $details['registration_deadline'] ?? '' );
 		$registration_url = self::sanitize_registration_url( $details['registration_url'] ?? '' );
-		$cancelled        = in_array( strtolower( trim( (string) ( $details['cancelled'] ?? '' ) ) ), array( '1', 'true', 'yes', 'on', 'kyllä' ), true );
+		$registration_required = self::is_truthy( $details['registration_required'] ?? '' );
+		$cancelled        = self::is_truthy( $details['cancelled'] ?? '' );
 
 		if ( $cancelled ) {
 			return array(
@@ -389,6 +503,15 @@ final class LKS_Events_Manager {
 			return array(
 				'key'              => 'past',
 				'label'            => 'Tapahtuma on päättynyt',
+				'registration_url' => '',
+				'action_label'     => '',
+			);
+		}
+
+		if ( ! $registration_required ) {
+			return array(
+				'key'              => 'registration_not_required',
+				'label'            => '',
 				'registration_url' => '',
 				'action_label'     => '',
 			);
@@ -414,8 +537,8 @@ final class LKS_Events_Manager {
 		}
 
 		return array(
-			'key'              => 'details_later',
-			'label'            => 'Lisätiedot ja ilmoittautuminen julkaistaan myöhemmin',
+			'key'              => 'registration_instructions_later',
+			'label'            => 'Ilmoittautumisohjeet julkaistaan myöhemmin',
 			'registration_url' => '',
 			'action_label'     => '',
 		);
@@ -432,6 +555,7 @@ final class LKS_Events_Manager {
 		return self::derive_public_state(
 			array(
 				'date'                  => get_post_meta( $post_id, self::META_DATE, true ),
+				'registration_required' => get_post_meta( $post_id, self::META_REGISTRATION_REQUIRED, true ),
 				'registration_url'      => get_post_meta( $post_id, self::META_REGISTRATION_URL, true ),
 				'registration_deadline' => get_post_meta( $post_id, self::META_REGISTRATION_DEADLINE, true ),
 				'cancelled'             => get_post_meta( $post_id, self::META_CANCELLED, true ),
@@ -604,7 +728,7 @@ final class LKS_Events_Manager {
 			)
 		);
 		$show_price = ! in_array( $price, array( '', 'Vahvistetaan' ), true );
-		$show_registration = ! in_array(
+		$show_registration = in_array( $public_state['key'], array( 'registration_open', 'registration_closed', 'registration_instructions_later' ), true ) && ! in_array(
 			$registration,
 			array(
 				'',
@@ -631,7 +755,7 @@ final class LKS_Events_Manager {
 							<?php endforeach; ?>
 						</div>
 					<?php endif; ?>
-					<p class="lks-event-status lks-event-status--header <?php echo esc_attr( 'lks-event-status--' . $public_state['key'] ); ?>"><?php echo esc_html( $public_state['label'] ); ?></p>
+					<?php if ( $public_state['label'] ) : ?><p class="lks-event-status lks-event-status--header <?php echo esc_attr( 'lks-event-status--' . $public_state['key'] ); ?>"><?php echo esc_html( $public_state['label'] ); ?></p><?php endif; ?>
 					<h1><?php echo esc_html( get_the_title( $event ) ); ?></h1>
 					<?php if ( $summary ) : ?><p class="lks-article__lead"><?php echo esc_html( $summary ); ?></p><?php endif; ?>
 				</div>
@@ -685,7 +809,9 @@ final class LKS_Events_Manager {
 		$message     = sanitize_text_field( $state['label'] ?? '' );
 		$action_url  = self::sanitize_registration_url( $state['registration_url'] ?? '' );
 		$action_text = sanitize_text_field( $state['action_label'] ?? '' );
-		$enquiry_url = 'details_later' === $state_key ? self::event_enquiry_url( $event ) : '';
+		if ( ! in_array( $state_key, array( 'registration_open', 'registration_closed', 'registration_instructions_later' ), true ) ) {
+			return '';
+		}
 
 		ob_start();
 		?>
@@ -696,9 +822,6 @@ final class LKS_Events_Manager {
 				<a class="lks-button lks-button--gold lks-event-registration__action" href="<?php echo esc_url( $action_url ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $action_text ); ?> <span class="screen-reader-text">(avautuu uuteen välilehteen)</span></a>
 			<?php else : ?>
 				<p><?php echo esc_html( $message ); ?></p>
-				<?php if ( $enquiry_url ) : ?>
-					<a class="lks-text-link lks-event-registration__enquiry" href="<?php echo esc_url( $enquiry_url ); ?>">Kysy lisätietoja sähköpostilla <span aria-hidden="true">&rarr;</span></a>
-				<?php endif; ?>
 			<?php endif; ?>
 		</section>
 		<?php
@@ -778,28 +901,12 @@ final class LKS_Events_Manager {
 		$labels = array(
 			'registration_open'   => 'Ilmoittautuminen avoinna',
 			'registration_closed' => 'Ilmoittautuminen päättynyt',
-			'details_later'       => 'Lisätiedot tulossa',
+			'registration_instructions_later' => 'Ilmoittautumisohjeet tulossa',
 		);
 
 		return $labels[ $state['key'] ] ?? ( $state['label'] ?? '' );
 	}
 
-	/**
-	 * Build a static-safe enquiry email link from the public association email.
-	 *
-	 * @param WP_Post $event Event post.
-	 * @return string
-	 */
-	private static function event_enquiry_url( $event ) {
-		$email = function_exists( 'lakeuden_kauppaseura_copy' )
-			? sanitize_email( lakeuden_kauppaseura_copy( 'contact_email' ) )
-			: '';
-		if ( ! $email ) {
-			return '';
-		}
-
-		return 'mailto:' . $email . '?subject=' . rawurlencode( 'Kysymys tapahtumasta: ' . get_the_title( $event ) );
-	}
 }
 
 LKS_Events_Manager::init();
