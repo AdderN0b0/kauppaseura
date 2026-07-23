@@ -122,6 +122,7 @@ Prerequisites:
 - publication checkout is clean and on `gh-pages`;
 - both checkouts use the same GitHub `origin`;
 - Git user name and email are configured in the publication checkout;
+- PHP is available on `PATH` or through the Local installation;
 - Local WordPress is running.
 
 Run:

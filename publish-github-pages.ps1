@@ -99,12 +99,28 @@ $PhpCommand = Get-Command php -ErrorAction SilentlyContinue
 $Php = if ($PhpCommand) {
     $PhpCommand.Source
 } else {
-    @(
-        Join-Path $env:APPDATA "Local\lightning-services\php-8.2.29+0\bin\win64\php.exe"
-        Join-Path $env:LOCALAPPDATA "Programs\Local\resources\extraResources\lightning-services\php-8.2.29+0\bin\win64\php.exe"
-        Join-Path $env:APPDATA "Local\lightning-services\php-8.2.29+0\bin\win32\php.exe"
-        Join-Path $env:LOCALAPPDATA "Programs\Local\resources\extraResources\lightning-services\php-8.2.29+0\bin\win32\php.exe"
-    ) | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+    $phpSearchRoots = @(
+        (Join-Path $env:APPDATA "Local\lightning-services")
+        (Join-Path $env:LOCALAPPDATA "Programs\Local\resources\extraResources\lightning-services")
+    ) | Where-Object { Test-Path -LiteralPath $_ -PathType Container }
+
+    $phpCandidates = @(
+        foreach ($phpSearchRoot in $phpSearchRoots) {
+            Get-ChildItem -LiteralPath $phpSearchRoot -Filter "php.exe" -File -Recurse -ErrorAction SilentlyContinue
+        }
+    )
+    $preferredPhp = $phpCandidates |
+        Where-Object { $_.FullName -match "[\\/]win64[\\/]php\.exe$" } |
+        Sort-Object LastWriteTimeUtc -Descending |
+        Select-Object -First 1
+    if (-not $preferredPhp) {
+        $preferredPhp = $phpCandidates |
+            Sort-Object LastWriteTimeUtc -Descending |
+            Select-Object -First 1
+    }
+    if ($preferredPhp) {
+        $preferredPhp.FullName
+    }
 }
 
 foreach ($requiredFile in @($Exporter, $Validator)) {
