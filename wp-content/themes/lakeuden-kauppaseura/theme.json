@@ -1,0 +1,136 @@
+{
+	"$schema": "https://schemas.wp.org/wp/6.7/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": true,
+		"color": {
+			"palette": [
+				{
+					"slug": "base",
+					"color": "#FBFAF6",
+					"name": "Paper"
+				},
+				{
+					"slug": "contrast",
+					"color": "#112F4A",
+					"name": "Lakeuden blue"
+				},
+				{
+					"slug": "accent-1",
+					"color": "#E3BD4F",
+					"name": "Field gold"
+				},
+				{
+					"slug": "accent-2",
+					"color": "#6FA4C7",
+					"name": "Sky blue"
+				},
+				{
+					"slug": "accent-3",
+					"color": "#09233A",
+					"name": "Deep blue"
+				},
+				{
+					"slug": "accent-4",
+					"color": "#60717D",
+					"name": "Slate"
+				},
+				{
+					"slug": "accent-5",
+					"color": "#F5F1E8",
+					"name": "Warm paper"
+				},
+				{
+					"slug": "accent-6",
+					"color": "rgba(17, 47, 74, 0.17)",
+					"name": "Border"
+				}
+			]
+		},
+		"layout": {
+			"contentSize": "760px",
+			"wideSize": "1280px"
+		},
+		"spacing": {
+			"blockGap": true
+		},
+		"typography": {
+			"fontFamilies": [
+				{
+					"fontFamily": "Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+					"name": "System Sans",
+					"slug": "system-sans"
+				},
+				{
+					"fontFamily": "'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif",
+					"name": "Editorial Serif",
+					"slug": "editorial-serif"
+				}
+			]
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var:preset|color|base",
+			"text": "var:preset|color|contrast"
+		},
+		"spacing": {
+			"blockGap": "1.5rem"
+		},
+		"typography": {
+			"fontFamily": "var:preset|font-family|system-sans",
+			"fontSize": "1rem",
+			"lineHeight": "1.6"
+		},
+		"elements": {
+			"heading": {
+				"typography": {
+					"fontFamily": "var:preset|font-family|editorial-serif",
+					"fontWeight": "500",
+					"lineHeight": "1.02",
+					"letterSpacing": "-0.035em"
+				}
+			},
+			"button": {
+				"border": {
+					"radius": "0"
+				},
+				"color": {
+					"background": "var:preset|color|contrast",
+					"text": "#FFFFFF"
+				},
+				"spacing": {
+					"padding": {
+						"top": "0.9rem",
+						"bottom": "0.9rem",
+						"left": "1.35rem",
+						"right": "1.35rem"
+					}
+				},
+				"typography": {
+					"fontWeight": "750"
+				}
+			},
+			"link": {
+				"color": {
+					"text": "var:preset|color|contrast"
+				}
+			}
+		},
+		"blocks": {
+			"core/post-title": {
+				"typography": {
+					"fontFamily": "var:preset|font-family|editorial-serif",
+					"fontWeight": "500",
+					"lineHeight": "1"
+				}
+			},
+			"core/query-title": {
+				"typography": {
+					"fontFamily": "var:preset|font-family|editorial-serif",
+					"fontWeight": "500"
+				}
+			}
+		}
+	}
+}

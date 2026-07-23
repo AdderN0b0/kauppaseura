@@ -1,0 +1,61 @@
+# This repository lives inside a Local-managed WordPress document root.
+# Ignore everything by default, then allow only maintainable project source.
+/*
+
+# Repository metadata and documentation.
+!/.gitignore
+!/.gitattributes
+!/README.md
+!/PUSH_TO_GIT.md
+!/docs/
+!/docs/**
+
+# Publication entry points and public root artwork.
+!/publish-github-pages.ps1
+!/publish-github-pages.cmd
+!/apple-touch-icon.png
+!/favicon-32x32.png
+!/favicon.ico
+
+# Site-owned tools. Generated screenshots and QA folders stay ignored.
+!/tools/
+/tools/*
+!/tools/*.php
+
+# Site-owned WordPress code only.
+!/wp-content/
+/wp-content/*
+
+!/wp-content/themes/
+/wp-content/themes/*
+!/wp-content/themes/lakeuden-kauppaseura/
+!/wp-content/themes/lakeuden-kauppaseura/**
+
+!/wp-content/plugins/
+/wp-content/plugins/*
+!/wp-content/plugins/lks-events-manager/
+!/wp-content/plugins/lks-events-manager/**
+!/wp-content/plugins/lks-blog/
+!/wp-content/plugins/lks-blog/**
+!/wp-content/plugins/lks-instagram-feed/
+!/wp-content/plugins/lks-instagram-feed/**
+
+!/wp-content/mu-plugins/
+/wp-content/mu-plugins/*
+!/wp-content/mu-plugins/lks-instagram-feed-loader.php
+
+# Defense in depth for files that must never be committed if they appear
+# inside an allowed directory.
+*.log
+*.tmp
+*.temp
+*.bak
+*.sql
+*.sqlite
+*.zip
+*.tar
+*.tar.gz
+.env
+.env.*
+Thumbs.db
+.DS_Store
