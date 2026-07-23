@@ -20,7 +20,7 @@ if ( ! extension_loaded( 'gd' ) || ! function_exists( 'imagewebp' ) ) {
 $root        = dirname( __DIR__ );
 $hero_source = $root . '/wp-content/uploads/2026/06/3c1d1a_9ae29c5d39f04fa8adbfc565a9312fd1mv2.jpg';
 $hero_dir    = $root . '/wp-content/themes/lakeuden-kauppaseura/assets/images/hero';
-$logo_source = $root . '/wp-content/themes/lakeuden-kauppaseura/assets/lakeuden-kauppaseura-logo-transparent.png';
+$logo_source = $root . '/wp-content/themes/lakeuden-kauppaseura/assets/lakeuden-kauppaseura-logo-clean.png';
 
 if ( ! is_file( $hero_source ) || ! is_file( $logo_source ) ) {
 	fwrite( STDERR, "Approved source artwork is missing.\n" );

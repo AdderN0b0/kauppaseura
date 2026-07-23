@@ -877,7 +877,7 @@ function lakeuden_kauppaseura_document_metadata() {
 		'@type'      => 'Organization',
 		'name'       => 'Lakeuden Kauppaseura ry',
 		'url'        => 'https://addern0b0.github.io/kauppaseura/',
-		'logo'       => 'https://addern0b0.github.io/kauppaseura/wp-content/themes/lakeuden-kauppaseura/assets/lakeuden-kauppaseura-logo-transparent.png',
+		'logo'       => 'https://addern0b0.github.io/kauppaseura/wp-content/themes/lakeuden-kauppaseura/assets/lakeuden-kauppaseura-logo-clean.png',
 		'email'      => 'mailto:Aunike62@gmail.com',
 		'telephone'  => '+358509665627',
 		'areaServed' => 'Etel&auml;-Pohjanmaa',
