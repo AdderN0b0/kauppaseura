@@ -45,7 +45,10 @@ function lakeuden_kauppaseura_render_membership_facts( $class = '' ) {
 	?>
 	<dl class="<?php echo esc_attr( $classes ); ?>">
 		<?php foreach ( lakeuden_kauppaseura_membership_facts() as $fact ) : ?>
-			<div class="lks-membership-facts__item<?php echo $fact['unresolved'] ? ' is-unresolved' : ''; ?>">
+			<?php if ( $fact['unresolved'] ) : ?>
+				<?php continue; ?>
+			<?php endif; ?>
+			<div class="lks-membership-facts__item">
 				<dt><?php echo esc_html( $fact['label'] ); ?></dt>
 				<dd data-lks-membership-fact="<?php echo esc_attr( $fact['key'] ); ?>" data-lks-launch-required="<?php echo $fact['launch_required'] ? 'true' : 'false'; ?>">
 					<?php echo lakeuden_kauppaseura_render_membership_fact_value( $fact ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -305,8 +308,23 @@ function lakeuden_kauppaseura_render_membership_faq_fact( $key ) {
  * @return string
  */
 function lakeuden_kauppaseura_render_membership_page() {
-	$nomination = lakeuden_kauppaseura_membership_fact( 'membership_nomination' );
-	$approval   = lakeuden_kauppaseura_membership_fact( 'membership_approval_process' );
+	$nomination        = lakeuden_kauppaseura_membership_fact( 'membership_nomination' );
+	$approval          = lakeuden_kauppaseura_membership_fact( 'membership_approval_process' );
+	$eligibility       = lakeuden_kauppaseura_membership_fact( 'membership_eligibility' );
+	$nonmember_events  = lakeuden_kauppaseura_membership_fact( 'membership_nonmember_events' );
+	$annual_fee        = lakeuden_kauppaseura_membership_fact( 'membership_annual_fee' );
+	$joining_fee       = lakeuden_kauppaseura_membership_fact( 'membership_joining_fee' );
+	$processing_time   = lakeuden_kauppaseura_membership_fact( 'membership_processing_time' );
+	$membership_items  = lakeuden_kauppaseura_membership_fact( 'membership_includes' );
+	$extra_event_fees  = lakeuden_kauppaseura_membership_fact( 'membership_extra_event_fees' );
+	$testimonials      = array_values(
+		array_filter(
+			lakeuden_kauppaseura_membership_testimonials(),
+			static function ( $testimonial ) {
+				return empty( $testimonial['unresolved'] );
+			}
+		)
+	);
 
 	ob_start();
 	?>
@@ -382,29 +400,27 @@ function lakeuden_kauppaseura_render_membership_page() {
 			</div>
 		</section>
 
-		<section class="lks-page-section lks-membership-testimonials" aria-labelledby="lks-join-testimonials-title">
-			<div class="lks-page-shell">
-				<div class="lks-membership-section-heading">
-					<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_testimonials_kicker' ) ); ?></p>
-					<h2 id="lks-join-testimonials-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_testimonials_title' ) ); ?></h2>
-				</div>
-				<div class="lks-membership-testimonials__grid">
-					<?php foreach ( lakeuden_kauppaseura_membership_testimonials() as $testimonial ) : ?>
-						<article<?php echo $testimonial['unresolved'] ? ' data-lks-testimonial-placeholder="true"' : ''; ?>>
-							<div class="lks-membership-testimonial__photo">
-								<?php if ( lakeuden_kauppaseura_membership_photo_is_valid( $testimonial['photo'] ) ) : ?>
+		<?php if ( $testimonials ) : ?>
+			<section class="lks-page-section lks-membership-testimonials" aria-labelledby="lks-join-testimonials-title">
+				<div class="lks-page-shell">
+					<div class="lks-membership-section-heading">
+						<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_testimonials_kicker' ) ); ?></p>
+						<h2 id="lks-join-testimonials-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_testimonials_title' ) ); ?></h2>
+					</div>
+					<div class="lks-membership-testimonials__grid">
+						<?php foreach ( $testimonials as $testimonial ) : ?>
+							<article>
+								<div class="lks-membership-testimonial__photo">
 									<img src="<?php echo esc_url( $testimonial['photo'] ); ?>" width="640" height="640" loading="lazy" decoding="async" alt="<?php echo esc_attr( $testimonial['name'] . ', ' . $testimonial['org'] ); ?>" />
-								<?php else : ?>
-									<span role="img" aria-label="Väliaikainen jäsenkuvan paikkamerkki"><i aria-hidden="true"><?php echo esc_html( str_pad( (string) $testimonial['index'], 2, '0', STR_PAD_LEFT ) ); ?></i><small><?php echo esc_html( $testimonial['photo'] ); ?></small></span>
-								<?php endif; ?>
-							</div>
-							<blockquote><?php echo esc_html( $testimonial['quote'] ); ?></blockquote>
-							<p><strong><?php echo esc_html( $testimonial['name'] ); ?></strong><span><?php echo esc_html( $testimonial['org'] ); ?></span></p>
-						</article>
-					<?php endforeach; ?>
+								</div>
+								<blockquote><?php echo esc_html( $testimonial['quote'] ); ?></blockquote>
+								<p><strong><?php echo esc_html( $testimonial['name'] ); ?></strong><span><?php echo esc_html( $testimonial['org'] ); ?></span></p>
+							</article>
+						<?php endforeach; ?>
+					</div>
 				</div>
-			</div>
-		</section>
+			</section>
+		<?php endif; ?>
 
 		<section class="lks-page-section lks-membership-faq" aria-labelledby="lks-join-faq-title">
 			<div class="lks-page-shell lks-membership-faq__grid">
@@ -413,12 +429,24 @@ function lakeuden_kauppaseura_render_membership_page() {
 					<h2 id="lks-join-faq-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_faq_title' ) ); ?></h2>
 				</div>
 				<div class="lks-membership-faq__items">
-					<details><summary>Onko minun oltava yrittäjä?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_eligibility' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
-					<details><summary>Voinko osallistua ennen liittymistä?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nonmember_events' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
-					<details><summary>Tarvitsenko esittäjän?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nomination' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
-					<details><summary>Mitä jäsenyys maksaa?</summary><div><p><strong><?php echo esc_html( lakeuden_kauppaseura_membership_fact( 'membership_annual_fee' )['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_annual_fee' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p><p><strong><?php echo esc_html( lakeuden_kauppaseura_membership_fact( 'membership_joining_fee' )['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_joining_fee' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p></div></details>
-					<details><summary>Kuinka kauan käsittely kestää?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_processing_time' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
-					<details><summary>Sisältyvätkö tapahtumat jäsenyyteen?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_includes' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><p><strong><?php echo esc_html( lakeuden_kauppaseura_membership_fact( 'membership_extra_event_fees' )['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_extra_event_fees' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p></div></details>
+					<?php if ( ! $eligibility['unresolved'] ) : ?>
+						<details><summary>Onko minun oltava yrittäjä?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_eligibility' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
+					<?php endif; ?>
+					<?php if ( ! $nonmember_events['unresolved'] ) : ?>
+						<details><summary>Voinko osallistua ennen liittymistä?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nonmember_events' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
+					<?php endif; ?>
+					<?php if ( ! $nomination['unresolved'] ) : ?>
+						<details><summary>Tarvitsenko esittäjän?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nomination' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
+					<?php endif; ?>
+					<?php if ( ! $annual_fee['unresolved'] && ! $joining_fee['unresolved'] ) : ?>
+						<details><summary>Mitä jäsenyys maksaa?</summary><div><p><strong><?php echo esc_html( $annual_fee['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_annual_fee' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p><p><strong><?php echo esc_html( $joining_fee['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_joining_fee' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p></div></details>
+					<?php endif; ?>
+					<?php if ( ! $processing_time['unresolved'] ) : ?>
+						<details><summary>Kuinka kauan käsittely kestää?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_processing_time' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
+					<?php endif; ?>
+					<?php if ( ! $membership_items['unresolved'] ) : ?>
+						<details><summary>Mitä jäsenyyteen kuuluu?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_includes' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php if ( ! $extra_event_fees['unresolved'] ) : ?><p><strong><?php echo esc_html( $extra_event_fees['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_extra_event_fees' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p><?php endif; ?></div></details>
+					<?php endif; ?>
 				</div>
 			</div>
 		</section>

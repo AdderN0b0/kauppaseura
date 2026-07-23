@@ -33,6 +33,7 @@ $canonical_urls = array();
 $unresolved_membership = 0;
 $unresolved_launch_copy = 0;
 $unresolved_testimonials = 0;
+$unresolved_output_placeholders = 0;
 
 foreach ( $files as $file ) {
 	$relative = ltrim( substr( $file, strlen( $root ) ), '/' );
@@ -49,6 +50,11 @@ foreach ( $files as $file ) {
 	expect( $xpath->query( '//main | //*[@role="main"]' )->length === 1, $errors, $relative, 'must contain exactly one main landmark' );
 	expect( $xpath->query( '//footer' )->length === 1, $errors, $relative, 'must contain exactly one footer landmark' );
 	expect( $xpath->query( '//a[contains(concat(" ", normalize-space(@class), " "), " lks-skip-link ") and @href="#main"]' )->length === 1, $errors, $relative, 'must contain one skip link' );
+
+	if ( preg_match_all( '/\[(?:VAHVISTETAAN|ESIMERKKI)[^\]]*\]/u', $html, $placeholder_matches ) ) {
+		$unresolved_output_placeholders += count( $placeholder_matches[0] );
+		$errors[] = "{$relative}: contains unpublished placeholder content";
+	}
 
 	foreach ( $xpath->query( '//*[@data-lks-membership-fact and @data-lks-launch-required="true"]' ) as $membership_fact ) {
 		$key   = $membership_fact->getAttribute( 'data-lks-membership-fact' );
@@ -198,7 +204,7 @@ foreach ( array( 'robots.txt', '404.html', 'favicon.ico', 'favicon-32x32.png', '
 	expect( file_exists( $root . '/' . $required_file ), $errors, $required_file, 'is missing' );
 }
 
-echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields and {$unresolved_testimonials} temporary testimonials.\n";
+echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields, {$unresolved_testimonials} temporary testimonials and {$unresolved_output_placeholders} unpublished placeholders.\n";
 if ( $errors ) {
 	echo count( $errors ) . " error(s):\n- " . implode( "\n- ", $errors ) . "\n";
 	exit( 1 );

@@ -308,7 +308,7 @@ function lakeuden_kauppaseura_page_copy_schema() {
 		),
 		'membership' => array(
 			'title'       => 'Jäsenyystiedot',
-			'description' => 'Jäseneksi- ja Meistä-sivujen yhteiset käytännön tiedot. Kaikki [VAHVISTETAAN]-merkinnät on ratkaistava ennen tuotantojulkaisua.',
+			'description' => 'Jäseneksi- ja Meistä-sivujen yhteiset käytännön tiedot. [VAHVISTETAAN]-merkityt tiedot pysyvät poissa julkisilta sivuilta, kunnes ne on vahvistettu.',
 			'fields'      => $membership_fields,
 		),
 		'events'  => array(
@@ -654,7 +654,7 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 		</div>
 		<?php if ( $unresolved_membership ) : ?>
 			<div class="notice notice-warning inline">
-				<p><strong>Jäsenyystiedoissa on <?php echo esc_html( (string) count( $unresolved_membership ) ); ?> vahvistettavaa kohtaa.</strong> Korvaa kaikki [VAHVISTETAAN]-merkinnät ennen tuotantojulkaisua. Staattisen sivuston validointi estää julkaisun, jos tietoja puuttuu.</p>
+				<p><strong>Jäsenyystiedoissa on <?php echo esc_html( (string) count( $unresolved_membership ) ); ?> vahvistettavaa kohtaa.</strong> Nämä kohdat piilotetaan julkisilta sivuilta. Staattisen sivuston validointi estää julkaisun, jos paikkamerkkejä päätyy vientiin.</p>
 				<ul class="ul-disc">
 					<?php foreach ( $unresolved_membership as $label ) : ?><li><?php echo esc_html( $label ); ?></li><?php endforeach; ?>
 				</ul>

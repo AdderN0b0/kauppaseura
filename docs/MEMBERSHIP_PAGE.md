@@ -81,9 +81,14 @@ no live form.
 
 **Do not manually edit exported index.html files. They are regenerated from WordPress and will be overwritten.**
 
-## Launch blockers
+## Full-content and form blockers
 
-Production validation remains intentionally blocked until:
+The public route may be published in a reduced state. Unresolved membership
+facts, privacy-retention copy, and temporary testimonials are omitted from
+visitor-facing output. They become visible automatically after approved values
+replace the placeholders.
+
+The complete page and production form still require:
 
 - every `[VAHVISTETAAN]` membership fact is confirmed;
 - the privacy retention/access field is confirmed;
@@ -104,5 +109,5 @@ php tools/export-static.php
 php tools/validate-static.php
 ```
 
-The validator must report zero unresolved fields and zero temporary
-testimonials before a production publication can proceed.
+The validator must report zero unresolved rendered fields, zero temporary
+rendered testimonials, and zero unpublished placeholders before publication.

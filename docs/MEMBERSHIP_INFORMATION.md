@@ -31,7 +31,7 @@ The administration screen lists every unresolved field. The membership email
 must be a public, valid email address before the call-to-action becomes an
 email link; until then, the button safely points to the Yhteystiedot page.
 
-## Required launch checklist
+## Full-content checklist
 
 Confirm all of the following in WordPress:
 
@@ -51,12 +51,14 @@ Run the existing export and validation process:
 .\publish-github-pages.cmd -Message "Update confirmed membership information"
 ```
 
-The publisher runs `tools/validate-static.php` before touching `gh-pages`.
-Validation fails for every empty or `[VAHVISTETAAN]` launch-required membership
-fact. A production-ready result must report:
+Unresolved membership facts are omitted from the public Jäseneksi and Meistä
+pages until they are confirmed. The publisher runs `tools/validate-static.php`
+before touching `gh-pages`; validation fails if a placeholder leaks into any
+generated HTML. A production-ready export must report:
 
 ```text
 0 unresolved membership facts
+0 unpublished placeholders
 Validation passed with zero errors.
 ```
 
