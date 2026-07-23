@@ -13,6 +13,13 @@ $port = Get-Random -Minimum 9300 -Maximum 9900
 $profile = Join-Path ([IO.Path]::GetTempPath()) ("lks-a11y-" + [Guid]::NewGuid().ToString("N"))
 $profile = [IO.Path]::GetFullPath($profile)
 $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath())
+$eventEditorScriptPath = Join-Path $PSScriptRoot "..\wp-content\plugins\lks-events-manager\assets\event-editor.js"
+
+if (-not (Test-Path -LiteralPath $eventEditorScriptPath -PathType Leaf)) {
+    throw "Event editor controller was not found at $eventEditorScriptPath."
+}
+
+$eventEditorScript = Get-Content -LiteralPath $eventEditorScriptPath -Raw
 New-Item -ItemType Directory -Path $profile | Out-Null
 
 $edgeProcess = $null
@@ -550,6 +557,152 @@ try {
     Add-Check ($privacy.optionalMarketing) "Privacy page makes optional communications consent independent of required processing"
     Add-Check ($privacy.hasComplaintLink -and $privacy.legalMarkers -ge 2) "Privacy page links to the Finnish authority and retains legal-review markers"
     Add-Check ($privacy.schemaTypes -contains "WebPage") "Privacy page exposes WebPage structured data"
+
+    # Exercise the exact event-editor controller in a small, authentication-free
+    # fixture. This verifies the conditional fields without changing WordPress.
+    $eventEditorFixture = @'
+<!doctype html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+    <main>
+        <p>
+            <label>
+                <input id="lks-event-registration-required" name="lks_event_registration_required" type="checkbox" value="1" aria-controls="lks-event-registration-fields" aria-expanded="false">
+                <strong>Tapahtuma vaatii ilmoittautumisen</strong>
+            </label>
+        </p>
+        <div id="lks-event-registration-fields" data-lks-event-registration-fields hidden>
+            <p>
+                <label for="lks-event-registration-url">Ilmoittautumislinkki</label>
+                <input id="lks-event-registration-url" name="lks_event_registration_url" type="url" value="https://example.com/ilmoittautuminen" disabled>
+            </p>
+            <p>
+                <label for="lks-event-registration-deadline">Ilmoittautuminen päättyy</label>
+                <input id="lks-event-registration-deadline" name="lks_event_registration_deadline" type="date" value="2099-12-31" disabled>
+            </p>
+            <p class="lks-event-registration-error" role="status" aria-live="polite" hidden></p>
+        </div>
+    </main>
+</body>
+</html>
+'@
+    [void](Send-Cdp "Emulation.setDeviceMetricsOverride" @{
+        width = 390
+        height = 844
+        deviceScaleFactor = 1
+        mobile = $true
+    })
+    $eventEditorFixtureJson = $eventEditorFixture | ConvertTo-Json -Compress
+    [void](Send-Cdp "Runtime.evaluate" @{
+        expression = @"
+(() => {
+    const fixture = $eventEditorFixtureJson;
+    const parsed = new DOMParser().parseFromString(fixture, "text/html");
+    document.documentElement.innerHTML = parsed.documentElement.innerHTML;
+    document.documentElement.lang = parsed.documentElement.lang;
+    return true;
+})()
+"@
+        returnByValue = $true
+    })
+    [void](Send-Cdp "Runtime.evaluate" @{
+        expression = "$eventEditorScript`ntrue;"
+        returnByValue = $true
+    })
+    Start-Sleep -Milliseconds 150
+
+    $adminInitial = Get-BrowserValue @'
+(() => {
+    const toggle = document.querySelector("#lks-event-registration-required");
+    const fields = document.querySelector("#lks-event-registration-fields");
+    const controls = [...fields.querySelectorAll("input")];
+    return {
+        checked: toggle.checked,
+        expanded: toggle.getAttribute("aria-expanded"),
+        hidden: fields.hidden,
+        disabled: controls.every((control) => control.disabled),
+        required: controls.some((control) => control.required),
+        values: controls.map((control) => control.value),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+})()
+'@
+    Add-Check (-not $adminInitial.checked -and $adminInitial.expanded -eq "false" -and $adminInitial.hidden) "Event editor defaults registration to unchecked and hides its optional fields"
+    Add-Check ($adminInitial.disabled -and -not $adminInitial.required) "Hidden registration fields are disabled and never required"
+    Add-Check ($adminInitial.values[0] -eq "https://example.com/ilmoittautuminen" -and $adminInitial.values[1] -eq "2099-12-31") "Disabling registration preserves stored field values in the editor"
+    Add-Check (-not $adminInitial.overflow) "Collapsed event controls fit the 390-pixel administration viewport"
+
+    [void](Send-Cdp "Runtime.evaluate" @{expression = 'document.querySelector("#lks-event-registration-required").focus()'})
+    Send-Key -Key " " -Code "Space" -VirtualKey 32
+    Start-Sleep -Milliseconds 150
+    $adminEnabled = Get-BrowserValue @'
+(() => {
+    const toggle = document.querySelector("#lks-event-registration-required");
+    const fields = document.querySelector("#lks-event-registration-fields");
+    const controls = [...fields.querySelectorAll("input")];
+    return {
+        checked: toggle.checked,
+        focused: document.activeElement === toggle,
+        expanded: toggle.getAttribute("aria-expanded"),
+        hidden: fields.hidden,
+        enabled: controls.every((control) => !control.disabled),
+        required: controls.some((control) => control.required),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+})()
+'@
+    Add-Check ($adminEnabled.checked -and $adminEnabled.focused -and $adminEnabled.expanded -eq "true") "Keyboard activation enables event registration and keeps focus on the checkbox"
+    Add-Check (-not $adminEnabled.hidden -and $adminEnabled.enabled -and -not $adminEnabled.required) "Enabled registration reveals both optional controls"
+    Add-Check (-not $adminEnabled.overflow) "Expanded event controls fit the 390-pixel administration viewport"
+
+    [void](Send-Cdp "Runtime.evaluate" @{
+        expression = @'
+(() => {
+    const url = document.querySelector("#lks-event-registration-url");
+    const error = document.querySelector(".lks-event-registration-error");
+    url.setCustomValidity("Virheellinen osoite");
+    url.setAttribute("aria-invalid", "true");
+    url.setAttribute("aria-errormessage", "registration-error");
+    error.id = "registration-error";
+    error.hidden = false;
+    error.textContent = "Virheellinen osoite";
+    document.querySelector("#lks-event-registration-required").focus();
+})()
+'@
+    })
+    Send-Key -Key " " -Code "Space" -VirtualKey 32
+    Start-Sleep -Milliseconds 150
+    $adminDisabled = Get-BrowserValue @'
+(() => {
+    const toggle = document.querySelector("#lks-event-registration-required");
+    const fields = document.querySelector("#lks-event-registration-fields");
+    const url = document.querySelector("#lks-event-registration-url");
+    const deadline = document.querySelector("#lks-event-registration-deadline");
+    const error = document.querySelector(".lks-event-registration-error");
+    return {
+        checked: toggle.checked,
+        focused: document.activeElement === toggle,
+        expanded: toggle.getAttribute("aria-expanded"),
+        hidden: fields.hidden,
+        disabled: url.disabled && deadline.disabled,
+        urlValue: url.value,
+        deadlineValue: deadline.value,
+        valid: url.checkValidity(),
+        invalidAttribute: url.hasAttribute("aria-invalid"),
+        errorAssociation: url.hasAttribute("aria-errormessage"),
+        errorHidden: error.hidden,
+        errorText: error.textContent
+    };
+})()
+'@
+    Add-Check (-not $adminDisabled.checked -and $adminDisabled.focused -and $adminDisabled.expanded -eq "false" -and $adminDisabled.hidden) "Keyboard activation can disable registration without losing focus"
+    Add-Check ($adminDisabled.disabled -and $adminDisabled.valid -and -not $adminDisabled.invalidAttribute -and -not $adminDisabled.errorAssociation) "Disabling registration clears field validation state"
+    Add-Check ($adminDisabled.errorHidden -and -not $adminDisabled.errorText) "Disabling registration clears the live validation message"
+    Add-Check ($adminDisabled.urlValue -eq "https://example.com/ilmoittautuminen" -and $adminDisabled.deadlineValue -eq "2099-12-31") "Temporarily disabling registration does not erase URL or deadline values"
 }
 finally {
     if ($socket) {

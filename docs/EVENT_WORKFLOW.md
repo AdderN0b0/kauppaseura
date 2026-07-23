@@ -2,8 +2,8 @@
 
 Tapahtumien ylläpito on tarkoituksella pieni. WordPressissa ei ole omaa
 ilmoittautumisjärjestelmää, osallistujarekisteriä, paikkamäärää, jonotuslistaa
-eikä kalenterikytkentää. Ilmoittautuminen tapahtuu aina ylläpitäjän antamassa
-ulkoisessa palvelussa.
+eikä kalenterikytkentää. Jos ilmoittautumista tarvitaan, se tapahtuu aina
+ylläpitäjän antamassa ulkoisessa palvelussa.
 
 ## Tavallinen ylläpitäjän työnkulku
 
@@ -17,16 +17,18 @@ ulkoisessa palvelussa.
    ilmoittautumisen lisätieto.
 8. Valitse **Tapahtuma vaatii ilmoittautumisen** vain, jos osallistujan täytyy
    ilmoittautua etukäteen. Tavallisessa tapahtumassa valinta jätetään tyhjäksi.
-9. Jos ilmoittautuminen on jo avattu, liitä ulkoisen palvelun osoite kohtaan
+9. Valinnan jälkeen **Ilmoittautumislinkki** ja **Ilmoittautuminen päättyy**
+   tulevat näkyviin. Kumpikaan ei ole pakollinen.
+10. Jos ilmoittautuminen on jo avattu, liitä ulkoisen palvelun osoite kohtaan
    **Ilmoittautumislinkki**.
-10. Jos ilmoittautumisella on viimeinen päivä, valitse se kohdasta
+11. Jos ilmoittautumisella on viimeinen päivä, valitse se kohdasta
    **Ilmoittautuminen päättyy**. Jos kohta jää tyhjäksi, linkki pysyy avoinna
    tapahtumapäivään asti.
-11. Jos tapahtuma peruuntuu, valitse **Tapahtuma on peruttu**. Muuta
+12. Jos tapahtuma peruuntuu, valitse **Tapahtuma on peruttu**. Muuta
     teknistä tilaa ei tarvitse valita.
-12. Esikatsele tapahtuma, valitse **Julkaise** tai **Päivitä**, ja tarkista
+13. Esikatsele tapahtuma, valitse **Julkaise** tai **Päivitä**, ja tarkista
     tapahtumasivu.
-13. Julkaise staattinen sivusto yhdellä komennolla:
+14. Julkaise staattinen sivusto yhdellä komennolla:
 
     ```powershell
     .\publish-github-pages.cmd -Message "Päivitä tapahtumat"
@@ -51,9 +53,15 @@ Julkinen tila päätellään aina tässä järjestyksessä:
 Tavallinen ilmoittautumisen tekstikenttä on vain lisätietoa. Se ei muutu
 linkiksi eikä lähetä tietoja.
 
+Jos ilmoittautumisvalinta poistetaan tilapäisesti, aiempi linkki ja määräpäivä
+säilyvät WordPressissa, mutta niitä ei käytetä julkisella sivulla tai
+rakenteisessa tiedossa. Arvot tulevat uudelleen näkyviin, jos valinta otetaan
+myöhemmin käyttöön.
+
 ## Tekniset kentät
 
-Kolme ylläpitäjän uutta kenttää tallennetaan tapahtuman omaan metatietoon:
+Ilmoittautumisen ja peruutuksen asetukset tallennetaan tapahtuman omaan
+metatietoon:
 
 | Hallinnan kenttä | Post meta |
 | --- | --- |
@@ -65,7 +73,9 @@ Kolme ylläpitäjän uutta kenttää tallennetaan tapahtuman omaan metatietoon:
 Versio 1.2 lisää vanhoille tapahtumille ilmoittautumisvalinnan kerran:
 voimassa oleva ulkoinen ilmoittautumislinkki ottaa valinnan käyttöön, muut
 tapahtumat jäävät pois käytöstä. Siirto ei muuta tapahtuman otsikkoa, kuvausta,
-päivää tai muuta toimituksellista sisältöä.
+päivää tai muuta toimituksellista sisältöä. Siirto on idempotentti: sen voi
+turvallisesti suorittaa uudelleen, eikä ylläpitäjän myöhemmin tekemää valintaa
+korvata.
 
 Vanha `_lks_event_status` säilyy tietokannassa vanhojen tietojen
 yhteensopivuutta varten, mutta sitä ei näytetä tapahtumaeditorissa eikä käytetä
@@ -75,7 +85,7 @@ Event JSON-LD muodostetaan automaattisesti samoista tiedoista. Tuntemattomat
 ajat, paikat, kuvat ja tarjoukset jätetään pois. Peruttu, mennyt tai
 ilmoittautumiseltaan suljettu tapahtuma ei tuota Offer-tietoa.
 
-## Tarkistus ilman tietokantamuutoksia
+## Tarkistus ja kertaluonteinen yhteensopivuuspäivitys
 
 ```powershell
 php tools/validate-event-workflow.php

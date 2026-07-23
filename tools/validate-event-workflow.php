@@ -1,6 +1,9 @@
 <?php
 /**
- * Validate the minimal event workflow without writing to WordPress.
+ * Validate the minimal event workflow.
+ *
+ * Loading WordPress may run the one-time registration opt-in migration. The
+ * validator itself does not create events or change editorial content.
  *
  * Usage: php tools/validate-event-workflow.php
  */
@@ -90,6 +93,16 @@ event_expect( 'registration_instructions_later' === ( $unsafe['key'] ?? '' ), $e
 event_expect( '1' === LKS_Events_Manager::registration_required_for_migration( $url ), $errors, 'existing event with a valid external URL is opted in during migration' );
 event_expect( '0' === LKS_Events_Manager::registration_required_for_migration( '' ), $errors, 'existing event without an external URL remains opted out during migration' );
 
+ob_start();
+LKS_Events_Manager::render_meta_box( (object) array( 'ID' => 0 ) );
+$default_meta_box = (string) ob_get_clean();
+event_expect( str_contains( $default_meta_box, 'name="lks_event_registration_required"' ), $errors, 'event panel contains the registration-required checkbox' );
+event_expect( str_contains( $default_meta_box, 'Tapahtuma vaatii ilmoittautumisen' ), $errors, 'registration checkbox has the requested Finnish label' );
+event_expect( preg_match( '/id="lks-event-registration-fields"[^>]*\shidden(?:\s|>)/', $default_meta_box ) === 1, $errors, 'registration fields are hidden by default' );
+event_expect( preg_match( '/id="lks-event-registration-url"[^>]*\sdisabled=/', $default_meta_box ) === 1, $errors, 'registration URL is disabled by default' );
+event_expect( preg_match( '/id="lks-event-registration-deadline"[^>]*\sdisabled=/', $default_meta_box ) === 1, $errors, 'registration deadline is disabled by default' );
+event_expect( preg_match( '/id="lks-event-registration-(?:url|deadline)"[^>]*\srequired(?:\s|=|>)/', $default_meta_box ) !== 1, $errors, 'registration controls are not required fields' );
+
 $events = get_posts(
 	array(
 		'post_type'      => LKS_Events_Manager::POST_TYPE,
@@ -115,9 +128,14 @@ if ( ! $events ) {
 	);
 	foreach ( $migration_after as $event_state ) {
 		event_expect(
-			in_array( $event_state['registration_required'], array( '0', '1' ), true ),
+			$event_state['registration_required_exists'],
 			$errors,
-			"migrated event {$event_state['id']} has an explicit boolean opt-in value"
+			"migrated event {$event_state['id']} has an explicit registration opt-in value"
+		);
+		event_expect(
+			in_array( $event_state['registration_required'], array( '', '1' ), true ),
+			$errors,
+			"migrated event {$event_state['id']} uses WordPress's canonical boolean representation"
 		);
 	}
 
@@ -195,7 +213,7 @@ echo "Minimal event workflow validation passed: registration disabled by default
 /**
  * Capture registration migration state plus a hash of historical prose.
  *
- * @return array<int,array{id:int,registration_url:string,registration_required:string,content_hash:string}>
+ * @return array<int,array{id:int,registration_url:string,registration_required:string,registration_required_exists:bool,content_hash:string}>
  */
 function event_migration_snapshot(): array {
 	$snapshot = array();
@@ -214,6 +232,7 @@ function event_migration_snapshot(): array {
 			'id'                    => (int) $event->ID,
 			'registration_url'      => (string) get_post_meta( $event->ID, LKS_Events_Manager::META_REGISTRATION_URL, true ),
 			'registration_required' => (string) get_post_meta( $event->ID, LKS_Events_Manager::META_REGISTRATION_REQUIRED, true ),
+			'registration_required_exists' => metadata_exists( 'post', $event->ID, LKS_Events_Manager::META_REGISTRATION_REQUIRED ),
 			'content_hash'          => hash( 'sha256', $event->post_title . "\n" . $event->post_content ),
 		);
 	}
