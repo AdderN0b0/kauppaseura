@@ -8,8 +8,8 @@ The `/jaseneksi/` route is a WordPress page whose content is:
 [lks_membership_page]
 ```
 
-The shortcode, reusable membership-fact renderer, FAQ, testimonial cards, and
-form fallback are implemented in:
+The shortcode, reusable membership-fact renderer, FAQ, and form fallback are
+implemented in:
 
 ```text
 wp-content/themes/lakeuden-kauppaseura/inc/membership-page.php
@@ -19,6 +19,15 @@ Page copy uses the existing `lakeuden_kauppaseura_page_copy` option. In
 WordPress administration, open **Sivujen tekstit → Jäseneksi**. Practical
 membership facts are intentionally not repeated there; edit them under
 **Sivujen tekstit → Jäsenyystiedot**.
+
+The three testimonial cards are structured WordPress records under
+**Jäsenkokemukset** and are rendered by:
+
+```text
+wp-content/themes/lakeuden-kauppaseura/inc/people.php
+```
+
+Replacement instructions are in `docs/PEOPLE_COMPONENTS.md`.
 
 The page is created and the existing WPForms form is configured by:
 
@@ -83,23 +92,22 @@ no live form.
 
 ## Full-content and form blockers
 
-The public route may be published in a reduced state. Unresolved membership
-facts, privacy-retention copy, and temporary testimonials are omitted from
-visitor-facing output. They become visible automatically after approved values
-replace the placeholders.
+Temporary testimonial cards remain visible in the development preview so their
+layout can be reviewed. The static validator blocks production publication
+until every placeholder has been replaced.
 
 The complete page and production form still require:
 
 - every `[VAHVISTETAAN]` membership fact is confirmed;
 - the privacy retention/access field is confirmed;
-- all three `[ESIMERKKI…]` testimonial cards use approved names,
-  organizations, photos, alt context, and quotes;
+- all three testimonial records use approved names, quotes, and any optional
+  organization, professional role, portrait, and profile link;
 - the form-delivery checklist above is complete.
 
 Developer markers:
 
 ```powershell
-rg "TODO\(lks-membership-(launch|testimonials|privacy)\)" wp-content/themes/lakeuden-kauppaseura
+rg "TODO\(lks-membership-(launch|privacy)\)|TODO\(lks-people-launch\)" wp-content/themes/lakeuden-kauppaseura
 ```
 
 Run the preview and validator with:

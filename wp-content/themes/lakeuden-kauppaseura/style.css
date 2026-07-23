@@ -26,6 +26,8 @@ Text Domain: lakeuden-kauppaseura
 	--lks-content: 1280px;
 	--lks-radius: 0.25rem;
 	--lks-home-hero-height: clamp(34rem, 72svh, 44rem);
+	--lks-home-section-space: clamp(4.5rem, 7vw, 7rem);
+	--lks-home-section-half-space: clamp(2.25rem, 3.5vw, 3.5rem);
 	--lks-subpage-hero-height: clamp(27rem, 31vw, 30rem);
 	--lks-subpage-hero-pad-mobile: 3.25rem;
 	--lks-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
@@ -101,7 +103,7 @@ img {
 .lks-home-section {
 	width: min(calc(100% - 3rem), var(--lks-content));
 	margin-inline: auto;
-	padding-block: clamp(5rem, 9vw, 8.5rem);
+	padding-block: var(--lks-home-section-half-space);
 }
 
 .lks-kicker,
@@ -467,7 +469,8 @@ body.lks-menu-open {
 /* Instagram */
 .lks-instagram-showcase {
 	position: relative;
-	padding-top: clamp(4.5rem, 8vw, 7.5rem);
+	padding-top: 0;
+	padding-bottom: var(--lks-home-section-half-space);
 }
 
 .lks-instagram-showcase__heading {
@@ -614,15 +617,15 @@ body.lks-menu-open {
 
 /* Current content */
 .lks-current {
-	padding-top: 1rem;
+	padding-top: var(--lks-home-section-half-space);
 }
 
 .lks-next-event {
-	padding-bottom: clamp(2.75rem, 4.5vw, 4.5rem);
+	padding-bottom: var(--lks-home-section-half-space);
 }
 
 .lks-member-values {
-	padding-top: clamp(2.75rem, 4.5vw, 4.5rem);
+	padding-top: var(--lks-home-section-half-space);
 }
 
 .lks-next-event .lks-section-heading {
@@ -896,7 +899,7 @@ body.lks-menu-open {
 	position: relative;
 	isolation: isolate;
 	overflow: hidden;
-	margin-bottom: clamp(5rem, 10vw, 9rem);
+	margin-bottom: var(--lks-home-section-space);
 	padding: clamp(2rem, 5vw, 4.5rem);
 	background: linear-gradient(125deg, var(--lks-navy-dark), #0e3553);
 	color: var(--lks-white);
@@ -3325,16 +3328,16 @@ body.lks-menu-open {
 	}
 
 	.lks-home-section {
-		padding-block: clamp(4.25rem, 18vw, 6rem);
+		padding-block: var(--lks-home-section-half-space);
 	}
 
 	.lks-next-event {
-		padding-top: 3.25rem;
-		padding-bottom: 3rem;
+		padding-top: var(--lks-home-section-half-space);
+		padding-bottom: var(--lks-home-section-half-space);
 	}
 
 	.lks-member-values {
-		padding-top: 3rem;
+		padding-top: var(--lks-home-section-half-space);
 	}
 
 	.lks-site-header__inner {
@@ -4739,6 +4742,190 @@ body.lks-menu-open {
 
 .lks-membership-testimonials article > p strong {
 	color: var(--lks-navy);
+}
+
+/* Reusable board-member and member-testimonial cards */
+.lks-person-card {
+	display: flex;
+	min-width: 0;
+	height: 100%;
+	flex-direction: column;
+	overflow: hidden;
+	background: var(--lks-paper-light);
+}
+
+.lks-person-portrait {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	background:
+		linear-gradient(145deg, rgba(227, 189, 79, 0.12), transparent 55%),
+		linear-gradient(135deg, var(--lks-navy-dark), #1c587c);
+}
+
+.lks-person-portrait__image,
+.lks-person-avatar {
+	width: 100%;
+	height: 100%;
+}
+
+.lks-person-portrait__image {
+	display: block;
+	object-fit: cover;
+}
+
+.lks-person-avatar {
+	display: grid;
+	place-items: center;
+	color: var(--lks-gold);
+}
+
+.lks-person-avatar > span {
+	display: grid;
+	width: clamp(4.5rem, 8vw, 6.5rem);
+	aspect-ratio: 1;
+	place-items: center;
+	border: 1px solid rgba(227, 189, 79, 0.45);
+	border-radius: 50%;
+	font-family: var(--lks-serif);
+	font-size: clamp(2rem, 4vw, 3.25rem);
+	letter-spacing: -0.05em;
+	line-height: 1;
+}
+
+.lks-person-card__body {
+	display: flex;
+	min-width: 0;
+	flex: 1;
+	flex-direction: column;
+	padding: clamp(1.5rem, 2.5vw, 2.25rem);
+}
+
+.lks-person-card__eyebrow,
+.lks-about-board__members .lks-person-card__eyebrow {
+	min-height: 2.8em;
+	margin: 0 0 0.7rem;
+	color: var(--lks-gold-text);
+	font-size: 0.68rem;
+	font-weight: 850;
+	letter-spacing: 0.12em;
+	line-height: 1.4;
+	text-transform: uppercase;
+}
+
+.lks-person-card h3 {
+	margin: 0;
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.65rem, 2.5vw, 2.25rem);
+	font-weight: 500;
+	letter-spacing: -0.035em;
+	line-height: 1.05;
+	overflow-wrap: anywhere;
+}
+
+.lks-person-card__organization,
+.lks-about-board__members .lks-person-card__organization {
+	min-height: 2.2em;
+	margin: 0.7rem 0 0;
+	color: #506573;
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	line-height: 1.45;
+	text-transform: uppercase;
+}
+
+.lks-about-board__members .lks-person-card__introduction {
+	flex: 1;
+	margin-top: 1.35rem;
+	color: #405767;
+	font-size: 0.92rem;
+	line-height: 1.72;
+}
+
+.lks-about-board__members .lks-person-card__introduction p {
+	margin: 0;
+	color: inherit;
+	font-size: inherit;
+	font-weight: 400;
+	letter-spacing: 0;
+	line-height: inherit;
+	text-transform: none;
+}
+
+.lks-person-card__contacts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.55rem 1rem;
+	margin: 1.5rem 0 0;
+	padding: 1rem 0 0;
+	border-top: 1px solid var(--lks-line);
+	list-style: none;
+}
+
+.lks-person-card__contacts a {
+	color: var(--lks-navy);
+	font-size: 0.76rem;
+	font-weight: 800;
+	text-underline-offset: 0.2em;
+}
+
+.lks-member-testimonial-card blockquote {
+	flex: 1;
+	margin: 0;
+	padding: 0;
+}
+
+.lks-member-testimonial-card blockquote p {
+	margin: 0;
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.3rem, 2vw, 1.65rem);
+	letter-spacing: -0.025em;
+	line-height: 1.35;
+}
+
+.lks-member-testimonial-card blockquote p::before {
+	content: "“";
+}
+
+.lks-member-testimonial-card blockquote p::after {
+	content: "”";
+}
+
+.lks-member-testimonial-card__identity {
+	min-height: 6.5rem;
+	margin-top: 1.75rem;
+	padding-top: 1.2rem;
+	border-top: 1px solid var(--lks-line);
+}
+
+.lks-member-testimonial-card__identity h3 {
+	font-family: var(--lks-sans);
+	font-size: 0.9rem;
+	font-weight: 850;
+	letter-spacing: 0;
+	line-height: 1.35;
+}
+
+.lks-member-testimonial-card__identity p {
+	margin: 0.2rem 0 0;
+	color: var(--lks-muted);
+	font-size: 0.76rem;
+	line-height: 1.45;
+}
+
+.lks-member-testimonial-card .lks-text-link {
+	align-self: flex-start;
+	margin-top: 1rem;
+	color: var(--lks-navy);
+	font-size: 0.76rem;
+}
+
+@media (max-width: 700px) {
+	.lks-about-board__members .lks-person-card__eyebrow {
+		min-height: 0;
+	}
 }
 
 .lks-membership-faq__grid {

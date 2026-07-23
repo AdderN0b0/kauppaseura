@@ -48,8 +48,9 @@ Edit only site-owned source:
 - `tools/*.php`
 - publication scripts and documentation
 
-Content editors may also edit WordPress pages, posts, events, media metadata,
-and the site-specific copy settings in the WordPress administration area.
+Content editors may also edit WordPress pages, posts, events, board members,
+member testimonials, media metadata, and the site-specific copy settings in
+the WordPress administration area.
 
 Do not edit generated HTML, downloaded export assets, WordPress core, or
 third-party plugin/theme code as project source.
@@ -71,6 +72,14 @@ third-party plugin/theme code as project source.
 5. Activate the Lakeuden Kauppaseura child theme and the custom plugins.
 6. Enter service credentials, such as an Instagram access token, through the
    WordPress administration UI. Never commit them.
+7. On a new database, create the editable development people records with:
+
+   ```powershell
+   php tools/apply-people-placeholders.php
+   ```
+
+   Replace them through **Hallitus** and **Jäsenkokemukset** before
+   publication; see `docs/PEOPLE_COMPONENTS.md`.
 
 WPForms Lite 1.10.1.1 is installed in the audited Local environment and powers
 the dynamic Jäseneksi interest form. It is a third-party runtime dependency and

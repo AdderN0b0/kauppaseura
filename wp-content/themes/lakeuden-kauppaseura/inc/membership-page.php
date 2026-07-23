@@ -317,14 +317,7 @@ function lakeuden_kauppaseura_render_membership_page() {
 	$processing_time   = lakeuden_kauppaseura_membership_fact( 'membership_processing_time' );
 	$membership_items  = lakeuden_kauppaseura_membership_fact( 'membership_includes' );
 	$extra_event_fees  = lakeuden_kauppaseura_membership_fact( 'membership_extra_event_fees' );
-	$testimonials      = array_values(
-		array_filter(
-			lakeuden_kauppaseura_membership_testimonials(),
-			static function ( $testimonial ) {
-				return empty( $testimonial['unresolved'] );
-			}
-		)
-	);
+	$testimonial_cards = lakeuden_kauppaseura_render_member_testimonials( 3 );
 
 	ob_start();
 	?>
@@ -400,24 +393,14 @@ function lakeuden_kauppaseura_render_membership_page() {
 			</div>
 		</section>
 
-		<?php if ( $testimonials ) : ?>
+		<?php if ( $testimonial_cards ) : ?>
 			<section class="lks-page-section lks-membership-testimonials" aria-labelledby="lks-join-testimonials-title">
 				<div class="lks-page-shell">
 					<div class="lks-membership-section-heading">
 						<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_testimonials_kicker' ) ); ?></p>
 						<h2 id="lks-join-testimonials-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'join_testimonials_title' ) ); ?></h2>
 					</div>
-					<div class="lks-membership-testimonials__grid">
-						<?php foreach ( $testimonials as $testimonial ) : ?>
-							<article>
-								<div class="lks-membership-testimonial__photo">
-									<img src="<?php echo esc_url( $testimonial['photo'] ); ?>" width="640" height="640" loading="lazy" decoding="async" alt="<?php echo esc_attr( $testimonial['name'] . ', ' . $testimonial['org'] ); ?>" />
-								</div>
-								<blockquote><?php echo esc_html( $testimonial['quote'] ); ?></blockquote>
-								<p><strong><?php echo esc_html( $testimonial['name'] ); ?></strong><span><?php echo esc_html( $testimonial['org'] ); ?></span></p>
-							</article>
-						<?php endforeach; ?>
-					</div>
+					<?php echo $testimonial_cards; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</section>
 		<?php endif; ?>

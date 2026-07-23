@@ -32,6 +32,7 @@ $references  = 0;
 $canonical_urls = array();
 $unresolved_membership = 0;
 $unresolved_launch_copy = 0;
+$unresolved_board_members = 0;
 $unresolved_testimonials = 0;
 $unresolved_output_placeholders = 0;
 
@@ -51,7 +52,7 @@ foreach ( $files as $file ) {
 	expect( $xpath->query( '//footer' )->length === 1, $errors, $relative, 'must contain exactly one footer landmark' );
 	expect( $xpath->query( '//a[contains(concat(" ", normalize-space(@class), " "), " lks-skip-link ") and @href="#main"]' )->length === 1, $errors, $relative, 'must contain one skip link' );
 
-	if ( preg_match_all( '/\[(?:VAHVISTETAAN|ESIMERKKI)[^\]]*\]/u', $html, $placeholder_matches ) ) {
+	if ( preg_match_all( '/\[[^\]]*(?:VAHVISTETAAN|ESIMERKKI|LISÄTÄÄN|ENNEN JULKAISUA)[^\]]*\]/u', $html, $placeholder_matches ) ) {
 		$unresolved_output_placeholders += count( $placeholder_matches[0] );
 		$errors[] = "{$relative}: contains unpublished placeholder content";
 	}
@@ -74,13 +75,24 @@ foreach ( $files as $file ) {
 		}
 	}
 
+	foreach ( $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " lks-board-member-card ") and @data-lks-person-placeholder="true"]' ) as $board_member ) {
+		++$unresolved_board_members;
+		$errors[] = "{$relative}: board member still contains temporary content";
+	}
+
 	foreach ( $xpath->query( '//*[@data-lks-testimonial-placeholder="true"]' ) as $testimonial ) {
 		++$unresolved_testimonials;
 		$errors[] = "{$relative}: member testimonial still contains temporary content";
 	}
 
+	if ( 'meista/index.html' === $relative ) {
+		expect( 1 === $xpath->query( '//section[contains(concat(" ", normalize-space(@class), " "), " lks-about-board ")]' )->length, $errors, $relative, 'must contain one board section' );
+		expect( 8 === $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " lks-board-member-card ")]' )->length, $errors, $relative, 'must contain exactly eight board-member cards' );
+	}
+
 	if ( 'jaseneksi/index.html' === $relative ) {
 		$fallbacks = $xpath->query( '//*[@data-lks-static-membership-form]' );
+		expect( 3 === $xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " lks-member-testimonial-card ")]' )->length, $errors, $relative, 'must contain exactly three member-testimonial cards' );
 		expect( 1 === $fallbacks->length, $errors, $relative, 'must contain exactly one static membership-form fallback' );
 		expect( 0 === $xpath->query( '//*[@data-lks-live-membership-form] | //form' )->length, $errors, $relative, 'must not contain a live form in static output' );
 		if ( 1 === $fallbacks->length ) {
@@ -204,7 +216,7 @@ foreach ( array( 'robots.txt', '404.html', 'favicon.ico', 'favicon-32x32.png', '
 	expect( file_exists( $root . '/' . $required_file ), $errors, $required_file, 'is missing' );
 }
 
-echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields, {$unresolved_testimonials} temporary testimonials and {$unresolved_output_placeholders} unpublished placeholders.\n";
+echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields, {$unresolved_board_members} temporary board members, {$unresolved_testimonials} temporary testimonials and {$unresolved_output_placeholders} unpublished placeholders.\n";
 if ( $errors ) {
 	echo count( $errors ) . " error(s):\n- " . implode( "\n- ", $errors ) . "\n";
 	exit( 1 );

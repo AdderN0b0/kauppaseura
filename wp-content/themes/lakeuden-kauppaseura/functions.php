@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once get_stylesheet_directory() . '/inc/page-copy.php';
+require_once get_stylesheet_directory() . '/inc/people.php';
 require_once get_stylesheet_directory() . '/inc/membership-page.php';
 
 /**
@@ -404,17 +405,7 @@ function lakeuden_kauppaseura_render_about_page() {
 					</div>
 					<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_intro' ) ); ?></p>
 				</div>
-				<ul class="lks-about-board__members">
-					<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_board_members' ) as $member ) : ?>
-						<?php $member_parts = array_map( 'trim', explode( '|', $member, 2 ) ); ?>
-						<li>
-							<strong><?php echo esc_html( $member_parts[0] ); ?></strong>
-							<?php if ( isset( $member_parts[1] ) && '' !== $member_parts[1] ) : ?>
-								<p><?php echo esc_html( $member_parts[1] ); ?></p>
-							<?php endif; ?>
-						</li>
-					<?php endforeach; ?>
-				</ul>
+				<?php echo lakeuden_kauppaseura_render_board_members(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<div class="lks-about-board__notes">
 					<article>
 						<h3>Työskentelytapa</h3>

@@ -218,13 +218,6 @@ function lakeuden_kauppaseura_page_copy_schema() {
 				'about_board_kicker'      => array( 'label' => 'Hallitus: pieni otsikko', 'default' => 'Hallitus ja vastuuhenkilöt' ),
 				'about_board_title'       => array( 'label' => 'Hallitus: otsikko', 'type' => 'textarea', 'rows' => 2, 'default' => 'Lakeuden Kauppaseuran hallitus 2026–2027.' ),
 				'about_board_intro'       => array( 'label' => 'Hallitus: johdanto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Hallituksen jäsenillä on omat vastuualueensa johtamisesta ja taloudesta vaikuttamiseen, verkostoihin, viestintään ja tapahtumiin.' ),
-				'about_board_members'     => array(
-					'label'   => 'Hallitus ja vastuuhenkilöt',
-					'type'    => 'textarea',
-					'rows'    => 10,
-					'help'    => 'Kirjoita yksi henkilö kullekin riville muodossa Nimi | Tehtävä.',
-					'default' => "Maarit Siik | Puheenjohtaja\nPaula Takamaa | Varapuheenjohtaja\nJari Puolijoki | Vaikuttaminen ja kehitys\nMinna Petäjävirta | Viestintä ja tapahtumat\nSanna Piipari | Rahastonhoitaja\nSampo Siik | Vaikuttajatiimi ja sihteeri\nHeikki Kangas | Vaikuttaminen ja yhteistyöverkostot\nElisa Lahdenmaa | Viestintä, some ja tapahtumat",
-				),
 				'about_board_note'        => array( 'label' => 'Hallitus: lisätieto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Hallitus kokoontuu tarpeen mukaan noin 4–8 kertaa vuodessa. Strategiaa kehitetään hallituksen ja jäsenistöstä kootun tiimin yhteistyönä ja tarkistetaan vuosittain.' ),
 				'about_board_responsibilities' => array( 'label' => 'Hallituksen vastuualueet', 'type' => 'textarea', 'rows' => 4, 'default' => 'Hallituksen vastuualueet kattavat vaikuttamisen ja kehityksen, yhteistyöverkostot, vaikuttajatiimin, viestinnän, sosiaalisen median sekä tapahtumat.' ),
 				'about_member_kicker'     => array( 'label' => 'Jäsenyys: pieni otsikko', 'default' => 'Jäsenyys' ),
@@ -240,7 +233,7 @@ function lakeuden_kauppaseura_page_copy_schema() {
 		),
 		'join' => array(
 			'title'       => 'Jäseneksi',
-			'description' => 'Jäseneksi-sivun tekstit, esimerkkijäsenet, hakulomakkeen kytkentä ja hakukonenäkyvyys. Käytännön jäsenyystiedot muokataan Jäsenyystiedot-välilehdellä.',
+			'description' => 'Jäseneksi-sivun yleiset tekstit, hakulomakkeen kytkentä ja hakukonenäkyvyys. Jäsenkortit muokataan Jäsenkokemukset-valikossa ja käytännön jäsenyystiedot Jäsenyystiedot-välilehdellä.',
 			'fields'      => array(
 				'join_hero_kicker'          => array( 'label' => 'Pääkuvan pieni otsikko', 'default' => 'Jäseneksi · Lakeuden Kauppaseura' ),
 				'join_hero_title'           => array( 'label' => 'Pääotsikko', 'type' => 'textarea', 'rows' => 2, 'default' => 'Liity verkostoon, joka rakentaa elinvoimaista Etelä-Pohjanmaata.' ),
@@ -280,18 +273,6 @@ function lakeuden_kauppaseura_page_copy_schema() {
 				'join_step_5_text'          => array( 'label' => 'Vaihe 5: teksti', 'type' => 'textarea', 'default' => 'Saat tiedon päätöksestä ja ohjeet jäsenyyden aloitukseen.' ),
 				'join_testimonials_kicker'  => array( 'label' => 'Jäsenkokemukset: pieni otsikko', 'default' => 'Jäsenten kokemuksia' ),
 				'join_testimonials_title'   => array( 'label' => 'Jäsenkokemukset: otsikko', 'default' => 'Miksi ihmiset tulevat mukaan.' ),
-				'join_testimonial_1_name'   => array( 'label' => 'Esimerkkijäsen 1: nimi', 'default' => '[ESIMERKKINIMI 1]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa ensimmäisen jäsenen nimi ennen julkaisua.' ),
-				'join_testimonial_1_org'    => array( 'label' => 'Esimerkkijäsen 1: organisaatio', 'default' => '[ESIMERKKIORGANISAATIO 1]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa ensimmäisen jäsenen organisaatio ennen julkaisua.' ),
-				'join_testimonial_1_quote'  => array( 'label' => 'Esimerkkijäsen 1: sitaatti', 'type' => 'textarea', 'rows' => 4, 'default' => '[ESIMERKKISITAATTI 1]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa ensimmäinen sitaatti hyväksytyllä lainauksella ennen julkaisua.' ),
-				'join_testimonial_1_photo'  => array( 'label' => 'Esimerkkijäsen 1: kuvan URL', 'type' => 'url_or_placeholder', 'default' => '[ESIMERKKIKUVA 1]', 'help' => 'Kopioi Mediakirjastosta henkilön hyväksytyn kuvan URL.', 'todo' => 'TODO(lks-membership-testimonials): Lisää ensimmäisen jäsenen hyväksytty kuva ja varmista kuvauslupa.' ),
-				'join_testimonial_2_name'   => array( 'label' => 'Esimerkkijäsen 2: nimi', 'default' => '[ESIMERKKINIMI 2]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa toisen jäsenen nimi ennen julkaisua.' ),
-				'join_testimonial_2_org'    => array( 'label' => 'Esimerkkijäsen 2: organisaatio', 'default' => '[ESIMERKKIORGANISAATIO 2]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa toisen jäsenen organisaatio ennen julkaisua.' ),
-				'join_testimonial_2_quote'  => array( 'label' => 'Esimerkkijäsen 2: sitaatti', 'type' => 'textarea', 'rows' => 4, 'default' => '[ESIMERKKISITAATTI 2]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa toinen sitaatti hyväksytyllä lainauksella ennen julkaisua.' ),
-				'join_testimonial_2_photo'  => array( 'label' => 'Esimerkkijäsen 2: kuvan URL', 'type' => 'url_or_placeholder', 'default' => '[ESIMERKKIKUVA 2]', 'help' => 'Kopioi Mediakirjastosta henkilön hyväksytyn kuvan URL.', 'todo' => 'TODO(lks-membership-testimonials): Lisää toisen jäsenen hyväksytty kuva ja varmista kuvauslupa.' ),
-				'join_testimonial_3_name'   => array( 'label' => 'Esimerkkijäsen 3: nimi', 'default' => '[ESIMERKKINIMI 3]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa kolmannen jäsenen nimi ennen julkaisua.' ),
-				'join_testimonial_3_org'    => array( 'label' => 'Esimerkkijäsen 3: organisaatio', 'default' => '[ESIMERKKIORGANISAATIO 3]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa kolmannen jäsenen organisaatio ennen julkaisua.' ),
-				'join_testimonial_3_quote'  => array( 'label' => 'Esimerkkijäsen 3: sitaatti', 'type' => 'textarea', 'rows' => 4, 'default' => '[ESIMERKKISITAATTI 3]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa kolmas sitaatti hyväksytyllä lainauksella ennen julkaisua.' ),
-				'join_testimonial_3_photo'  => array( 'label' => 'Esimerkkijäsen 3: kuvan URL', 'type' => 'url_or_placeholder', 'default' => '[ESIMERKKIKUVA 3]', 'help' => 'Kopioi Mediakirjastosta henkilön hyväksytyn kuvan URL.', 'todo' => 'TODO(lks-membership-testimonials): Lisää kolmannen jäsenen hyväksytty kuva ja varmista kuvauslupa.' ),
 				'join_faq_kicker'           => array( 'label' => 'UKK: pieni otsikko', 'default' => 'Usein kysyttyä' ),
 				'join_faq_title'            => array( 'label' => 'UKK: otsikko', 'default' => 'Kysymyksiä jäsenyydestä.' ),
 				'join_form_kicker'          => array( 'label' => 'Lomake: pieni otsikko', 'default' => 'Ilmaise kiinnostuksesi' ),
@@ -445,61 +426,6 @@ function lakeuden_kauppaseura_join_value_is_placeholder( $value ) {
 }
 
 /**
- * Return the three editable member-testimonial cards.
- *
- * TODO(lks-membership-testimonials): Replace every temporary card field with
- * approved member content and verify the photo permission before launch.
- *
- * @return array<int,array<string,mixed>>
- */
-function lakeuden_kauppaseura_membership_testimonials() {
-	$testimonials = array();
-
-	for ( $index = 1; $index <= 3; $index++ ) {
-		$prefix = 'join_testimonial_' . $index . '_';
-		$name   = lakeuden_kauppaseura_copy( $prefix . 'name' );
-		$org    = lakeuden_kauppaseura_copy( $prefix . 'org' );
-		$quote  = lakeuden_kauppaseura_copy( $prefix . 'quote' );
-		$photo  = lakeuden_kauppaseura_copy( $prefix . 'photo' );
-		$photo_parts = wp_parse_url( $photo );
-
-		$testimonials[] = array(
-			'index'       => $index,
-			'name'        => $name,
-			'org'         => $org,
-			'quote'       => $quote,
-			'photo'       => $photo,
-			'photo_valid' => ! lakeuden_kauppaseura_join_value_is_placeholder( $photo )
-				&& is_array( $photo_parts )
-				&& in_array( strtolower( (string) ( $photo_parts['scheme'] ?? '' ) ), array( 'http', 'https' ), true )
-				&& ! empty( $photo_parts['host'] ),
-			'unresolved'  => lakeuden_kauppaseura_join_value_is_placeholder( $name )
-				|| lakeuden_kauppaseura_join_value_is_placeholder( $org )
-				|| lakeuden_kauppaseura_join_value_is_placeholder( $quote )
-				|| lakeuden_kauppaseura_join_value_is_placeholder( $photo ),
-		);
-	}
-
-	return $testimonials;
-}
-
-/**
- * Return the number of member-testimonial cards still containing placeholders.
- *
- * @return int
- */
-function lakeuden_kauppaseura_unresolved_membership_testimonials() {
-	return count(
-		array_filter(
-			lakeuden_kauppaseura_membership_testimonials(),
-			static function ( $testimonial ) {
-				return ! empty( $testimonial['unresolved'] );
-			}
-		)
-	);
-}
-
-/**
  * Check whether a launch-required membership value is unresolved.
  *
  * @param string $value Field value.
@@ -644,7 +570,6 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 
 	$schema                = lakeuden_kauppaseura_page_copy_schema();
 	$unresolved_membership = lakeuden_kauppaseura_unresolved_membership_facts();
-	$unresolved_testimonials = lakeuden_kauppaseura_unresolved_membership_testimonials();
 	?>
 	<div class="wrap lks-copy-admin">
 		<h1>Sivujen tekstit</h1>
@@ -658,11 +583,6 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 				<ul class="ul-disc">
 					<?php foreach ( $unresolved_membership as $label ) : ?><li><?php echo esc_html( $label ); ?></li><?php endforeach; ?>
 				</ul>
-			</div>
-		<?php endif; ?>
-		<?php if ( $unresolved_testimonials ) : ?>
-			<div class="notice notice-warning inline">
-				<p><strong>Jäseneksi-sivun <?php echo esc_html( (string) $unresolved_testimonials ); ?> jäsenkorttia ovat vielä esimerkkejä.</strong> Korvaa nimet, organisaatiot, kuvat ja hyväksytyt sitaatit ennen tuotantojulkaisua.</p>
 			</div>
 		<?php endif; ?>
 		<nav class="nav-tab-wrapper lks-copy-admin__tabs" aria-label="Sivut">
