@@ -30,6 +30,9 @@ $image_count = 0;
 $json_count  = 0;
 $references  = 0;
 $canonical_urls = array();
+$unresolved_membership = 0;
+$unresolved_launch_copy = 0;
+$unresolved_testimonials = 0;
 
 foreach ( $files as $file ) {
 	$relative = ltrim( substr( $file, strlen( $root ) ), '/' );
@@ -46,6 +49,40 @@ foreach ( $files as $file ) {
 	expect( $xpath->query( '//main | //*[@role="main"]' )->length === 1, $errors, $relative, 'must contain exactly one main landmark' );
 	expect( $xpath->query( '//footer' )->length === 1, $errors, $relative, 'must contain exactly one footer landmark' );
 	expect( $xpath->query( '//a[contains(concat(" ", normalize-space(@class), " "), " lks-skip-link ") and @href="#main"]' )->length === 1, $errors, $relative, 'must contain one skip link' );
+
+	foreach ( $xpath->query( '//*[@data-lks-membership-fact and @data-lks-launch-required="true"]' ) as $membership_fact ) {
+		$key   = $membership_fact->getAttribute( 'data-lks-membership-fact' );
+		$value = trim( (string) preg_replace( '/\s+/u', ' ', $membership_fact->textContent ) );
+		if ( '' === $value || str_contains( $value, '[VAHVISTETAAN]' ) ) {
+			++$unresolved_membership;
+			$errors[] = "{$relative}: unresolved launch-required membership fact {$key}";
+		}
+	}
+
+	foreach ( $xpath->query( '//*[@data-lks-launch-copy and @data-lks-launch-required="true"]' ) as $launch_copy ) {
+		$key   = $launch_copy->getAttribute( 'data-lks-launch-copy' );
+		$value = trim( (string) preg_replace( '/\s+/u', ' ', $launch_copy->textContent ) );
+		if ( '' === $value || str_contains( $value, '[VAHVISTETAAN]' ) ) {
+			++$unresolved_launch_copy;
+			$errors[] = "{$relative}: unresolved launch-required copy {$key}";
+		}
+	}
+
+	foreach ( $xpath->query( '//*[@data-lks-testimonial-placeholder="true"]' ) as $testimonial ) {
+		++$unresolved_testimonials;
+		$errors[] = "{$relative}: member testimonial still contains temporary content";
+	}
+
+	if ( 'jaseneksi/index.html' === $relative ) {
+		$fallbacks = $xpath->query( '//*[@data-lks-static-membership-form]' );
+		expect( 1 === $fallbacks->length, $errors, $relative, 'must contain exactly one static membership-form fallback' );
+		expect( 0 === $xpath->query( '//*[@data-lks-live-membership-form] | //form' )->length, $errors, $relative, 'must not contain a live form in static output' );
+		if ( 1 === $fallbacks->length ) {
+			$fallback = $fallbacks->item( 0 );
+			expect( ! $fallback->hasAttribute( 'hidden' ), $errors, $relative, 'static membership-form fallback must be visible' );
+			expect( $xpath->query( './/a[@href]', $fallback )->length >= 1, $errors, $relative, 'static membership-form fallback must provide a contact link' );
+		}
+	}
 
 	$ids = array();
 	foreach ( $xpath->query( '//*[@id]' ) as $node ) {
@@ -161,7 +198,7 @@ foreach ( array( 'robots.txt', '404.html', 'favicon.ico', 'favicon-32x32.png', '
 	expect( file_exists( $root . '/' . $required_file ), $errors, $required_file, 'is missing' );
 }
 
-echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images and {$json_count} JSON-LD blocks.\n";
+echo 'Validated ' . count( $files ) . " HTML files, {$references} local references, {$image_count} images, {$json_count} JSON-LD blocks, {$unresolved_membership} unresolved membership facts, {$unresolved_launch_copy} unresolved launch-copy fields and {$unresolved_testimonials} temporary testimonials.\n";
 if ( $errors ) {
 	echo count( $errors ) . " error(s):\n- " . implode( "\n- ", $errors ) . "\n";
 	exit( 1 );

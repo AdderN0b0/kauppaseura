@@ -10,11 +10,134 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Return the marker used for membership information awaiting confirmation.
+ *
+ * @return string
+ */
+function lakeuden_kauppaseura_membership_placeholder() {
+	return '[VAHVISTETAAN]';
+}
+
+/**
+ * Return the canonical membership-fact schema.
+ *
+ * The label, display order, edit control and default value for each fact live
+ * here so the admin screen and visitor-facing membership section cannot drift.
+ *
+ * @return array<string,array<string,mixed>>
+ */
+function lakeuden_kauppaseura_membership_facts_schema() {
+	$placeholder = lakeuden_kauppaseura_membership_placeholder();
+
+	return array(
+		'membership_annual_fee' => array(
+			'label'           => 'Vuosittainen jäsenmaksu',
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista vuosittainen jäsenmaksu.',
+		),
+		'membership_joining_fee' => array(
+			'label'           => 'Liittymismaksu',
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista liittymismaksu tai ettei sitä peritä.',
+		),
+		'membership_type' => array(
+			'label'           => 'Jäsenyyden muoto',
+			'default'         => 'Varsinaiseksi jäseneksi voidaan valita henkilö, rekisteröity yritys tai muu oikeuskelpoinen yhteisö.',
+			'launch_required' => true,
+		),
+		'membership_eligibility' => array(
+			'label'           => 'Kuka voi hakea jäseneksi',
+			'type'            => 'textarea',
+			'rows'            => 5,
+			'default'         => 'Lakeuden Kauppaseuran jäseneksi voidaan hyväksyä hyvämaineinen henkilö, rekisteröity yritys tai muu oikeuskelpoinen yhteisö, joka on kiinnostunut alueen elinvoimasta ja yhteiskunnallisista asioista sekä hyväksyy yhdistyksen tarkoituksen ja säännöt.',
+			'launch_required' => true,
+		),
+		'membership_nomination' => array(
+			'label'           => 'Tarvitaanko nykyisen jäsenen esitys',
+			'type'            => 'textarea',
+			'rows'            => 4,
+			'default'         => 'Kyllä. Seuran nykyinen jäsen tekee jäsenesityksen. Jos et tunne vielä seuran jäsentä, ota silti yhteyttä ja kysy, miten voit edetä jäsenyysasiassa.',
+			'launch_required' => true,
+		),
+		'membership_includes' => array(
+			'label'           => 'Mitä jäsenyyteen kuuluu',
+			'type'            => 'textarea',
+			'rows'            => 5,
+			'display'         => 'list',
+			'help'            => 'Kirjoita yksi jäsenyyteen kuuluva asia kullekin riville.',
+			'default'         => "Saat tietoa seuran tapahtumista ja ajankohtaisista keskusteluista.\nTapaat alueen yrittäjiä, asiantuntijoita ja muita elinvoimasta kiinnostuneita.\nVoit ehdottaa keskusteluaiheita, yritysvierailuja ja muuta toimintaa.",
+			'launch_required' => true,
+		),
+		'membership_annual_events' => array(
+			'label'           => 'Tapahtumia vuodessa noin',
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista tapahtumien arvioitu vuosimäärä.',
+		),
+		'membership_extra_event_fees' => array(
+			'label'           => 'Tapahtumien mahdolliset lisämaksut',
+			'type'            => 'textarea',
+			'rows'            => 3,
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista, voidaanko tapahtumista periä erillisiä maksuja.',
+		),
+		'membership_nonmember_events' => array(
+			'label'           => 'Tapahtumat muille kuin jäsenille',
+			'type'            => 'textarea',
+			'rows'            => 3,
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista, ovatko valitut tapahtumat avoimia myös muille kuin jäsenille.',
+		),
+		'membership_processing_time' => array(
+			'label'           => 'Hakemuksen tavallinen käsittelyaika',
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista hakemuksen tavallinen käsittelyaika.',
+		),
+		'membership_approval_process' => array(
+			'label'           => 'Hyväksymisprosessi',
+			'type'            => 'textarea',
+			'rows'            => 3,
+			'default'         => 'Seuran hallitus käsittelee ja hyväksyy uudet varsinaiset jäsenet.',
+			'launch_required' => true,
+		),
+		'membership_cancellation' => array(
+			'label'           => 'Jäsenyyden päättäminen',
+			'type'            => 'textarea',
+			'rows'            => 4,
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista jäsenyyden päättämisen ilmoitustapa ja aikataulu.',
+		),
+		'membership_contact_person' => array(
+			'label'           => 'Jäsenyysasioiden yhteyshenkilö',
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista jäsenyysasioiden yhteyshenkilön nimi ja tarvittaessa rooli.',
+		),
+		'membership_contact_email' => array(
+			'label'           => 'Jäsenyysasioiden sähköposti',
+			'type'            => 'email_or_placeholder',
+			'help'            => 'Syötä julkinen jäsenyyssähköposti tai jätä [VAHVISTETAAN], kunnes osoite on vahvistettu.',
+			'default'         => $placeholder,
+			'launch_required' => true,
+			'todo'            => 'TODO(lks-membership-launch): Vahvista julkinen jäsenyysasioiden sähköpostiosoite.',
+		),
+	);
+}
+
+/**
  * Return the editable page-copy schema.
  *
  * @return array<string,array<string,mixed>>
  */
 function lakeuden_kauppaseura_page_copy_schema() {
+	$membership_fields = lakeuden_kauppaseura_membership_facts_schema();
+
 	return array(
 		'home'    => array(
 			'title'       => 'Etusivu',
@@ -59,11 +182,11 @@ function lakeuden_kauppaseura_page_copy_schema() {
 				'about_hero_kicker'       => array( 'label' => 'Sivun pieni otsikko', 'default' => 'Meistä · Lakeuden Kauppaseura ry' ),
 				'about_hero_title'        => array( 'label' => 'Pääotsikko', 'type' => 'textarea', 'rows' => 2, 'help' => 'Rivinvaihto näkyy otsikossa rivinvaihtona.', 'default' => "Lakeuden\nyhteinen pöytä." ),
 				'about_hero_text_1'       => array( 'label' => 'Johdanto 1', 'type' => 'textarea', 'default' => 'Lakeuden Kauppaseura kokoaa yhteen Etelä-Pohjanmaan elinvoimasta kiinnostuneet ihmiset ja yritykset.' ),
-				'about_hero_text_2'       => array( 'label' => 'Johdanto 2', 'type' => 'textarea', 'default' => 'Toiminnan ytimessä ovat verkostot, keskustelu ja ajankohtaiset aiheet.' ),
+				'about_hero_text_2'       => array( 'label' => 'Johdanto 2', 'type' => 'textarea', 'default' => 'Strategiset valintamme ovat jäsenlähtöisyys ja vaikuttaminen.' ),
 				'about_hero_link'         => array( 'label' => 'Johdannon linkki', 'default' => 'Tutustu toimintaamme' ),
 				'about_purpose_kicker'    => array( 'label' => 'Tarkoitus: pieni otsikko', 'default' => 'Miksi olemme olemassa' ),
 				'about_purpose_title'     => array( 'label' => 'Tarkoitus: otsikko', 'default' => 'Elinvoimaa rakennetaan yhdessä.' ),
-				'about_purpose_text_1'    => array( 'label' => 'Tarkoitus: kappale 1', 'type' => 'textarea', 'default' => 'Yhdistyksen nimi on Lakeuden Kauppaseura ry ja kotipaikka on Seinäjoki.' ),
+				'about_purpose_text_1'    => array( 'label' => 'Tarkoitus: kappale 1', 'type' => 'textarea', 'default' => 'Lakeuden Kauppaseura edistää alueensa elinvoimaa ja vaikuttaa merkittävästi sen kehitykseen.' ),
 				'about_purpose_text_2'    => array( 'label' => 'Tarkoitus: kappale 2', 'type' => 'textarea', 'default' => 'Seuran tarkoituksena on jäsentensä kautta edistää ja vaikuttaa elinkeinoelämän yleisten toimintaedellytysten ja -ympäristön parantamiseen Etelä-Pohjanmaan alueella.' ),
 				'about_purpose_text_3'    => array( 'label' => 'Tarkoitus: kappale 3', 'type' => 'textarea', 'default' => 'Seura toimii keskustelunavaajana ja aloitteentekijänä sekä toiminta-alueensa elinkeinoelämän yhtenä edunvalvojana.' ),
 				'about_role_1_title'      => array( 'label' => 'Rooli 1: otsikko', 'default' => 'Keskustelunavaaja' ),
@@ -72,26 +195,121 @@ function lakeuden_kauppaseura_page_copy_schema() {
 				'about_role_2_text'       => array( 'label' => 'Rooli 2: teksti', 'type' => 'textarea', 'default' => 'Luomme tilaa uusille ajatuksille, kohtaamisille ja yhteisille avauksille.' ),
 				'about_role_3_title'      => array( 'label' => 'Rooli 3: otsikko', 'default' => 'Edunvalvoja' ),
 				'about_role_3_text'       => array( 'label' => 'Rooli 3: teksti', 'type' => 'textarea', 'default' => 'Pidämme Etelä-Pohjanmaan elinkeinoelämän toimintaedellytyksiä esillä.' ),
+				'about_strategy_kicker'   => array( 'label' => 'Strategia: pieni otsikko', 'default' => 'Strategia 2024–2026' ),
+				'about_strategy_title'    => array( 'label' => 'Strategia: otsikko', 'type' => 'textarea', 'rows' => 2, 'default' => 'Yhteinen suunta elinvoiman vahvistamiseen.' ),
+				'about_strategy_intro'    => array( 'label' => 'Strategia: johdanto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Strategia ohjaa toimintaamme kahden valinnan kautta: tuotamme jäsenille arvoa ja vahvistamme aktiivisesti alueellista vaikuttamista.' ),
+				'about_strategy_mission'  => array( 'label' => 'Strategia: missio', 'type' => 'textarea', 'rows' => 3, 'default' => 'Lakeuden Kauppaseura edistää alueensa elinvoimaa ja vaikuttaa merkittävästi sen kehitykseen.' ),
+				'about_strategy_vision'   => array( 'label' => 'Strategia: visio', 'type' => 'textarea', 'rows' => 3, 'default' => 'Lakeuden Kauppaseura on alueellaan merkittävä elinvoimavaikuttaja.' ),
+				'about_strategy_values'   => array(
+					'label'   => 'Strategia: arvot',
+					'type'    => 'textarea',
+					'rows'    => 5,
+					'help'    => 'Kirjoita yksi arvo kullekin riville.',
+					'default' => "Yhteisöllisyys\nRehellisyys, laadukkuus ja luotettavuus\nPositiivisuus\nRatkaisuhakuisuus",
+				),
+				'about_strategy_member_title' => array( 'label' => 'Strateginen valinta 1: otsikko', 'default' => 'Jäsenlähtöisyys' ),
+				'about_strategy_member_text'  => array( 'label' => 'Strateginen valinta 1: teksti', 'type' => 'textarea', 'rows' => 5, 'default' => 'Toiminta keskittyy jäsenten tarpeisiin ja toiveisiin. Kuuntelemme jäseniä aktiivisesti ja luomme toimintaa, joka tukee heidän kasvuaan ja menestystään.' ),
+				'about_strategy_impact_title' => array( 'label' => 'Strateginen valinta 2: otsikko', 'default' => 'Vaikuttaminen' ),
+				'about_strategy_impact_text'  => array( 'label' => 'Strateginen valinta 2: teksti', 'type' => 'textarea', 'rows' => 5, 'default' => 'Haluamme olla näkyvä ja aktiivinen toimija alueellamme. Tuomme jäsentemme näkemyksiä esiin ja edistämme alueen taloudellisia sekä yhteisöllisiä toimintaedellytyksiä.' ),
 				'about_action_kicker'     => array( 'label' => 'Toiminta: pieni otsikko', 'default' => 'Miten toimimme' ),
 				'about_action_title'      => array( 'label' => 'Toiminta: otsikko', 'default' => 'Asiaa, kokemuksia ja hyvää seuraa.' ),
-				'about_action_text'       => array( 'label' => 'Toiminta: esittelyteksti', 'type' => 'textarea', 'rows' => 5, 'default' => 'Järjestämme kokouksia, keskustelutilaisuuksia, koulutuksia ja tutustumiskäyntejä Suomessa ja kansainvälisesti. Lisäksi tuemme jäsenten hyvinvointia, yhteistä virkistäytymistä ja tiedon jakamista.' ),
+				'about_action_text'       => array( 'label' => 'Toiminta: esittelyteksti', 'type' => 'textarea', 'rows' => 5, 'default' => 'Järjestämme kokouksia, keskustelutilaisuuksia, koulutuksia ja tutustumiskäyntejä Suomessa ja kansainvälisesti. Lisäksi tuemme jäsenten hyvinvointia, yhteistä virkistäytymistä ja tiedon jakamista. Tapahtumat suunnitellaan rennoiksi ja keskusteleviksi kohtaamisiksi, joissa jäsenet tutustuvat toisiinsa ja seuran toimintaan.' ),
 				'about_action_items'      => array( 'label' => 'Toimintamuodot', 'type' => 'textarea', 'rows' => 5, 'help' => 'Kirjoita yksi kohta kullekin riville. Numerointi syntyy automaattisesti.', 'default' => "Kokoukset ja keskustelut\nKoulutukset\nTutustumiskäynnit\nHyvinvointi ja yhdessäolo" ),
+				'about_board_kicker'      => array( 'label' => 'Hallitus: pieni otsikko', 'default' => 'Hallitus ja vastuuhenkilöt' ),
+				'about_board_title'       => array( 'label' => 'Hallitus: otsikko', 'type' => 'textarea', 'rows' => 2, 'default' => 'Lakeuden Kauppaseuran hallitus 2026–2027.' ),
+				'about_board_intro'       => array( 'label' => 'Hallitus: johdanto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Hallituksen jäsenillä on omat vastuualueensa johtamisesta ja taloudesta vaikuttamiseen, verkostoihin, viestintään ja tapahtumiin.' ),
+				'about_board_members'     => array(
+					'label'   => 'Hallitus ja vastuuhenkilöt',
+					'type'    => 'textarea',
+					'rows'    => 10,
+					'help'    => 'Kirjoita yksi henkilö kullekin riville muodossa Nimi | Tehtävä.',
+					'default' => "Maarit Siik | Puheenjohtaja\nPaula Takamaa | Varapuheenjohtaja\nJari Puolijoki | Vaikuttaminen ja kehitys\nMinna Petäjävirta | Viestintä ja tapahtumat\nSanna Piipari | Rahastonhoitaja\nSampo Siik | Vaikuttajatiimi ja sihteeri\nHeikki Kangas | Vaikuttaminen ja yhteistyöverkostot\nElisa Lahdenmaa | Viestintä, some ja tapahtumat",
+				),
+				'about_board_note'        => array( 'label' => 'Hallitus: lisätieto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Hallitus kokoontuu tarpeen mukaan noin 4–8 kertaa vuodessa. Strategiaa kehitetään hallituksen ja jäsenistöstä kootun tiimin yhteistyönä ja tarkistetaan vuosittain.' ),
+				'about_board_responsibilities' => array( 'label' => 'Hallituksen vastuualueet', 'type' => 'textarea', 'rows' => 4, 'default' => 'Hallituksen vastuualueet kattavat vaikuttamisen ja kehityksen, yhteistyöverkostot, vaikuttajatiimin, viestinnän, sosiaalisen median sekä tapahtumat.' ),
 				'about_member_kicker'     => array( 'label' => 'Jäsenyys: pieni otsikko', 'default' => 'Jäsenyys' ),
 				'about_member_title'      => array( 'label' => 'Jäsenyys: otsikko', 'default' => 'Seura on ihmisiä varten.' ),
 				'about_pin_kicker'        => array( 'label' => 'Jäsenmerkki: pieni otsikko', 'default' => 'Jäsenmerkki' ),
 				'about_pin_title'         => array( 'label' => 'Jäsenmerkki: otsikko', 'default' => 'Merkki kuulumisesta' ),
 				'about_pin_text'          => array( 'label' => 'Jäsenmerkki: esittelyteksti', 'type' => 'textarea', 'rows' => 4, 'default' => 'Jokainen uusi jäsen saa Lakeuden Kauppaseuran pinssin. LK viittaa seuran nimeen, ja alaosan säteittäinen peltokuvio kuvaa Etelä-Pohjanmaan lakeuksia.' ),
-				'about_member_text'       => array( 'label' => 'Jäsenyys: esittelyteksti', 'type' => 'textarea', 'rows' => 6, 'default' => 'Lakeuden Kauppaseuran jäseneksi voidaan hyväksyä hyvämaineinen henkilö, rekisteröity yritys tai muu oikeuskelpoinen yhteisö, joka on kiinnostunut alueen elinvoimasta ja yhteiskunnallisista asioista sekä hyväksyy yhdistyksen tarkoituksen ja säännöt.' ),
-				'about_member_benefits'   => array( 'label' => 'Jäsenyyden hyödyt', 'type' => 'textarea', 'rows' => 5, 'help' => 'Kirjoita yksi kohta kullekin riville.', 'default' => "Saat tietoa seuran tapahtumista ja ajankohtaisista keskusteluista.\nTapaat alueen yrittäjiä, asiantuntijoita ja muita elinvoimasta kiinnostuneita.\nVoit ehdottaa keskusteluaiheita, yritysvierailuja ja muuta toimintaa." ),
-				'about_member_steps_title'=> array( 'label' => 'Jäsenyyden vaiheet: otsikko', 'default' => 'Näin jäsenyys etenee' ),
-				'about_member_steps'      => array( 'label' => 'Jäsenyyden vaiheet', 'type' => 'textarea', 'rows' => 5, 'help' => 'Kirjoita yksi vaihe kullekin riville. Numerointi syntyy automaattisesti.', 'default' => "Ota yhteyttä ja kerro lyhyesti kiinnostuksestasi.\nSeuran nykyinen jäsen tekee jäsenesityksen.\nSeuran hallitus käsittelee ja hyväksyy uudet varsinaiset jäsenet." ),
-				'about_member_note'       => array( 'label' => 'Jäsenyyden lisätieto', 'type' => 'textarea', 'default' => 'Etkö tunne vielä seuran jäsentä? Ota silti yhteyttä. Kerromme, miten voit tutustua toimintaan ja edetä jäsenyysasiassa.' ),
-				'about_member_fee_note'   => array( 'label' => 'Jäsenmaksun lisätieto', 'type' => 'textarea', 'default' => 'Pyydä ajantasainen jäsenmaksu ja käsittelyaikataulu sähköpostilla.' ),
 				'about_member_button'     => array( 'label' => 'Jäsenyyspainike', 'default' => 'Kysy jäsenyydestä' ),
 				'about_closing_kicker'    => array( 'label' => 'Lopetus: pieni otsikko', 'default' => 'Katse eteenpäin' ),
-				'about_closing_quote'     => array( 'label' => 'Lopetus: nosto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Lakeuden Kauppaseura käy aktiivista keskustelua alueen elinkeinoelämän kanssa ja vahvistaa jatkuvasti mahdollisuuksiaan vaikuttaa.' ),
+				'about_closing_quote'     => array( 'label' => 'Lopetus: nosto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Lakeuden Kauppaseura on alueellaan merkittävä elinvoimavaikuttaja.' ),
 				'about_closing_link'      => array( 'label' => 'Lopetus: tapahtumalinkki', 'default' => 'Näe, missä tapaamme seuraavaksi' ),
 			),
+		),
+		'join' => array(
+			'title'       => 'Jäseneksi',
+			'description' => 'Jäseneksi-sivun tekstit, esimerkkijäsenet, hakulomakkeen kytkentä ja hakukonenäkyvyys. Käytännön jäsenyystiedot muokataan Jäsenyystiedot-välilehdellä.',
+			'fields'      => array(
+				'join_hero_kicker'          => array( 'label' => 'Pääkuvan pieni otsikko', 'default' => 'Jäseneksi · Lakeuden Kauppaseura' ),
+				'join_hero_title'           => array( 'label' => 'Pääotsikko', 'type' => 'textarea', 'rows' => 2, 'default' => 'Liity verkostoon, joka rakentaa elinvoimaista Etelä-Pohjanmaata.' ),
+				'join_hero_lead'            => array( 'label' => 'Johdanto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Lakeuden Kauppaseura tuo saman pöydän ääreen alueen yrittäjät, asiantuntijat, vaikuttajat ja kehittäjät. Ilmaise kiinnostuksesi, niin jatkamme keskustelua henkilökohtaisesti.' ),
+				'join_primary_cta'          => array( 'label' => 'Ensisijainen painike', 'default' => 'Ilmaise kiinnostuksesi' ),
+				'join_secondary_cta'        => array( 'label' => 'Toissijainen painike', 'default' => 'Tutustu tapahtumiin' ),
+				'join_audience_kicker'      => array( 'label' => 'Kenelle-osio: pieni otsikko', 'default' => 'Kenelle jäsenyys sopii?' ),
+				'join_audience_title'       => array( 'label' => 'Kenelle-osio: otsikko', 'default' => 'Sinulle, joka haluat olla mukana alueen tulevaisuudessa.' ),
+				'join_audience_items'       => array(
+					'label'   => 'Kenelle jäsenyys sopii',
+					'type'    => 'textarea',
+					'rows'    => 5,
+					'help'    => 'Kirjoita yksi ryhmä kullekin riville.',
+					'default' => "Yrittäjille ja yritysten päätöksentekijöille\nAsiantuntijoille ja vaikuttajille\nAluekehityksen ammattilaisille\nEtelä-Pohjanmaan tulevaisuudesta kiinnostuneille",
+				),
+				'join_benefits_kicker'      => array( 'label' => 'Hyödyt: pieni otsikko', 'default' => 'Mitä jäsenyys tarjoaa?' ),
+				'join_benefits_title'       => array( 'label' => 'Hyödyt: otsikko', 'default' => 'Ajatuksia, yhteyksiä ja mahdollisuuksia vaikuttaa.' ),
+				'join_benefits_items'       => array(
+					'label'   => 'Jäsenyyden hyödyt',
+					'type'    => 'textarea',
+					'rows'    => 6,
+					'help'    => 'Kirjoita yksi hyöty kullekin riville.',
+					'default' => "Ajankohtaisia keskusteluja\nHyödyllisiä kontakteja\nYritysvierailuja\nMahdollisuus nostaa aiheita keskusteluun\nYhteisö ja alueellinen vaikuttaminen",
+				),
+				'join_facts_kicker'         => array( 'label' => 'Käytännön tiedot: pieni otsikko', 'default' => 'Käytännön jäsenyystiedot' ),
+				'join_facts_title'          => array( 'label' => 'Käytännön tiedot: otsikko', 'default' => 'Mitä jäsenyydestä on hyvä tietää.' ),
+				'join_facts_cta'            => array( 'label' => 'Käytännön tiedot: lomakepainike', 'default' => 'Täytä jäsenhakulomake' ),
+				'join_steps_kicker'         => array( 'label' => 'Liittymisen vaiheet: pieni otsikko', 'default' => 'Näin liittyminen etenee' ),
+				'join_steps_title'          => array( 'label' => 'Liittymisen vaiheet: otsikko', 'default' => 'Kiinnostuksesta osaksi seuraa.' ),
+				'join_step_1_title'         => array( 'label' => 'Vaihe 1: otsikko', 'default' => 'Ilmaise kiinnostuksesi' ),
+				'join_step_1_text'          => array( 'label' => 'Vaihe 1: teksti', 'type' => 'textarea', 'default' => 'Täytä kiinnostuslomake tai ota yhteyttä jäsenyysasioissa.' ),
+				'join_step_2_title'         => array( 'label' => 'Vaihe 2: otsikko', 'default' => 'Henkilökohtainen yhteydenotto' ),
+				'join_step_2_text'          => array( 'label' => 'Vaihe 2: teksti', 'type' => 'textarea', 'default' => 'Käymme kanssasi läpi jäsenyyttä ja seuraavia vaiheita.' ),
+				'join_step_3_title'         => array( 'label' => 'Vaihe 3: otsikko', 'default' => 'Mahdollinen jäsenesitys' ),
+				'join_step_4_title'         => array( 'label' => 'Vaihe 4: otsikko', 'default' => 'Hallituksen käsittely' ),
+				'join_step_5_title'         => array( 'label' => 'Vaihe 5: otsikko', 'default' => 'Päätös ja perehdytys' ),
+				'join_step_5_text'          => array( 'label' => 'Vaihe 5: teksti', 'type' => 'textarea', 'default' => 'Saat tiedon päätöksestä ja ohjeet jäsenyyden aloitukseen.' ),
+				'join_testimonials_kicker'  => array( 'label' => 'Jäsenkokemukset: pieni otsikko', 'default' => 'Jäsenten kokemuksia' ),
+				'join_testimonials_title'   => array( 'label' => 'Jäsenkokemukset: otsikko', 'default' => 'Miksi ihmiset tulevat mukaan.' ),
+				'join_testimonial_1_name'   => array( 'label' => 'Esimerkkijäsen 1: nimi', 'default' => '[ESIMERKKINIMI 1]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa ensimmäisen jäsenen nimi ennen julkaisua.' ),
+				'join_testimonial_1_org'    => array( 'label' => 'Esimerkkijäsen 1: organisaatio', 'default' => '[ESIMERKKIORGANISAATIO 1]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa ensimmäisen jäsenen organisaatio ennen julkaisua.' ),
+				'join_testimonial_1_quote'  => array( 'label' => 'Esimerkkijäsen 1: sitaatti', 'type' => 'textarea', 'rows' => 4, 'default' => '[ESIMERKKISITAATTI 1]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa ensimmäinen sitaatti hyväksytyllä lainauksella ennen julkaisua.' ),
+				'join_testimonial_1_photo'  => array( 'label' => 'Esimerkkijäsen 1: kuvan URL', 'type' => 'url_or_placeholder', 'default' => '[ESIMERKKIKUVA 1]', 'help' => 'Kopioi Mediakirjastosta henkilön hyväksytyn kuvan URL.', 'todo' => 'TODO(lks-membership-testimonials): Lisää ensimmäisen jäsenen hyväksytty kuva ja varmista kuvauslupa.' ),
+				'join_testimonial_2_name'   => array( 'label' => 'Esimerkkijäsen 2: nimi', 'default' => '[ESIMERKKINIMI 2]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa toisen jäsenen nimi ennen julkaisua.' ),
+				'join_testimonial_2_org'    => array( 'label' => 'Esimerkkijäsen 2: organisaatio', 'default' => '[ESIMERKKIORGANISAATIO 2]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa toisen jäsenen organisaatio ennen julkaisua.' ),
+				'join_testimonial_2_quote'  => array( 'label' => 'Esimerkkijäsen 2: sitaatti', 'type' => 'textarea', 'rows' => 4, 'default' => '[ESIMERKKISITAATTI 2]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa toinen sitaatti hyväksytyllä lainauksella ennen julkaisua.' ),
+				'join_testimonial_2_photo'  => array( 'label' => 'Esimerkkijäsen 2: kuvan URL', 'type' => 'url_or_placeholder', 'default' => '[ESIMERKKIKUVA 2]', 'help' => 'Kopioi Mediakirjastosta henkilön hyväksytyn kuvan URL.', 'todo' => 'TODO(lks-membership-testimonials): Lisää toisen jäsenen hyväksytty kuva ja varmista kuvauslupa.' ),
+				'join_testimonial_3_name'   => array( 'label' => 'Esimerkkijäsen 3: nimi', 'default' => '[ESIMERKKINIMI 3]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa kolmannen jäsenen nimi ennen julkaisua.' ),
+				'join_testimonial_3_org'    => array( 'label' => 'Esimerkkijäsen 3: organisaatio', 'default' => '[ESIMERKKIORGANISAATIO 3]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa kolmannen jäsenen organisaatio ennen julkaisua.' ),
+				'join_testimonial_3_quote'  => array( 'label' => 'Esimerkkijäsen 3: sitaatti', 'type' => 'textarea', 'rows' => 4, 'default' => '[ESIMERKKISITAATTI 3]', 'todo' => 'TODO(lks-membership-testimonials): Korvaa kolmas sitaatti hyväksytyllä lainauksella ennen julkaisua.' ),
+				'join_testimonial_3_photo'  => array( 'label' => 'Esimerkkijäsen 3: kuvan URL', 'type' => 'url_or_placeholder', 'default' => '[ESIMERKKIKUVA 3]', 'help' => 'Kopioi Mediakirjastosta henkilön hyväksytyn kuvan URL.', 'todo' => 'TODO(lks-membership-testimonials): Lisää kolmannen jäsenen hyväksytty kuva ja varmista kuvauslupa.' ),
+				'join_faq_kicker'           => array( 'label' => 'UKK: pieni otsikko', 'default' => 'Usein kysyttyä' ),
+				'join_faq_title'            => array( 'label' => 'UKK: otsikko', 'default' => 'Kysymyksiä jäsenyydestä.' ),
+				'join_form_kicker'          => array( 'label' => 'Lomake: pieni otsikko', 'default' => 'Ilmaise kiinnostuksesi' ),
+				'join_form_title'           => array( 'label' => 'Lomake: otsikko', 'default' => 'Aloitetaan keskustelu.' ),
+				'join_form_lead'            => array( 'label' => 'Lomake: johdanto', 'type' => 'textarea', 'rows' => 4, 'default' => 'Lähetä yhteystietosi ja kerro lyhyesti, mikä jäsenyydessä kiinnostaa. Otamme sinuun yhteyttä valitsemallasi tavalla.' ),
+				'join_form_id'              => array( 'label' => 'WPForms-lomakkeen ID', 'type' => 'number', 'default' => '0', 'help' => 'Lomakkeen tunnus näkyy WPForms → Kaikki lomakkeet -näkymässä. Asennustyökalu täyttää tämän automaattisesti.' ),
+				'join_form_ready'           => array( 'label' => 'Lomake on tuotantovalmis', 'type' => 'checkbox', 'default' => '0', 'help' => 'Ota käyttöön vasta, kun vastaanottaja, SMTP-toimitus, roskapostisuojaus, tietosuojateksti ja onnistunut testilähetys on tarkistettu.' ),
+				'join_static_form_title'     => array( 'label' => 'Staattisen esikatselun ilmoitus: otsikko', 'default' => 'Kiinnostuslomake ei toimi tässä esikatselussa.' ),
+				'join_static_form_text'      => array( 'label' => 'Staattisen esikatselun ilmoitus: teksti', 'type' => 'textarea', 'rows' => 4, 'default' => 'GitHub Pages ei käsittele WordPress-lomakkeita. Tästä näkymästä ei voi lähettää tietoja, joten viestiäsi ei voida vahingossa hukata.' ),
+				'join_static_form_link'      => array( 'label' => 'Staattisen esikatselun ilmoitus: linkki', 'default' => 'Siirry yhteystietoihin' ),
+				'join_meta_title'            => array( 'label' => 'SEO-otsikko', 'default' => 'Jäseneksi – Lakeuden Kauppaseura' ),
+				'join_meta_description'      => array( 'label' => 'Metakuvaus', 'type' => 'textarea', 'rows' => 3, 'default' => 'Tutustu Lakeuden Kauppaseuran jäsenyyteen, sen hyötyihin, käytännön tietoihin ja liittymisen vaiheisiin. Ilmaise kiinnostuksesi verkostoon.' ),
+			),
+		),
+		'membership' => array(
+			'title'       => 'Jäsenyystiedot',
+			'description' => 'Jäseneksi- ja Meistä-sivujen yhteiset käytännön tiedot. Kaikki [VAHVISTETAAN]-merkinnät on ratkaistava ennen tuotantojulkaisua.',
+			'fields'      => $membership_fields,
 		),
 		'events'  => array(
 			'title'       => 'Tapahtumat',
@@ -158,11 +376,19 @@ function lakeuden_kauppaseura_page_copy_schema() {
 				'privacy_owner_title'     => array( 'label' => 'Ylläpitäjä: otsikko', 'default' => 'Sivuston ylläpitäjä' ),
 				'privacy_owner_text'      => array( 'label' => 'Ylläpitäjä: teksti', 'type' => 'textarea', 'rows' => 4, 'help' => 'Merkintä {email} korvataan automaattisesti Yhteystiedot-sivulle tallennetulla sähköpostilinkillä.', 'default' => 'Sivuston omistaja ja rekisterinpitäjä on Lakeuden Kauppaseura ry. Tietosuojaa koskevissa kysymyksissä voit ottaa yhteyttä osoitteeseen {email}.' ),
 				'privacy_activity_title'  => array( 'label' => 'Sivuston toiminta: otsikko', 'default' => 'Mitä sivusto tekee' ),
-				'privacy_activity_text_1' => array( 'label' => 'Sivuston toiminta: kappale 1', 'type' => 'textarea', 'rows' => 4, 'default' => 'Julkisella sivustolla ei ole käyttäjätilejä, analytiikkaa, seurantaskriptejä tai toimivaa yhteydenottolomaketta tämän selosteen päivityshetkellä. Sivusto ei itsessään kerää yhteydenottojen sisältöä.' ),
-				'privacy_activity_text_2' => array( 'label' => 'Sivuston toiminta: kappale 2', 'type' => 'textarea', 'rows' => 4, 'default' => 'Kun otat yhteyttä sähköpostilla tai puhelimitse, yhteydenpito tapahtuu oman sähköposti- tai puhelinpalvelusi ja vastaanottajan palvelun kautta verkkosivuston ulkopuolella.' ),
+				'privacy_activity_text_1' => array( 'label' => 'Sivuston toiminta: kappale 1', 'type' => 'textarea', 'rows' => 5, 'default' => 'Jäseneksi-sivun kiinnostuslomake toimii WordPress-sivustolla WPForms-lomakepalvelun avulla. Lomakkeella pyydetään nimi, sähköposti, mahdollinen puhelinnumero, organisaatio, rooli, kunta, kiinnostuksen kuvaus, toivottu yhteydenottotapa sekä suostumukset. Tietoja käytetään yhteydenottoon ja jäsenyysasian käsittelyyn.' ),
+				'privacy_activity_text_2' => array( 'label' => 'Sivuston toiminta: kappale 2', 'type' => 'textarea', 'rows' => 5, 'default' => 'Tietosuostumus on lomakkeen lähettämisen edellytys. Erillinen viestintäsuostumus on vapaaehtoinen. GitHub Pages -esityksessä lomake korvataan ilmoituksella, eikä staattinen sivusto vastaanota lomaketietoja. Kun otat yhteyttä sähköpostilla tai puhelimitse, yhteydenpito tapahtuu verkkosivuston ulkopuolisten viestintäpalvelujen kautta.' ),
+				'privacy_form_retention'  => array(
+					'label'           => 'Lomaketietojen säilytys ja käyttöoikeudet',
+					'type'            => 'textarea',
+					'rows'            => 4,
+					'default'         => '[VAHVISTETAAN]',
+					'launch_required' => true,
+					'todo'            => 'TODO(lks-membership-privacy): Vahvista lomaketietojen vastaanottajat, säilytysaika, poistamistapa ja mahdollinen WPForms Lite Connect -varmuuskopiointi ennen lomakkeen tuotantokäyttöä.',
+				),
 				'privacy_external_title'  => array( 'label' => 'Ulkoiset palvelut: otsikko', 'default' => 'Ulkoiset palvelut' ),
-				'privacy_external_text'   => array( 'label' => 'Ulkoiset palvelut: teksti', 'type' => 'textarea', 'rows' => 5, 'default' => 'Sivustolta on linkkejä Instagramiin, Facebookiin ja vanhan Wix-sivuston lähdeaineistoihin. Sivusto julkaistaan GitHub Pages -palvelussa. Nämä ulkoiset palvelut voivat käsitellä teknisiä tietoja omien ehtojensa ja tietosuojakäytäntöjensä mukaisesti, kun käytät niiden palveluja.' ),
-				'privacy_updated'         => array( 'label' => 'Päivityspäivä', 'default' => 'Päivitetty 20.7.2026' ),
+				'privacy_external_text'   => array( 'label' => 'Ulkoiset palvelut: teksti', 'type' => 'textarea', 'rows' => 5, 'default' => 'Sivustolta on linkkejä Instagramiin, Facebookiin ja vanhan Wix-sivuston lähdeaineistoihin. Sivusto julkaistaan GitHub Pages -palvelussa, ja WordPress-version lomake käyttää WPForms-palvelua. Nämä ulkoiset palvelut voivat käsitellä teknisiä tietoja omien ehtojensa ja tietosuojakäytäntöjensä mukaisesti, kun käytät niiden palveluja.' ),
+				'privacy_updated'         => array( 'label' => 'Päivityspäivä', 'default' => 'Päivitetty 23.7.2026' ),
 			),
 		),
 	);
@@ -209,6 +435,132 @@ function lakeuden_kauppaseura_copy_list( $key ) {
 }
 
 /**
+ * Check whether a reusable member-testimonial value is still temporary.
+ *
+ * @param string $value Field value.
+ * @return bool
+ */
+function lakeuden_kauppaseura_join_value_is_placeholder( $value ) {
+	return '' === trim( (string) $value ) || (bool) preg_match( '/\[(?:ESIMERKKI|VAHVISTETAAN)[^\]]*\]/u', (string) $value );
+}
+
+/**
+ * Return the three editable member-testimonial cards.
+ *
+ * TODO(lks-membership-testimonials): Replace every temporary card field with
+ * approved member content and verify the photo permission before launch.
+ *
+ * @return array<int,array<string,mixed>>
+ */
+function lakeuden_kauppaseura_membership_testimonials() {
+	$testimonials = array();
+
+	for ( $index = 1; $index <= 3; $index++ ) {
+		$prefix = 'join_testimonial_' . $index . '_';
+		$name   = lakeuden_kauppaseura_copy( $prefix . 'name' );
+		$org    = lakeuden_kauppaseura_copy( $prefix . 'org' );
+		$quote  = lakeuden_kauppaseura_copy( $prefix . 'quote' );
+		$photo  = lakeuden_kauppaseura_copy( $prefix . 'photo' );
+		$photo_parts = wp_parse_url( $photo );
+
+		$testimonials[] = array(
+			'index'       => $index,
+			'name'        => $name,
+			'org'         => $org,
+			'quote'       => $quote,
+			'photo'       => $photo,
+			'photo_valid' => ! lakeuden_kauppaseura_join_value_is_placeholder( $photo )
+				&& is_array( $photo_parts )
+				&& in_array( strtolower( (string) ( $photo_parts['scheme'] ?? '' ) ), array( 'http', 'https' ), true )
+				&& ! empty( $photo_parts['host'] ),
+			'unresolved'  => lakeuden_kauppaseura_join_value_is_placeholder( $name )
+				|| lakeuden_kauppaseura_join_value_is_placeholder( $org )
+				|| lakeuden_kauppaseura_join_value_is_placeholder( $quote )
+				|| lakeuden_kauppaseura_join_value_is_placeholder( $photo ),
+		);
+	}
+
+	return $testimonials;
+}
+
+/**
+ * Return the number of member-testimonial cards still containing placeholders.
+ *
+ * @return int
+ */
+function lakeuden_kauppaseura_unresolved_membership_testimonials() {
+	return count(
+		array_filter(
+			lakeuden_kauppaseura_membership_testimonials(),
+			static function ( $testimonial ) {
+				return ! empty( $testimonial['unresolved'] );
+			}
+		)
+	);
+}
+
+/**
+ * Check whether a launch-required membership value is unresolved.
+ *
+ * @param string $value Field value.
+ * @return bool
+ */
+function lakeuden_kauppaseura_membership_value_is_unresolved( $value ) {
+	$value = trim( (string) $value );
+
+	return '' === $value || str_contains( $value, lakeuden_kauppaseura_membership_placeholder() );
+}
+
+/**
+ * Return membership facts with their saved values and presentation metadata.
+ *
+ * @return array<int,array<string,mixed>>
+ */
+function lakeuden_kauppaseura_membership_facts() {
+	$facts = array();
+
+	foreach ( lakeuden_kauppaseura_membership_facts_schema() as $key => $field ) {
+		$value   = lakeuden_kauppaseura_copy( $key );
+		$facts[] = array(
+			'key'             => $key,
+			'label'           => $field['label'],
+			'value'           => $value,
+			'display'         => $field['display'] ?? 'text',
+			'launch_required' => ! empty( $field['launch_required'] ),
+			'unresolved'      => lakeuden_kauppaseura_membership_value_is_unresolved( $value ),
+		);
+	}
+
+	return $facts;
+}
+
+/**
+ * Return launch-required membership fields still awaiting confirmation.
+ *
+ * @return array<string,string>
+ */
+function lakeuden_kauppaseura_unresolved_membership_facts() {
+	$unresolved = array();
+
+	foreach ( lakeuden_kauppaseura_membership_facts() as $fact ) {
+		if ( $fact['launch_required'] && $fact['unresolved'] ) {
+			$unresolved[ $fact['key'] ] = $fact['label'];
+		}
+	}
+
+	return $unresolved;
+}
+
+/**
+ * Return the membership CTA target.
+ *
+ * @return string
+ */
+function lakeuden_kauppaseura_membership_contact_url() {
+	return home_url( '/yhteystiedot/' );
+}
+
+/**
  * Sanitize the copy settings according to the registered schema.
  *
  * @param mixed $input Submitted settings.
@@ -225,6 +577,20 @@ function lakeuden_kauppaseura_sanitize_page_copy( $input ) {
 				: ( $field['default'] ?? '' );
 			if ( 'email' === ( $field['type'] ?? 'text' ) ) {
 				$clean[ $key ] = sanitize_email( $value );
+			} elseif ( 'email_or_placeholder' === ( $field['type'] ?? 'text' ) ) {
+				$value = sanitize_text_field( $value );
+				$clean[ $key ] = lakeuden_kauppaseura_membership_value_is_unresolved( $value )
+					? lakeuden_kauppaseura_membership_placeholder()
+					: sanitize_email( $value );
+			} elseif ( 'url_or_placeholder' === ( $field['type'] ?? 'text' ) ) {
+				$value = sanitize_text_field( $value );
+				$clean[ $key ] = lakeuden_kauppaseura_join_value_is_placeholder( $value )
+					? $value
+					: esc_url_raw( $value );
+			} elseif ( 'number' === ( $field['type'] ?? 'text' ) ) {
+				$clean[ $key ] = (string) absint( $value );
+			} elseif ( 'checkbox' === ( $field['type'] ?? 'text' ) ) {
+				$clean[ $key ] = empty( $value ) ? '0' : '1';
 			} elseif ( 'textarea' === ( $field['type'] ?? 'text' ) ) {
 				$clean[ $key ] = sanitize_textarea_field( $value );
 			} else {
@@ -276,7 +642,9 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 		return;
 	}
 
-	$schema = lakeuden_kauppaseura_page_copy_schema();
+	$schema                = lakeuden_kauppaseura_page_copy_schema();
+	$unresolved_membership = lakeuden_kauppaseura_unresolved_membership_facts();
+	$unresolved_testimonials = lakeuden_kauppaseura_unresolved_membership_testimonials();
 	?>
 	<div class="wrap lks-copy-admin">
 		<h1>Sivujen tekstit</h1>
@@ -284,6 +652,19 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 		<div class="notice notice-info inline">
 			<p><strong>Blogit:</strong> Blogit-valikossa. <strong>Tapahtumat:</strong> Tapahtumat-valikossa. Päivämäärät, laskurit ja julkaisumäärät muodostuvat automaattisesti.</p>
 		</div>
+		<?php if ( $unresolved_membership ) : ?>
+			<div class="notice notice-warning inline">
+				<p><strong>Jäsenyystiedoissa on <?php echo esc_html( (string) count( $unresolved_membership ) ); ?> vahvistettavaa kohtaa.</strong> Korvaa kaikki [VAHVISTETAAN]-merkinnät ennen tuotantojulkaisua. Staattisen sivuston validointi estää julkaisun, jos tietoja puuttuu.</p>
+				<ul class="ul-disc">
+					<?php foreach ( $unresolved_membership as $label ) : ?><li><?php echo esc_html( $label ); ?></li><?php endforeach; ?>
+				</ul>
+			</div>
+		<?php endif; ?>
+		<?php if ( $unresolved_testimonials ) : ?>
+			<div class="notice notice-warning inline">
+				<p><strong>Jäseneksi-sivun <?php echo esc_html( (string) $unresolved_testimonials ); ?> jäsenkorttia ovat vielä esimerkkejä.</strong> Korvaa nimet, organisaatiot, kuvat ja hyväksytyt sitaatit ennen tuotantojulkaisua.</p>
+			</div>
+		<?php endif; ?>
 		<nav class="nav-tab-wrapper lks-copy-admin__tabs" aria-label="Sivut">
 			<?php foreach ( $schema as $slug => $section ) : ?>
 				<a class="nav-tab" href="#<?php echo esc_attr( 'lks-copy-' . $slug ); ?>"><?php echo esc_html( $section['title'] ); ?></a>
@@ -301,14 +682,19 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 						<div class="lks-copy-admin__fields">
 							<?php foreach ( $section['fields'] as $key => $field ) : ?>
 								<?php $value = lakeuden_kauppaseura_copy( $key ); ?>
+								<?php $is_unresolved = ( ! empty( $field['launch_required'] ) && lakeuden_kauppaseura_membership_value_is_unresolved( $value ) ) || ( ! empty( $field['todo'] ) && lakeuden_kauppaseura_join_value_is_placeholder( $value ) ); ?>
 								<div class="lks-copy-admin__field">
-									<label for="<?php echo esc_attr( 'lks-copy-' . $key ); ?>"><strong><?php echo esc_html( $field['label'] ); ?></strong></label>
+									<label for="<?php echo esc_attr( 'lks-copy-' . $key ); ?>"><strong><?php echo esc_html( $field['label'] ); ?></strong><?php if ( $is_unresolved ) : ?> <span class="lks-copy-admin__unresolved">[VAHVISTETAAN]</span><?php endif; ?></label>
 									<?php if ( 'textarea' === ( $field['type'] ?? 'text' ) ) : ?>
 										<textarea class="large-text" id="<?php echo esc_attr( 'lks-copy-' . $key ); ?>" name="lakeuden_kauppaseura_page_copy[<?php echo esc_attr( $key ); ?>]" rows="<?php echo esc_attr( (string) ( $field['rows'] ?? 3 ) ); ?>"><?php echo esc_textarea( $value ); ?></textarea>
+									<?php elseif ( 'checkbox' === ( $field['type'] ?? 'text' ) ) : ?>
+										<input name="lakeuden_kauppaseura_page_copy[<?php echo esc_attr( $key ); ?>]" type="hidden" value="0" />
+										<label><input id="<?php echo esc_attr( 'lks-copy-' . $key ); ?>" name="lakeuden_kauppaseura_page_copy[<?php echo esc_attr( $key ); ?>]" type="checkbox" value="1"<?php checked( '1', $value ); ?> /> Kyllä</label>
 									<?php else : ?>
-										<input class="regular-text" id="<?php echo esc_attr( 'lks-copy-' . $key ); ?>" name="lakeuden_kauppaseura_page_copy[<?php echo esc_attr( $key ); ?>]" type="<?php echo esc_attr( $field['type'] ?? 'text' ); ?>" value="<?php echo esc_attr( $value ); ?>" />
+										<input class="regular-text" id="<?php echo esc_attr( 'lks-copy-' . $key ); ?>" name="lakeuden_kauppaseura_page_copy[<?php echo esc_attr( $key ); ?>]" type="<?php echo esc_attr( in_array( ( $field['type'] ?? 'text' ), array( 'email_or_placeholder', 'url_or_placeholder' ), true ) ? 'text' : ( $field['type'] ?? 'text' ) ); ?>"<?php if ( 'email_or_placeholder' === ( $field['type'] ?? 'text' ) ) : ?> inputmode="email"<?php elseif ( 'number' === ( $field['type'] ?? 'text' ) ) : ?> min="0" step="1"<?php endif; ?> value="<?php echo esc_attr( $value ); ?>" />
 									<?php endif; ?>
 									<?php if ( ! empty( $field['help'] ) ) : ?><p class="description"><?php echo esc_html( $field['help'] ); ?></p><?php endif; ?>
+									<?php if ( $is_unresolved && ! empty( $field['todo'] ) ) : ?><p class="description"><code><?php echo esc_html( $field['todo'] ); ?></code></p><?php endif; ?>
 								</div>
 							<?php endforeach; ?>
 						</div>
@@ -329,6 +715,7 @@ function lakeuden_kauppaseura_render_page_copy_admin() {
 		.lks-copy-admin__field { display: flex; flex-direction: column; gap: 7px; }
 		.lks-copy-admin__field .regular-text { width: 100%; max-width: none; }
 		.lks-copy-admin__field textarea { min-height: 76px; resize: vertical; }
+		.lks-copy-admin__unresolved { color: #996800; font-size: 11px; font-weight: 700; }
 		@media (max-width: 782px) {
 			.lks-copy-admin__tabs { top: 46px; overflow-x: auto; white-space: nowrap; }
 			.lks-copy-admin__fields { grid-template-columns: 1fr; }

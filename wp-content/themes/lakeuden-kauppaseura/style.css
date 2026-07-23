@@ -1846,6 +1846,131 @@ body.lks-menu-open {
 	line-height: 1.65;
 }
 
+.lks-about-strategy {
+	background: #f1eee6;
+}
+
+.lks-about-strategy__heading,
+.lks-about-board__heading {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.56fr);
+	align-items: end;
+	gap: clamp(2.5rem, 7vw, 7rem);
+	margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+
+.lks-about-strategy__heading h2,
+.lks-about-board__heading h2 {
+	max-width: 12ch;
+	margin-bottom: 0;
+	font-size: clamp(3rem, 5.6vw, 5.5rem);
+	line-height: 0.93;
+}
+
+.lks-about-strategy__heading > p,
+.lks-about-board__heading > p {
+	margin: 0;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--lks-line);
+	color: #506573;
+	font-size: 0.98rem;
+	line-height: 1.72;
+}
+
+.lks-about-strategy__statements {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lks-about-strategy__statements article {
+	display: flex;
+	min-height: 22rem;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: clamp(2rem, 4vw, 4rem);
+	background: var(--lks-navy-dark);
+	color: var(--lks-white);
+}
+
+.lks-about-strategy__statements article:last-child {
+	background: #123c5c;
+}
+
+.lks-about-strategy__statements blockquote {
+	max-width: 14ch;
+	margin: 3rem 0 0;
+	color: var(--lks-white);
+	font-family: var(--lks-serif);
+	font-size: clamp(2rem, 3.6vw, 3.7rem);
+	letter-spacing: -0.04em;
+	line-height: 1.06;
+}
+
+.lks-about-strategy__values {
+	display: grid;
+	grid-template-columns: minmax(9rem, 0.3fr) minmax(0, 1fr);
+	gap: clamp(2rem, 5vw, 5rem);
+	padding-block: clamp(3rem, 5vw, 4.5rem);
+	border-bottom: 1px solid var(--lks-line);
+}
+
+.lks-about-strategy__values .lks-kicker {
+	margin: 0;
+}
+
+.lks-about-strategy__values ul {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0 2.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lks-about-strategy__values li {
+	padding: 1rem 0;
+	border-top: 1px solid var(--lks-line);
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.25rem, 2vw, 1.7rem);
+	letter-spacing: -0.025em;
+	line-height: 1.25;
+}
+
+.lks-about-strategy__choices {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.lks-about-strategy__choices article {
+	padding: clamp(2.5rem, 5vw, 4.5rem) clamp(2rem, 5vw, 4.5rem) 0 0;
+}
+
+.lks-about-strategy__choices article + article {
+	padding-right: 0;
+	padding-left: clamp(2rem, 5vw, 4.5rem);
+	border-left: 1px solid var(--lks-line);
+}
+
+.lks-about-strategy__choices > article > .lks-kicker {
+	display: block;
+	margin-bottom: 2.5rem;
+}
+
+.lks-about-strategy__choices h3 {
+	margin-bottom: 1rem;
+	font-size: clamp(2rem, 3.2vw, 3rem);
+	line-height: 1;
+}
+
+.lks-about-strategy__choices p {
+	max-width: 38rem;
+	margin: 0;
+	color: #4c6271;
+	font-size: 0.96rem;
+	line-height: 1.72;
+}
+
 .lks-about-action .lks-section-heading {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(20rem, 0.55fr);
@@ -1868,10 +1993,8 @@ body.lks-menu-open {
 }
 
 .lks-about-action__list li {
-	display: grid;
-	grid-template-columns: 3rem 1fr;
-	align-items: baseline;
-	gap: 1rem;
+	display: flex;
+	align-items: center;
 	padding: clamp(1.5rem, 3vw, 2.25rem) 0;
 	border-bottom: 1px solid var(--lks-line);
 }
@@ -1885,19 +2008,90 @@ body.lks-menu-open {
 	padding-left: clamp(1.5rem, 4vw, 4rem);
 }
 
-.lks-about-action__list span {
-	color: var(--lks-gold-text);
-	font-size: 0.67rem;
-	font-weight: 850;
-	letter-spacing: 0.12em;
-}
-
 .lks-about-action__list strong {
 	color: var(--lks-navy-dark);
 	font-family: var(--lks-serif);
 	font-size: clamp(1.35rem, 2.3vw, 2rem);
 	font-weight: 500;
 	letter-spacing: -0.035em;
+}
+
+.lks-about-board {
+	background: #e8eff2;
+}
+
+.lks-about-board__members {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 1px;
+	margin: 0;
+	padding: 1px;
+	background: var(--lks-line);
+	list-style: none;
+}
+
+.lks-about-board__members li {
+	display: flex;
+	min-height: 10.5rem;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: clamp(1.75rem, 3vw, 2.75rem);
+	background: #f8faf9;
+}
+
+.lks-about-board__members strong {
+	display: block;
+	margin-top: 0;
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.6rem, 2.5vw, 2.25rem);
+	font-weight: 500;
+	letter-spacing: -0.035em;
+	line-height: 1.05;
+}
+
+.lks-about-board__members p {
+	margin: 0.65rem 0 0;
+	color: #506573;
+	font-size: 0.72rem;
+	font-weight: 800;
+	letter-spacing: 0.09em;
+	line-height: 1.4;
+	text-transform: uppercase;
+}
+
+.lks-about-board__notes {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	margin-top: clamp(2.5rem, 5vw, 4.5rem);
+	background: var(--lks-navy-dark);
+	color: var(--lks-white);
+}
+
+.lks-about-board__notes article {
+	padding: clamp(2rem, 4vw, 3.5rem);
+}
+
+.lks-about-board__notes article + article {
+	border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.lks-about-board__notes h3 {
+	margin-bottom: 1rem;
+	color: var(--lks-gold);
+	font-family: var(--lks-sans);
+	font-size: 0.7rem;
+	font-weight: 850;
+	letter-spacing: 0.13em;
+	text-transform: uppercase;
+}
+
+.lks-about-board__notes p {
+	max-width: 40rem;
+	margin: 0;
+	color: rgba(255, 255, 255, 0.82);
+	font-size: 0.95rem;
+	line-height: 1.72;
 }
 
 .lks-about-membership {
@@ -1999,25 +2193,54 @@ body.lks-menu-open {
 	line-height: 1.72;
 }
 
-.lks-about-membership__copy h3 {
-	margin: 2.25rem 0 1rem;
-	color: var(--lks-white);
-	font-family: var(--lks-serif);
-	font-size: clamp(1.75rem, 3vw, 2.4rem);
-	font-weight: 500;
+.lks-membership-facts {
+	margin: 0;
 }
 
-.lks-about-membership__benefits,
-.lks-about-membership__steps {
-	margin: 0 0 1.6rem;
-	padding-left: 1.4rem;
-	color: rgba(255, 255, 255, 0.86);
-	line-height: 1.65;
+.lks-membership-facts__item {
+	padding: 1rem 0 1.1rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.16);
 }
 
-.lks-about-membership__benefits li,
-.lks-about-membership__steps li {
-	padding: 0.3rem 0 0.3rem 0.35rem;
+.lks-membership-facts__item:first-child {
+	padding-top: 0;
+}
+
+.lks-membership-facts dt {
+	margin-bottom: 0.35rem;
+	color: var(--lks-gold);
+	font-size: 0.68rem;
+	font-weight: 850;
+	letter-spacing: 0.09em;
+	line-height: 1.4;
+	text-transform: uppercase;
+}
+
+.lks-membership-facts dd {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.88);
+	font-size: 0.92rem;
+	line-height: 1.62;
+}
+
+.lks-membership-facts dd ul {
+	margin: 0;
+	padding-left: 1.2rem;
+}
+
+.lks-membership-facts dd li + li {
+	margin-top: 0.35rem;
+}
+
+.lks-membership-facts dd a {
+	color: inherit;
+	font-weight: 750;
+	text-underline-offset: 0.18em;
+}
+
+.lks-membership-facts__item.is-unresolved dd {
+	color: #f4d77f;
+	font-weight: 800;
 }
 
 .lks-about-membership__copy .lks-button {
@@ -2680,6 +2903,41 @@ body.lks-menu-open {
 
 .lks-events-section--past .lks-event-title {
 	font-size: clamp(1.65rem, 2.4vw, 2.25rem);
+}
+
+.lks-events-section--past .lks-event-card[hidden] {
+	display: none;
+}
+
+.lks-events-load-more {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.9rem;
+	margin-top: clamp(2.5rem, 5vw, 4.5rem);
+	text-align: center;
+}
+
+.lks-events-load-more[hidden] {
+	display: none;
+}
+
+.lks-events-load-more .lks-button {
+	min-width: min(100%, 18rem);
+	cursor: pointer;
+}
+
+.lks-events-load-more .lks-button:disabled {
+	cursor: default;
+	opacity: 0.68;
+	box-shadow: none;
+	transform: none;
+}
+
+.lks-events-load-more p {
+	margin: 0;
+	color: var(--lks-muted);
+	font-size: 0.82rem;
 }
 
 .lks-events-page .lks-event-empty {
@@ -3728,6 +3986,10 @@ body.lks-menu-open {
 		gap: 2.5rem;
 	}
 
+	.lks-about-board__members {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
 	.lks-about-roles h3 {
 		font-size: clamp(1.75rem, 2.7vw, 2.2rem);
 	}
@@ -3764,6 +4026,21 @@ body.lks-menu-open {
 	.lks-about-purpose__copy {
 		grid-column: auto;
 		max-width: 42rem;
+	}
+
+	.lks-about-strategy__heading,
+	.lks-about-board__heading {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 2rem;
+	}
+
+	.lks-about-strategy__heading > p,
+	.lks-about-board__heading > p {
+		max-width: 42rem;
+	}
+
+	.lks-about-board__members {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.lks-about-pin {
@@ -3908,6 +4185,51 @@ body.lks-menu-open {
 
 	.lks-about-roles article > span {
 		margin-bottom: 2.5rem;
+	}
+
+	.lks-about-strategy__heading h2,
+	.lks-about-board__heading h2 {
+		font-size: clamp(3rem, 14vw, 4.2rem);
+	}
+
+	.lks-about-strategy__statements,
+	.lks-about-strategy__choices,
+	.lks-about-board__members,
+	.lks-about-board__notes {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.lks-about-strategy__statements article {
+		min-height: 19rem;
+	}
+
+	.lks-about-strategy__values {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.5rem;
+	}
+
+	.lks-about-strategy__values ul {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.lks-about-strategy__choices article,
+	.lks-about-strategy__choices article + article {
+		padding: 2.5rem 0;
+		border-left: 0;
+	}
+
+	.lks-about-strategy__choices article + article {
+		border-top: 1px solid var(--lks-line);
+	}
+
+	.lks-about-board__members li {
+		min-height: 8.5rem;
+		padding: 1.5rem 1.25rem;
+	}
+
+	.lks-about-board__notes article + article {
+		border-top: 1px solid rgba(255, 255, 255, 0.18);
+		border-left: 0;
 	}
 
 	.lks-about-action .lks-section-heading {
@@ -4091,5 +4413,741 @@ body.lks-menu-open {
 	.lks-events-page .lks-event-card__image img,
 	.lks-events-page .lks-event-card .lks-event-link::after {
 		transition: none;
+	}
+}
+
+/* Dedicated membership page */
+.lks-membership-hero {
+	position: relative;
+	isolation: isolate;
+	height: auto;
+	min-height: clamp(36rem, 42vw, 40rem);
+	overflow: hidden;
+	background:
+		radial-gradient(circle at 84% 20%, rgba(227, 189, 79, 0.11) 0 0.1rem, transparent 0.15rem 100%),
+		linear-gradient(128deg, var(--lks-navy-dark), #133e5e 72%, #174c6f);
+	color: var(--lks-white);
+}
+
+.lks-membership-hero::before,
+.lks-membership-hero::after {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	border: 1px solid rgba(227, 189, 79, 0.16);
+	border-radius: 50%;
+}
+
+.lks-membership-hero::before {
+	top: -21rem;
+	right: -10rem;
+	width: 46rem;
+	height: 46rem;
+	box-shadow: 0 0 0 6rem rgba(227, 189, 79, 0.02), 0 0 0 12rem rgba(227, 189, 79, 0.014);
+}
+
+.lks-membership-hero::after {
+	bottom: -14rem;
+	left: 41%;
+	width: 27rem;
+	height: 27rem;
+}
+
+.lks-membership-hero__grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+	align-items: center;
+	gap: clamp(2.5rem, 6vw, 5rem);
+	height: 100%;
+	min-height: inherit;
+	padding-block: clamp(3rem, 5vw, 4.5rem);
+}
+
+.lks-membership-hero h1 {
+	max-width: 12ch;
+	margin: 0;
+	color: var(--lks-white);
+	font-size: clamp(3.45rem, 6.2vw, 5.9rem);
+	line-height: 0.9;
+}
+
+.lks-membership-hero__intro {
+	padding-top: 1.5rem;
+	border-top: 1px solid rgba(255, 255, 255, 0.23);
+}
+
+.lks-membership-hero__intro > p {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.84);
+	font-size: 1.05rem;
+	line-height: 1.72;
+}
+
+.lks-membership-hero__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1.1rem 1.5rem;
+	margin-top: 2rem;
+}
+
+.lks-membership-section-heading {
+	display: grid;
+	grid-template-columns: minmax(15rem, 0.45fr) minmax(0, 1fr);
+	align-items: end;
+	gap: clamp(2rem, 6vw, 6rem);
+	margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.lks-membership-section-heading .lks-kicker {
+	align-self: start;
+}
+
+.lks-membership-section-heading h2,
+.lks-membership-practical h2,
+.lks-membership-faq h2,
+.lks-membership-form-section h2 {
+	margin-bottom: 0;
+	font-size: clamp(3rem, 5.8vw, 5.7rem);
+	line-height: 0.92;
+}
+
+.lks-membership-audience__list,
+.lks-membership-benefits__list,
+.lks-membership-steps__list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.lks-membership-audience__list {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	border-top: 1px solid var(--lks-line);
+	border-bottom: 1px solid var(--lks-line);
+}
+
+.lks-membership-audience__list li {
+	display: flex;
+	min-height: 15rem;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 2rem;
+	padding: clamp(1.4rem, 2.6vw, 2.25rem);
+	border-left: 1px solid var(--lks-line);
+}
+
+.lks-membership-audience__list li:last-child {
+	border-right: 1px solid var(--lks-line);
+}
+
+.lks-membership-audience__list span,
+.lks-membership-steps__list > li > span {
+	color: var(--lks-gold-text);
+	font-size: 0.68rem;
+	font-weight: 850;
+	letter-spacing: 0.13em;
+}
+
+.lks-membership-audience__list strong {
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+	font-weight: 500;
+	letter-spacing: -0.035em;
+	line-height: 1.08;
+}
+
+.lks-membership-benefits {
+	background: #e8eff2;
+}
+
+.lks-membership-benefits__list {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.lks-membership-benefits__list li {
+	display: grid;
+	min-height: 12rem;
+	align-content: space-between;
+	gap: 2.5rem;
+	padding: clamp(1.35rem, 2.5vw, 2rem);
+	border-top: 1px solid var(--lks-line);
+	border-left: 1px solid var(--lks-line);
+}
+
+.lks-membership-benefits__list li:last-child {
+	border-right: 1px solid var(--lks-line);
+}
+
+.lks-membership-benefits__list span {
+	color: var(--lks-gold-text);
+}
+
+.lks-membership-benefits__list strong {
+	color: var(--lks-navy-dark);
+	font-size: 0.96rem;
+	line-height: 1.5;
+}
+
+.lks-membership-practical {
+	background: var(--lks-navy-dark);
+	color: var(--lks-white);
+}
+
+.lks-membership-practical__grid {
+	display: grid;
+	grid-template-columns: minmax(18rem, 0.68fr) minmax(24rem, 1fr);
+	align-items: start;
+	gap: clamp(3rem, 8vw, 8rem);
+}
+
+.lks-membership-practical__heading {
+	position: sticky;
+	top: 8rem;
+}
+
+.lks-membership-practical h2 {
+	max-width: 10ch;
+	color: var(--lks-white);
+}
+
+.lks-membership-practical__cta {
+	margin-top: 1.75rem;
+}
+
+.lks-membership-practical .lks-membership-facts__item {
+	display: grid;
+	grid-template-columns: minmax(10rem, 0.44fr) minmax(0, 1fr);
+	gap: 1.5rem;
+	padding-block: 1.25rem;
+}
+
+.lks-membership-practical .lks-membership-facts__item:first-child {
+	border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.lks-membership-steps__list {
+	border-top: 1px solid var(--lks-line);
+}
+
+.lks-membership-steps__list li {
+	display: grid;
+	grid-template-columns: 4rem minmax(0, 1fr);
+	gap: 1rem;
+	padding: clamp(1.5rem, 3vw, 2.3rem) 0;
+	border-bottom: 1px solid var(--lks-line);
+}
+
+.lks-membership-steps__list h3 {
+	margin: 0 0 0.6rem;
+	font-size: clamp(1.55rem, 2.8vw, 2.35rem);
+	line-height: 1;
+}
+
+.lks-membership-steps__list p {
+	max-width: 48rem;
+	margin: 0;
+	color: #4d6271;
+	line-height: 1.7;
+}
+
+.lks-membership-steps__list p.is-unresolved {
+	color: var(--lks-gold-text);
+	font-weight: 750;
+}
+
+.lks-membership-testimonials {
+	background: var(--lks-paper);
+}
+
+.lks-membership-testimonials__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.lks-membership-testimonials__grid article {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	background: var(--lks-paper-light);
+}
+
+.lks-membership-testimonial__photo {
+	aspect-ratio: 4 / 3;
+	overflow: hidden;
+	background: linear-gradient(135deg, var(--lks-navy), #1c587c);
+}
+
+.lks-membership-testimonial__photo img,
+.lks-membership-testimonial__photo > span {
+	width: 100%;
+	height: 100%;
+}
+
+.lks-membership-testimonial__photo img {
+	object-fit: cover;
+}
+
+.lks-membership-testimonial__photo > span {
+	display: grid;
+	place-content: center;
+	gap: 0.65rem;
+	padding: 1rem;
+	color: rgba(255, 255, 255, 0.8);
+	text-align: center;
+}
+
+.lks-membership-testimonial__photo i {
+	color: var(--lks-gold);
+	font-family: var(--lks-serif);
+	font-size: 3.5rem;
+	font-style: normal;
+	line-height: 1;
+}
+
+.lks-membership-testimonial__photo small {
+	font-size: 0.68rem;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	overflow-wrap: anywhere;
+}
+
+.lks-membership-testimonials blockquote {
+	flex: 1;
+	margin: 0;
+	padding: clamp(1.5rem, 3vw, 2.25rem) clamp(1.5rem, 3vw, 2.25rem) 1rem;
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.3rem, 2vw, 1.65rem);
+	letter-spacing: -0.025em;
+	line-height: 1.35;
+}
+
+.lks-membership-testimonials article > p {
+	display: grid;
+	gap: 0.2rem;
+	margin: 0;
+	padding: 0 clamp(1.5rem, 3vw, 2.25rem) 2rem;
+	color: var(--lks-muted);
+	font-size: 0.8rem;
+	line-height: 1.5;
+}
+
+.lks-membership-testimonials article > p strong {
+	color: var(--lks-navy);
+}
+
+.lks-membership-faq__grid {
+	display: grid;
+	grid-template-columns: minmax(17rem, 0.52fr) minmax(0, 1fr);
+	align-items: start;
+	gap: clamp(3rem, 8vw, 8rem);
+}
+
+.lks-membership-faq__items {
+	border-top: 1px solid var(--lks-line);
+}
+
+.lks-membership-faq details {
+	border-bottom: 1px solid var(--lks-line);
+}
+
+.lks-membership-faq summary {
+	position: relative;
+	padding: 1.5rem 3rem 1.5rem 0;
+	color: var(--lks-navy-dark);
+	font-family: var(--lks-serif);
+	font-size: clamp(1.3rem, 2.1vw, 1.75rem);
+	font-weight: 500;
+	letter-spacing: -0.025em;
+	line-height: 1.25;
+	cursor: pointer;
+	list-style: none;
+}
+
+.lks-membership-faq summary::-webkit-details-marker {
+	display: none;
+}
+
+.lks-membership-faq summary::after {
+	content: "+";
+	position: absolute;
+	top: 50%;
+	right: 0.5rem;
+	color: var(--lks-gold-text);
+	font-family: var(--lks-sans);
+	font-size: 1.5rem;
+	transform: translateY(-50%);
+}
+
+.lks-membership-faq details[open] summary::after {
+	content: "−";
+}
+
+.lks-membership-faq details > div {
+	padding: 0 2rem 1.5rem 0;
+	color: #4d6271;
+	line-height: 1.7;
+}
+
+.lks-membership-faq details p {
+	margin: 0 0 0.8rem;
+}
+
+.lks-membership-faq details ul {
+	margin: 0 0 1rem;
+	padding-left: 1.2rem;
+}
+
+.lks-membership-form-section {
+	background: var(--lks-navy-dark);
+	color: var(--lks-white);
+}
+
+.lks-membership-form-section__grid {
+	display: grid;
+	grid-template-columns: minmax(18rem, 0.58fr) minmax(24rem, 1fr);
+	align-items: start;
+	gap: clamp(3rem, 8vw, 8rem);
+}
+
+.lks-membership-form-section h2 {
+	max-width: 10ch;
+	color: var(--lks-white);
+}
+
+.lks-membership-form-section__grid > div:first-child > p:last-child {
+	max-width: 34rem;
+	margin: 1.75rem 0 0;
+	color: rgba(255, 255, 255, 0.76);
+	line-height: 1.72;
+}
+
+.lks-membership-form-section__form {
+	min-width: 0;
+	padding: clamp(1.5rem, 4vw, 3rem);
+	background: var(--lks-paper-light);
+	color: var(--lks-ink);
+}
+
+.lks-membership-form__required,
+.lks-membership-form__privacy {
+	margin: 0 0 0.85rem;
+	color: var(--lks-muted);
+	font-size: 0.8rem;
+	line-height: 1.55;
+}
+
+.lks-membership-form__required span {
+	color: #a13c2f;
+	font-weight: 800;
+}
+
+.lks-membership-form__privacy {
+	margin-bottom: 1.5rem;
+}
+
+.lks-membership-form__privacy a {
+	font-weight: 750;
+}
+
+.lks-membership-form-section .wpforms-container {
+	margin: 0;
+}
+
+.lks-membership-form-section .wpforms-field {
+	padding-block: 0 1.25rem !important;
+}
+
+.lks-membership-form-section .wpforms-field-label {
+	margin-bottom: 0.45rem !important;
+	color: var(--lks-navy-dark) !important;
+	font-size: 0.82rem !important;
+	font-weight: 800 !important;
+	line-height: 1.4 !important;
+}
+
+.lks-membership-form-section .wpforms-required-label {
+	color: #a13c2f !important;
+}
+
+.lks-membership-form-section input[type="text"],
+.lks-membership-form-section input[type="email"],
+.lks-membership-form-section input[type="tel"],
+.lks-membership-form-section textarea,
+.lks-membership-form-section select {
+	width: 100% !important;
+	max-width: none !important;
+	min-height: 3.35rem !important;
+	padding: 0.75rem 0.9rem !important;
+	border: 1px solid rgba(17, 47, 74, 0.34) !important;
+	border-radius: 0 !important;
+	background: var(--lks-white) !important;
+	color: var(--lks-ink) !important;
+	font-size: 1rem !important;
+	line-height: 1.4 !important;
+}
+
+.lks-membership-form-section textarea {
+	min-height: 9rem !important;
+	resize: vertical;
+}
+
+.lks-membership-form-section input:focus,
+.lks-membership-form-section textarea:focus,
+.lks-membership-form-section select:focus {
+	border-color: var(--lks-navy) !important;
+	box-shadow: 0 0 0 3px rgba(111, 164, 199, 0.35) !important;
+	outline: 2px solid transparent !important;
+}
+
+.lks-membership-form-section .wpforms-field-radio ul,
+.lks-membership-form-section .wpforms-field-checkbox ul,
+.lks-membership-form-section .wpforms-field-gdpr-checkbox ul {
+	display: grid;
+	gap: 0.65rem;
+	margin: 0 !important;
+	padding: 0 !important;
+	list-style: none !important;
+}
+
+.lks-membership-form-section .wpforms-field-radio li,
+.lks-membership-form-section .wpforms-field-checkbox li,
+.lks-membership-form-section .wpforms-field-gdpr-checkbox li {
+	margin: 0 !important;
+}
+
+.lks-membership-form-section .wpforms-field-label-inline {
+	color: var(--lks-ink) !important;
+	font-size: 0.92rem !important;
+	line-height: 1.55 !important;
+}
+
+.lks-membership-form-section input[type="checkbox"],
+.lks-membership-form-section input[type="radio"] {
+	width: 1.2rem !important;
+	height: 1.2rem !important;
+	margin: 0.1rem 0.55rem 0 0 !important;
+	accent-color: var(--lks-navy);
+	vertical-align: top;
+}
+
+.lks-membership-form-section label.wpforms-error,
+.lks-membership-form-section em.wpforms-error,
+.lks-membership-form-section .wpforms-error {
+	color: #8b271d !important;
+	font-size: 0.82rem !important;
+	font-style: normal !important;
+	font-weight: 750 !important;
+}
+
+.lks-membership-form-section input.wpforms-error,
+.lks-membership-form-section textarea.wpforms-error,
+.lks-membership-form-section select.wpforms-error {
+	border-color: #a13c2f !important;
+}
+
+.lks-membership-form-section .wpforms-submit-container {
+	padding-top: 0.5rem !important;
+}
+
+.lks-membership-form-section button[type="submit"].wpforms-submit {
+	min-height: 3.55rem !important;
+	padding: 0.85rem 1.5rem !important;
+	border: 1px solid transparent !important;
+	border-radius: 0 !important;
+	background: var(--lks-gold) !important;
+	color: var(--lks-navy-dark) !important;
+	font-size: 0.88rem !important;
+	font-weight: 800 !important;
+	letter-spacing: 0.02em !important;
+}
+
+.lks-membership-form-section button[type="submit"].wpforms-submit:hover {
+	background: #edcc69 !important;
+}
+
+.lks-membership-form-section button[type="submit"].wpforms-submit:focus-visible {
+	box-shadow: 0 0 0 3px var(--lks-white), 0 0 0 6px var(--lks-blue) !important;
+	outline: 2px solid transparent !important;
+}
+
+.lks-membership-form-section .wpforms-confirmation-container-full {
+	margin: 0 !important;
+	padding: 1.5rem !important;
+	border: 1px solid #5e8563 !important;
+	border-radius: 0 !important;
+	background: #eef6ed !important;
+	color: #24492a !important;
+}
+
+.lks-membership-form-fallback {
+	padding: clamp(1.5rem, 4vw, 2.5rem);
+	border: 2px solid var(--lks-gold);
+	background: var(--lks-paper-light);
+	color: var(--lks-ink);
+}
+
+.lks-membership-form-fallback h3 {
+	margin-bottom: 1rem;
+	color: var(--lks-navy-dark);
+	font-size: clamp(1.8rem, 3vw, 2.5rem);
+	line-height: 1;
+}
+
+.lks-membership-form-fallback p {
+	margin: 0 0 1.5rem;
+	color: #4d6271;
+	line-height: 1.7;
+}
+
+@media (max-width: 1100px) {
+	.lks-membership-audience__list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.lks-membership-audience__list li:nth-child(3) {
+		border-top: 1px solid var(--lks-line);
+	}
+
+	.lks-membership-audience__list li:nth-child(4) {
+		border-top: 1px solid var(--lks-line);
+		border-right: 1px solid var(--lks-line);
+	}
+
+	.lks-membership-benefits__list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.lks-membership-benefits__list li:nth-child(n + 4) {
+		border-bottom: 1px solid var(--lks-line);
+	}
+}
+
+@media (max-width: 980px) {
+	.lks-membership-hero {
+		height: auto;
+		min-height: 32rem;
+	}
+
+	.lks-membership-hero__grid,
+	.lks-membership-practical__grid,
+	.lks-membership-faq__grid,
+	.lks-membership-form-section__grid {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 3rem;
+	}
+
+	.lks-membership-hero__grid {
+		min-height: inherit;
+	}
+
+	.lks-membership-hero__intro {
+		max-width: 40rem;
+	}
+
+	.lks-membership-practical__heading {
+		position: static;
+	}
+
+	.lks-membership-testimonials__grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 700px) {
+	.lks-site-header__navigation.wp-block-group-is-layout-flex {
+		display: flex !important;
+		width: auto !important;
+		min-width: 2.65rem;
+		flex: 0 0 auto;
+		margin-left: auto !important;
+	}
+
+	.lks-mobile-menu {
+		display: block !important;
+		width: 2.65rem;
+		flex: 0 0 2.65rem;
+		visibility: visible !important;
+		opacity: 1 !important;
+	}
+
+	.lks-membership-hero {
+		min-height: 34rem;
+	}
+
+	.lks-membership-hero__grid {
+		align-content: center;
+		gap: 2rem;
+		padding-block: var(--lks-subpage-hero-pad-mobile);
+	}
+
+	.lks-membership-hero__grid > *,
+	.lks-membership-hero__intro,
+	.lks-membership-hero__intro > p {
+		width: 100%;
+		min-width: 0;
+		max-width: 100%;
+		overflow-wrap: break-word;
+	}
+
+	.lks-membership-hero h1 {
+		font-size: clamp(3rem, 13vw, 4rem);
+	}
+
+	.lks-membership-hero__actions {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.lks-membership-section-heading {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 1.2rem;
+	}
+
+	.lks-membership-section-heading h2,
+	.lks-membership-practical h2,
+	.lks-membership-faq h2,
+	.lks-membership-form-section h2 {
+		font-size: clamp(2.8rem, 13vw, 4rem);
+	}
+
+	.lks-membership-audience__list,
+	.lks-membership-benefits__list,
+	.lks-membership-testimonials__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.lks-membership-audience__list li {
+		min-height: 10rem;
+		border-right: 1px solid var(--lks-line);
+		border-bottom: 1px solid var(--lks-line);
+	}
+
+	.lks-membership-audience__list li:last-child {
+		border-bottom: 0;
+	}
+
+	.lks-membership-benefits__list li,
+	.lks-membership-benefits__list li:nth-child(n + 4) {
+		min-height: 9rem;
+		border-right: 1px solid var(--lks-line);
+		border-bottom: 1px solid var(--lks-line);
+	}
+
+	.lks-membership-practical .lks-membership-facts__item {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.4rem;
+	}
+
+	.lks-membership-steps__list li {
+		grid-template-columns: 2.6rem minmax(0, 1fr);
+	}
+
+	.lks-membership-form-section__form {
+		padding: 1.25rem;
 	}
 }

@@ -72,8 +72,10 @@ third-party plugin/theme code as project source.
 6. Enter service credentials, such as an Instagram access token, through the
    WordPress administration UI. Never commit them.
 
-WPForms Lite 1.10.1.1 is installed in the audited Local environment, but no
-public exported page uses it. It is not copied into source control.
+WPForms Lite 1.10.1.1 is installed in the audited Local environment and powers
+the dynamic Jäseneksi interest form. It is a third-party runtime dependency and
+is not copied into source control. The GitHub Pages export replaces the form
+with a visible no-submit fallback; see `docs/MEMBERSHIP_PAGE.md`.
 
 ## Uploaded-media policy
 

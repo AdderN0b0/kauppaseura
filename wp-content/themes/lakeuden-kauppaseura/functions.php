@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once get_stylesheet_directory() . '/inc/page-copy.php';
+require_once get_stylesheet_directory() . '/inc/membership-page.php';
 
 /**
  * Load the parent theme and the site styles.
@@ -40,10 +41,10 @@ function lakeuden_kauppaseura_enqueue_styles() {
 add_action( 'wp_enqueue_scripts', 'lakeuden_kauppaseura_enqueue_styles' );
 
 /**
- * WPForms is installed for the editor but no public page contains a form.
+ * Load WPForms assets only on the dedicated membership page.
  */
 function lakeuden_kauppaseura_remove_unused_form_assets() {
-	if ( ! is_admin() ) {
+	if ( ! is_admin() && ! is_page( 'jaseneksi' ) ) {
 		wp_dequeue_style( 'wpforms-modern-full' );
 		wp_dequeue_style( 'wpforms-full' );
 	}
@@ -181,7 +182,7 @@ function lakeuden_kauppaseura_render_homepage() {
 				<p class="lks-home-hero__lead"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_hero_lead' ) ); ?></p>
 				<div class="lks-home-hero__actions">
 					<a class="lks-button lks-button--gold" href="#seuraava-tapahtuma"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_hero_event_link' ) ); ?></a>
-					<a class="lks-text-link lks-text-link--light" href="<?php echo esc_url( home_url( '/meista/#jasenyys' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_hero_member_link' ) ); ?> <span aria-hidden="true">→</span></a>
+					<a class="lks-text-link lks-text-link--light" href="<?php echo esc_url( home_url( '/jaseneksi/' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_hero_member_link' ) ); ?> <span aria-hidden="true">→</span></a>
 				</div>
 			</div>
 			<p class="lks-home-hero__place">ETELÄ-POHJANMAA <span>62°47′N</span></p>
@@ -229,7 +230,7 @@ function lakeuden_kauppaseura_render_homepage() {
 		</section>
 
 		<section class="lks-home-section lks-intro" aria-labelledby="lks-intro-title">
-			<div class="lks-intro__content"><p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_kicker' ) ); ?></p><h2 id="lks-intro-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_title' ) ); ?></h2><p class="lks-intro__statement"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_text' ) ); ?></p><a class="lks-arrow-link" href="<?php echo esc_url( home_url( '/meista/#jasenyys' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_link' ) ); ?> <span aria-hidden="true">→</span></a></div>
+			<div class="lks-intro__content"><p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_kicker' ) ); ?></p><h2 id="lks-intro-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_title' ) ); ?></h2><p class="lks-intro__statement"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_text' ) ); ?></p><a class="lks-arrow-link" href="<?php echo esc_url( home_url( '/jaseneksi/' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_intro_link' ) ); ?> <span aria-hidden="true">→</span></a></div>
 		</section>
 
 		<?php if ( $latest_post ) : ?>
@@ -255,7 +256,7 @@ function lakeuden_kauppaseura_render_homepage() {
 				<h2 id="join-title"><?php echo nl2br( esc_html( lakeuden_kauppaseura_copy( 'home_join_title' ) ) ); ?></h2>
 				<div>
 					<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_join_text' ) ); ?></p>
-					<a class="lks-button lks-button--gold" href="<?php echo esc_url( home_url( '/meista/#jasenyys' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_join_button' ) ); ?></a>
+					<a class="lks-button lks-button--gold" href="<?php echo esc_url( home_url( '/jaseneksi/' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'home_join_button' ) ); ?></a>
 				</div>
 			</div>
 		</section>
@@ -335,6 +336,48 @@ function lakeuden_kauppaseura_render_about_page() {
 			</div>
 		</section>
 
+		<section class="lks-page-section lks-about-strategy" aria-labelledby="lks-strategy-title">
+			<div class="lks-page-shell">
+				<div class="lks-about-strategy__heading">
+					<div>
+						<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_kicker' ) ); ?></p>
+						<h2 id="lks-strategy-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_title' ) ); ?></h2>
+					</div>
+					<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_intro' ) ); ?></p>
+				</div>
+				<div class="lks-about-strategy__statements">
+					<article>
+						<p class="lks-kicker lks-kicker--light">Missio</p>
+						<blockquote><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_mission' ) ); ?></blockquote>
+					</article>
+					<article>
+						<p class="lks-kicker lks-kicker--light">Visio</p>
+						<blockquote><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_vision' ) ); ?></blockquote>
+					</article>
+				</div>
+				<div class="lks-about-strategy__values">
+					<p class="lks-kicker">Arvot</p>
+					<ul>
+						<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_strategy_values' ) as $value ) : ?>
+							<li><?php echo esc_html( $value ); ?></li>
+						<?php endforeach; ?>
+					</ul>
+				</div>
+				<div class="lks-about-strategy__choices">
+					<article>
+						<p class="lks-kicker">Strateginen valinta</p>
+						<h3><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_member_title' ) ); ?></h3>
+						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_member_text' ) ); ?></p>
+					</article>
+					<article>
+						<p class="lks-kicker">Strateginen valinta</p>
+						<h3><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_impact_title' ) ); ?></h3>
+						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_strategy_impact_text' ) ); ?></p>
+					</article>
+				</div>
+			</div>
+		</section>
+
 		<section class="lks-page-section lks-about-action" aria-labelledby="lks-action-title">
 			<div class="lks-page-shell">
 				<div class="lks-section-heading lks-section-heading--bordered">
@@ -345,10 +388,43 @@ function lakeuden_kauppaseura_render_about_page() {
 					<p class="lks-about-action__lead"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_action_text' ) ); ?></p>
 				</div>
 				<ul class="lks-about-action__list">
-					<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_action_items' ) as $index => $item ) : ?>
-						<li><span><?php echo esc_html( str_pad( (string) ( $index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span><strong><?php echo esc_html( $item ); ?></strong></li>
+					<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_action_items' ) as $item ) : ?>
+						<li><strong><?php echo esc_html( $item ); ?></strong></li>
 					<?php endforeach; ?>
 				</ul>
+			</div>
+		</section>
+
+		<section class="lks-page-section lks-about-board" aria-labelledby="lks-board-title">
+			<div class="lks-page-shell">
+				<div class="lks-about-board__heading">
+					<div>
+						<p class="lks-kicker"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_kicker' ) ); ?></p>
+						<h2 id="lks-board-title"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_title' ) ); ?></h2>
+					</div>
+					<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_intro' ) ); ?></p>
+				</div>
+				<ul class="lks-about-board__members">
+					<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_board_members' ) as $member ) : ?>
+						<?php $member_parts = array_map( 'trim', explode( '|', $member, 2 ) ); ?>
+						<li>
+							<strong><?php echo esc_html( $member_parts[0] ); ?></strong>
+							<?php if ( isset( $member_parts[1] ) && '' !== $member_parts[1] ) : ?>
+								<p><?php echo esc_html( $member_parts[1] ); ?></p>
+							<?php endif; ?>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+				<div class="lks-about-board__notes">
+					<article>
+						<h3>Työskentelytapa</h3>
+						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_note' ) ); ?></p>
+					</article>
+					<article>
+						<h3>Vastuualueet</h3>
+						<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_board_responsibilities' ) ); ?></p>
+					</article>
+				</div>
 			</div>
 		</section>
 
@@ -369,17 +445,8 @@ function lakeuden_kauppaseura_render_about_page() {
 					</figcaption>
 				</figure>
 				<div class="lks-about-membership__copy">
-					<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_member_text' ) ); ?></p>
-					<ul class="lks-about-membership__benefits">
-						<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_member_benefits' ) as $item ) : ?><li><?php echo esc_html( $item ); ?></li><?php endforeach; ?>
-					</ul>
-					<h3><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_member_steps_title' ) ); ?></h3>
-					<ol class="lks-about-membership__steps">
-						<?php foreach ( lakeuden_kauppaseura_copy_list( 'about_member_steps' ) as $item ) : ?><li><?php echo esc_html( $item ); ?></li><?php endforeach; ?>
-					</ol>
-					<?php if ( lakeuden_kauppaseura_copy( 'about_member_note' ) ) : ?><p><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_member_note' ) ); ?></p><?php endif; ?>
-					<?php if ( lakeuden_kauppaseura_copy( 'about_member_fee_note' ) ) : ?><p><strong><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_member_fee_note' ) ); ?></strong></p><?php endif; ?>
-					<a class="lks-button lks-button--gold" href="<?php echo esc_url( 'mailto:' . sanitize_email( lakeuden_kauppaseura_copy( 'contact_email' ) ) . '?subject=' . rawurlencode( 'Kysely Lakeuden Kauppaseuran jäsenyydestä' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_member_button' ) ); ?></a>
+					<?php echo lakeuden_kauppaseura_render_membership_facts(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<a class="lks-button lks-button--gold" href="<?php echo esc_url( home_url( '/jaseneksi/' ) ); ?>"><?php echo esc_html( lakeuden_kauppaseura_copy( 'about_member_button' ) ); ?></a>
 				</div>
 			</div>
 		</section>
@@ -458,7 +525,15 @@ function lakeuden_kauppaseura_render_events_page() {
 					</div>
 					<a class="lks-text-link" href="https://www.instagram.com/lakeudenkauppaseura/" target="_blank" rel="noopener noreferrer"><?php echo esc_html( lakeuden_kauppaseura_copy( 'events_instagram_link' ) ); ?> <span class="screen-reader-text">(avautuu uuteen v&auml;lilehteen)</span><span aria-hidden="true">&nearr;</span></a>
 				</div>
-				<?php echo do_shortcode( '[lks_events status="past" limit="12" empty="' . esc_attr( lakeuden_kauppaseura_copy( 'events_past_empty' ) ) . '"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<div data-past-events-archive>
+					<?php echo do_shortcode( '[lks_events status="past" limit="50" empty="' . esc_attr( lakeuden_kauppaseura_copy( 'events_past_empty' ) ) . '"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<div class="lks-events-load-more" data-past-events-controls hidden>
+						<button class="lks-button lks-button--gold" type="button" data-past-events-more aria-controls="lks-past-events-list">
+							Lisää menneitä tapahtumia
+						</button>
+						<p data-past-events-status aria-live="polite"></p>
+					</div>
+				</div>
 			</div>
 		</section>
 
@@ -586,6 +661,7 @@ function lakeuden_kauppaseura_render_privacy_page() {
 				<h2><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_activity_title' ) ); ?></h2>
 				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_activity_text_1' ) ); ?></p>
 				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_activity_text_2' ) ); ?></p>
+				<p data-lks-launch-copy="privacy_form_retention" data-lks-launch-required="true"><strong>Lomaketietojen säilytys ja käyttöoikeudet:</strong> <?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_form_retention' ) ); ?></p>
 				<h2><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_external_title' ) ); ?></h2>
 				<p><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_external_text' ) ); ?></p>
 				<p class="lks-privacy-updated"><strong><?php echo esc_html( lakeuden_kauppaseura_copy( 'privacy_updated' ) ); ?></strong></p>
@@ -673,7 +749,8 @@ function lakeuden_kauppaseura_canonical_url() {
 function lakeuden_kauppaseura_meta_description() {
 	$primary = array(
 		''              => 'Lakeuden Kauppaseura kokoaa Etel&auml;-Pohjanmaan yritt&auml;j&auml;t, asiantuntijat ja alueen kehitt&auml;j&auml;t keskusteluihin, vierailuille ja verkostoihin.',
-		'meista/'        => 'Tutustu Lakeuden Kauppaseuraan, sen tarkoitukseen, toimintaan ja j&auml;senyyteen Etel&auml;-Pohjanmaalla.',
+		'meista/'        => 'Tutustu Lakeuden Kauppaseuran tarkoitukseen, strategiaan, hallitukseen, toimintaan ja j&auml;senyyteen Etel&auml;-Pohjanmaalla.',
+		'jaseneksi/'     => lakeuden_kauppaseura_copy( 'join_meta_description' ),
 		'tapahtumat/'    => 'Katso Lakeuden Kauppaseuran tulevat tapahtumat, yritysvierailut ja ajankohtaiset keskustelut Etel&auml;-Pohjanmaalla.',
 		'blogi/'         => 'Lakeuden Kauppaseuran kirjoituksia yritt&auml;jyydest&auml;, alueen elinvoimasta ja Etel&auml;-Pohjanmaan ajankohtaisista kysymyksist&auml;.',
 		'yhteystiedot/'  => 'Ota yhteytt&auml; Lakeuden Kauppaseuraan j&auml;senyydest&auml;, tapahtumista tai toiminnasta. Katso yhteystiedot ja sosiaalisen median kanavat.',
@@ -696,6 +773,21 @@ function lakeuden_kauppaseura_meta_description() {
 
 	return 'Lakeuden Kauppaseuran ajankohtaiset sis&auml;ll&ouml;t, tapahtumat ja verkostot Etel&auml;-Pohjanmaalla.';
 }
+
+/**
+ * Use the editable, unique SEO title on the dedicated membership page.
+ *
+ * @param string $title Existing document title.
+ * @return string
+ */
+function lakeuden_kauppaseura_membership_document_title( $title ) {
+	if ( is_page( 'jaseneksi' ) ) {
+		return lakeuden_kauppaseura_copy( 'join_meta_title' );
+	}
+
+	return $title;
+}
+add_filter( 'pre_get_document_title', 'lakeuden_kauppaseura_membership_document_title', 20 );
 
 /**
  * Convert a local media URL into its production equivalent.
@@ -809,6 +901,50 @@ function lakeuden_kauppaseura_document_metadata() {
 			'publisher'        => $organization,
 		);
 		echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
+	} elseif ( is_page( 'jaseneksi' ) ) {
+		$faq_schema = array(
+			'@context'   => 'https://schema.org',
+			'@type'      => 'FAQPage',
+			'mainEntity' => array(
+				array(
+					'@type'          => 'Question',
+					'name'           => 'Onko minun oltava yrittäjä?',
+					'acceptedAnswer' => array( '@type' => 'Answer', 'text' => lakeuden_kauppaseura_membership_fact( 'membership_eligibility' )['value'] ),
+				),
+				array(
+					'@type'          => 'Question',
+					'name'           => 'Voinko osallistua ennen liittymistä?',
+					'acceptedAnswer' => array( '@type' => 'Answer', 'text' => lakeuden_kauppaseura_membership_fact( 'membership_nonmember_events' )['value'] ),
+				),
+				array(
+					'@type'          => 'Question',
+					'name'           => 'Tarvitsenko esittäjän?',
+					'acceptedAnswer' => array( '@type' => 'Answer', 'text' => lakeuden_kauppaseura_membership_fact( 'membership_nomination' )['value'] ),
+				),
+				array(
+					'@type'          => 'Question',
+					'name'           => 'Mitä jäsenyys maksaa?',
+					'acceptedAnswer' => array(
+						'@type' => 'Answer',
+						'text'  => lakeuden_kauppaseura_membership_fact( 'membership_annual_fee' )['label'] . ': ' . lakeuden_kauppaseura_membership_fact( 'membership_annual_fee' )['value'] . '. ' . lakeuden_kauppaseura_membership_fact( 'membership_joining_fee' )['label'] . ': ' . lakeuden_kauppaseura_membership_fact( 'membership_joining_fee' )['value'] . '.',
+					),
+				),
+				array(
+					'@type'          => 'Question',
+					'name'           => 'Kuinka kauan käsittely kestää?',
+					'acceptedAnswer' => array( '@type' => 'Answer', 'text' => lakeuden_kauppaseura_membership_fact( 'membership_processing_time' )['value'] ),
+				),
+				array(
+					'@type'          => 'Question',
+					'name'           => 'Sisältyvätkö tapahtumat jäsenyyteen?',
+					'acceptedAnswer' => array(
+						'@type' => 'Answer',
+						'text'  => implode( ' ', lakeuden_kauppaseura_copy_list( 'membership_includes' ) ) . ' ' . lakeuden_kauppaseura_membership_fact( 'membership_extra_event_fees' )['label'] . ': ' . lakeuden_kauppaseura_membership_fact( 'membership_extra_event_fees' )['value'] . '.',
+					),
+				),
+			),
+		);
+		echo '<script type="application/ld+json">' . wp_json_encode( $faq_schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>';
 	}
 }
 remove_action( 'wp_head', 'rel_canonical' );

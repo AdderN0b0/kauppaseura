@@ -513,6 +513,28 @@ function add_current_navigation_state( string $html, string $page_url ): string 
 	);
 }
 
+/**
+ * Replace the dynamic WordPress membership form with its explicit no-submit
+ * GitHub Pages fallback before assets are collected.
+ */
+function replace_dynamic_membership_form( string $html ): string {
+	$html = (string) preg_replace(
+		'#<!--\s*LKS_DYNAMIC_MEMBERSHIP_FORM_START\s*-->.*?<!--\s*LKS_DYNAMIC_MEMBERSHIP_FORM_END\s*-->#is',
+		'',
+		$html
+	);
+	$html = (string) preg_replace( '#<link\b[^>]*\bhref\s*=\s*(["\'])[^"\']*wpforms[^"\']*\1[^>]*>#is', '', $html );
+	$html = (string) preg_replace( '#<style\b[^>]*(?:id|class)\s*=\s*(["\'])[^"\']*wpforms[^"\']*\1[^>]*>.*?</style>#is', '', $html );
+
+	return (string) preg_replace_callback(
+		'#<div\b[^>]*\bdata-lks-static-membership-form\b[^>]*>#is',
+		static function ( array $match ): string {
+			return (string) preg_replace( '#\s+hidden(?:\s*=\s*(["\']).*?\1)?#is', '', $match[0] );
+		},
+		$html
+	);
+}
+
 try {
 	$source_host = parse_url( $source_origin, PHP_URL_HOST ) ?: '';
 	$sitemaps    = array(
@@ -553,7 +575,7 @@ try {
 	foreach ( $page_urls as $url ) {
 		$key              = normalized_page_url( $url, $source_origin );
 		$page_map[ $key ] = page_file_path( $url );
-		$page_html[ $key ] = fetch_url( $url )['body'];
+		$page_html[ $key ] = replace_dynamic_membership_form( fetch_url( $url )['body'] );
 		echo "Fetched page: {$url}\n";
 	}
 
