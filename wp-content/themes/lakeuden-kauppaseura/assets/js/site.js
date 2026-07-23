@@ -4,8 +4,11 @@
 	function markCurrentNavigation() {
 		var route = '/';
 		var classes = document.body.classList;
+		var currentPath = new URL(window.location.href).pathname;
 
-		if (classes.contains('page-template-page-meista')) {
+		if (currentPath.endsWith('/jaseneksi/')) {
+			route = '/jaseneksi/';
+		} else if (classes.contains('page-template-page-meista')) {
 			route = '/meista/';
 		} else if (classes.contains('page-template-page-tapahtumat') || classes.contains('single-lks_event')) {
 			route = '/tapahtumat/';
@@ -15,9 +18,9 @@
 			route = '/yhteystiedot/';
 		}
 
-		document.querySelectorAll('.lks-main-nav a, .lks-mobile-menu nav a').forEach(function (link) {
+		document.querySelectorAll('.lks-main-nav a, .lks-mobile-menu nav a, .lks-header-cta a, .lks-mobile-menu__contact').forEach(function (link) {
 			var path = new URL(link.href, window.location.href).pathname;
-			var isCurrent = route === '/' ? /\/$/.test(path) && !/\/(meista|tapahtumat|blogi|yhteystiedot)\/$/.test(path) : path.endsWith(route);
+			var isCurrent = route === '/' ? /\/$/.test(path) && !/\/(meista|jaseneksi|tapahtumat|blogi|yhteystiedot)\/$/.test(path) : path.endsWith(route);
 
 			if (isCurrent) {
 				link.setAttribute('aria-current', 'page');
@@ -57,6 +60,69 @@
 	}
 
 	updateEventCountdowns();
+
+	function initPastEventsArchive() {
+		var archive = document.querySelector('[data-past-events-archive]');
+
+		if (!archive) {
+			return;
+		}
+
+		var list = archive.querySelector('.lks-event-list');
+		var controls = archive.querySelector('[data-past-events-controls]');
+		var button = archive.querySelector('[data-past-events-more]');
+		var status = archive.querySelector('[data-past-events-status]');
+		var batchSize = 6;
+
+		if (!list || !controls || !button || !status) {
+			return;
+		}
+
+		var cards = Array.prototype.slice.call(list.querySelectorAll('.lks-event-card'));
+
+		if (cards.length <= batchSize) {
+			return;
+		}
+
+		list.id = 'lks-past-events-list';
+
+		cards.forEach(function (card, index) {
+			card.hidden = index >= batchSize;
+		});
+
+		function visibleCount() {
+			return cards.filter(function (card) {
+				return !card.hidden;
+			}).length;
+		}
+
+		function updateStatus() {
+			var count = visibleCount();
+			status.textContent = 'Näytetään ' + count + '/' + cards.length + ' mennyttä tapahtumaa.';
+
+			if (count === cards.length) {
+				button.textContent = 'Kaikki menneet tapahtumat näytetty';
+				button.disabled = true;
+			}
+		}
+
+		button.addEventListener('click', function () {
+			var hiddenCards = cards.filter(function (card) {
+				return card.hidden;
+			});
+
+			hiddenCards.slice(0, batchSize).forEach(function (card) {
+				card.hidden = false;
+			});
+
+			updateStatus();
+		});
+
+		controls.hidden = false;
+		updateStatus();
+	}
+
+	initPastEventsArchive();
 
 	var menu = document.querySelector('.lks-mobile-menu');
 
