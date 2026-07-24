@@ -330,7 +330,7 @@ final class Lakeuden_Kauppaseura_People {
 	 */
 	public static function render_editor_help( $post ) {
 		if ( self::BOARD_POST_TYPE === $post->post_type ) {
-			echo '<p class="description"><strong>Lyhyt esittely:</strong> kirjoita esittely alla olevaan tavalliseen sisältöeditoriin. Valitse muotokuva Muotokuva-ruudusta.</p>';
+			echo '<p class="description"><strong>Lyhyt esittely (vapaaehtoinen):</strong> kirjoita vain henkilön hyväksymä esittely alla olevaan tavalliseen sisältöeditoriin tai jätä kenttä tyhjäksi. Valitse hyväksytty muotokuva Muotokuva-ruudusta; ilman kuvaa sivusto näyttää nimikirjaimet.</p>';
 		} elseif ( self::TESTIMONIAL_POST_TYPE === $post->post_type ) {
 			echo '<p class="description"><strong>Jäsenen kommentti:</strong> kirjoita hyväksytty sitaatti alla olevaan tavalliseen sisältöeditoriin. Valitse muotokuva Muotokuva-ruudusta.</p>';
 		}
@@ -632,6 +632,7 @@ function lakeuden_kauppaseura_person_has_placeholder( $post ) {
 		return false;
 	}
 
+	$board_role = '';
 	$values = array(
 		$post->post_title,
 		$post->post_content,
@@ -640,7 +641,8 @@ function lakeuden_kauppaseura_person_has_placeholder( $post ) {
 	);
 
 	if ( Lakeuden_Kauppaseura_People::BOARD_POST_TYPE === $post->post_type ) {
-		$values[] = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_BOARD_ROLE, true );
+		$board_role = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_BOARD_ROLE, true );
+		$values[]   = $board_role;
 	}
 
 	foreach ( $values as $value ) {
@@ -649,7 +651,17 @@ function lakeuden_kauppaseura_person_has_placeholder( $post ) {
 		}
 	}
 
-	return '' === trim( $post->post_title ) || '' === trim( wp_strip_all_tags( $post->post_content ) );
+	if ( '' === trim( $post->post_title ) ) {
+		return true;
+	}
+
+	if ( Lakeuden_Kauppaseura_People::BOARD_POST_TYPE === $post->post_type ) {
+		// A real name and board role are sufficient. Biography and portrait are optional.
+		return '' === trim( (string) $board_role );
+	}
+
+	// A testimonial is not real without an approved quote.
+	return '' === trim( wp_strip_all_tags( $post->post_content ) );
 }
 
 /**
@@ -765,11 +777,9 @@ function lakeuden_kauppaseura_person_initials( $name ) {
 function lakeuden_kauppaseura_render_person_portrait( $post, $context ) {
 	$name          = get_the_title( $post );
 	$thumbnail_id  = get_post_thumbnail_id( $post );
-	$organization  = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_ORGANIZATION, true );
-	$role_meta_key = 'board' === $context ? Lakeuden_Kauppaseura_People::META_BOARD_ROLE : Lakeuden_Kauppaseura_People::META_PROFESSIONAL_ROLE;
-	$role          = get_post_meta( $post->ID, $role_meta_key, true );
-	$alt_parts     = array_filter( array( $name, $role, $organization ) );
-	$fallback_alt  = implode( ', ', $alt_parts );
+	// The adjacent card already supplies role and organization; the portrait
+	// alternative only needs the person's approved public name.
+	$fallback_alt  = $name;
 	$alt           = function_exists( 'lakeuden_kauppaseura_attachment_alt' )
 		? lakeuden_kauppaseura_attachment_alt( $thumbnail_id, $fallback_alt )
 		: $fallback_alt;
@@ -814,6 +824,7 @@ function lakeuden_kauppaseura_render_board_member_card( $post ) {
 	$name           = get_the_title( $post );
 	$role           = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_BOARD_ROLE, true );
 	$organization   = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_ORGANIZATION, true );
+	$introduction   = lakeuden_kauppaseura_render_person_text( $post->post_content );
 	$email          = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_EMAIL, true );
 	$telephone      = get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_TELEPHONE, true );
 	$show_email     = '1' === (string) get_post_meta( $post->ID, Lakeuden_Kauppaseura_People::META_SHOW_EMAIL, true ) && is_email( $email );
@@ -829,7 +840,7 @@ function lakeuden_kauppaseura_render_board_member_card( $post ) {
 			<?php if ( '' !== trim( $role ) ) : ?><p class="lks-person-card__eyebrow"><?php echo esc_html( $role ); ?></p><?php endif; ?>
 			<h3><?php echo esc_html( $name ); ?></h3>
 			<?php if ( '' !== trim( $organization ) ) : ?><p class="lks-person-card__organization"><?php echo esc_html( $organization ); ?></p><?php endif; ?>
-			<div class="lks-person-card__introduction"><?php echo lakeuden_kauppaseura_render_person_text( $post->post_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+			<?php if ( '' !== $introduction ) : ?><div class="lks-person-card__introduction"><?php echo $introduction; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><?php endif; ?>
 			<?php if ( $show_email || $show_telephone ) : ?>
 				<ul class="lks-person-card__contacts" aria-label="<?php echo esc_attr( $name . ': yhteystiedot' ); ?>">
 					<?php if ( $show_email ) : ?><li><a href="<?php echo esc_url( 'mailto:' . $email ); ?>">Sähköposti</a></li><?php endif; ?>

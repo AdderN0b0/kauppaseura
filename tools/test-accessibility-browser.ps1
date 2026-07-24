@@ -393,6 +393,8 @@ try {
 
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/meista/"})
     Start-Sleep -Seconds 2
+    [void](Get-BrowserValue '(() => { document.querySelector(".lks-about-board")?.scrollIntoView(); return true; })()')
+    Start-Sleep -Seconds 2
     $localBoard = Get-BrowserValue @'
 (() => {
     const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]').textContent);
@@ -400,14 +402,29 @@ try {
     return {
         cards: document.querySelectorAll(".lks-board-member-card").length,
         placeholders: document.querySelectorAll('.lks-board-member-card[data-lks-person-placeholder="true"]').length,
-        fallbackAvatars: document.querySelectorAll(".lks-board-member-card .lks-person-avatar").length,
+        portraits: [...document.querySelectorAll(".lks-board-member-card .lks-person-portrait__image")].map((image) => ({
+            alt: image.alt.trim(),
+            loaded: image.complete && image.naturalWidth > 0
+        })),
+        nameRows: [...document.querySelectorAll(".lks-board-member-card h3")].reduce((rows, heading) => {
+            const row = Math.round(heading.closest(".lks-board-member-card").getBoundingClientRect().top);
+            rows[row] ||= [];
+            rows[row].push(Math.round(heading.getBoundingClientRect().top));
+            return rows;
+        }, {}),
         personSchema: types.includes("Person")
     };
 })()
 '@
-    Add-Check ($localBoard.cards -eq 8 -and $localBoard.placeholders -eq 8) "Local editing preview keeps all eight clearly marked board records visible"
-    Add-Check ($localBoard.fallbackAvatars -ge 1) "Board cards without photographs use the neutral monogram fallback"
-    Add-Check (-not $localBoard.personSchema) "Board placeholders do not generate Person structured data"
+    $misalignedNameRows = @($localBoard.nameRows.psobject.Properties | Where-Object {
+        $positions = @($_.Value)
+        $positions.Count -gt 1 -and (($positions | Measure-Object -Maximum).Maximum - ($positions | Measure-Object -Minimum).Minimum) -gt 1
+    })
+    Add-Check ($localBoard.cards -eq 8 -and $localBoard.placeholders -eq 0) "Local preview shows all eight approved board records without placeholders"
+    Add-Check ($localBoard.portraits.Count -eq 8 -and ($localBoard.portraits | Where-Object { -not $_.alt }).Count -eq 0) "Every configured board portrait has accessible alternative text"
+    Add-Check (($localBoard.portraits | Where-Object { -not $_.loaded }).Count -eq 0) "Every board portrait loads when the section enters the viewport"
+    Add-Check ($misalignedNameRows.Count -eq 0) "Board member names align within each four-card row"
+    Add-Check (-not $localBoard.personSchema) "Board component does not add a duplicate Person schema graph"
 
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/maatalous-tarvitsee-tuloksellisempaa-talousneuvontaa/"})
     Start-Sleep -Seconds 2

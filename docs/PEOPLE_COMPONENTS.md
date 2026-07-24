@@ -15,7 +15,7 @@ Each record uses familiar WordPress fields:
 | WordPress field | Hallitus | Jäsenkokemukset |
 | --- | --- | --- |
 | Title | Name | Name |
-| Content editor | Short introduction | Approved quote |
+| Content editor | Optional short introduction | Approved quote |
 | Featured Image / Muotokuva | Portrait | Portrait |
 | Compact details panel | Board role, organization/title, optional contacts, order | Organization, professional role, optional profile link, order |
 
@@ -34,8 +34,9 @@ templates.
 2. Open **Hallitus → Kaikki hallituksen jäsenet**.
 3. Open a record marked **Kesken**.
 4. Replace `[NIMI LISÄTÄÄN]` in the title with the approved public name.
-5. Replace `[LYHYT ESITTELY LISÄTÄÄN]` in the content editor with a short
-   approved introduction.
+5. Replace `[LYHYT ESITTELY LISÄTÄÄN]` with a short approved introduction, or
+   remove the placeholder and leave the content editor empty. An introduction
+   is optional and must never be invented merely to make a card publishable.
 6. In **Hallituksen jäsenen tiedot**, replace the temporary board role and
    organization or professional title.
 7. Set **Näyttöjärjestys**. The smallest number is shown first.
@@ -50,9 +51,31 @@ templates.
 11. When at least one real entry is ready, open **Sivujen tekstit → Meistä**,
     select **Näytä hallitus tuotannossa**, and save.
 
-Organization/title, portrait, email, and telephone may be left empty. The card
-layout remains balanced. A portrait is never required: the theme renders a
-neutral initials monogram when one is missing.
+Introduction, organization/title, portrait, email, and telephone may be left
+empty. A real public name and board role are the minimum approved content. The
+card layout remains balanced. A portrait is never required: the theme renders
+a neutral initials monogram when one is missing.
+
+## Importing the approved board portraits
+
+The current eight approved board names can be matched to their reviewed
+portraits with:
+
+```powershell
+php tools/import-board-portraits.php --confirm-publication-permission
+```
+
+The command is idempotent. It reuses existing imported attachments, records
+the reviewed source page and source URL in private attachment metadata, sets
+the accessible image alt to the person's name, removes only the exact seeded
+`[LYHYT ESITTELY LISÄTÄÄN]` value, and enables the board section. It does not
+overwrite a portrait later selected manually by an administrator.
+
+The confirmation flag means the association has verified both the person's
+approval and the right to republish the photograph. Public visibility on an
+old website or social profile alone is not a reuse licence. Keep the originals
+and permission records in the association's private media backup; `uploads/`
+is intentionally excluded from Git.
 
 ## Replacing a testimonial placeholder
 

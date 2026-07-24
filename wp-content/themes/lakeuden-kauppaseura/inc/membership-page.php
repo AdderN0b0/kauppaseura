@@ -423,7 +423,7 @@ function lakeuden_kauppaseura_render_membership_page() {
 						<details><summary>Voinko osallistua ennen liittymistä?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nonmember_events' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
 					<?php endif; ?>
 					<?php if ( ! $nomination['unresolved'] ) : ?>
-						<details><summary>Tarvitsenko esittäjän?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nomination' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
+						<details><summary>Tarvitsenko suosittelijan?</summary><div><?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_nomination' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div></details>
 					<?php endif; ?>
 					<?php if ( ! $annual_fee['unresolved'] && ! $joining_fee['unresolved'] ) : ?>
 						<details><summary>Mitä jäsenyys maksaa?</summary><div><p><strong><?php echo esc_html( $annual_fee['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_annual_fee' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p><p><strong><?php echo esc_html( $joining_fee['label'] ); ?>:</strong> <?php echo lakeuden_kauppaseura_render_membership_faq_fact( 'membership_joining_fee' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p></div></details>

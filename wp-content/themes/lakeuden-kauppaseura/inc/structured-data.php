@@ -407,7 +407,7 @@ function lakeuden_kauppaseura_membership_faq_schema_entities() {
 	$questions = array(
 		'Onko minun oltava yrittäjä?'          => array( 'membership_eligibility' ),
 		'Voinko osallistua ennen liittymistä?' => array( 'membership_nonmember_events' ),
-		'Tarvitsenko esittäjän?'                => array( 'membership_nomination' ),
+		'Tarvitsenko suosittelijan?'            => array( 'membership_nomination' ),
 		'Kuinka kauan käsittely kestää?'        => array( 'membership_processing_time' ),
 	);
 	$entities  = array();

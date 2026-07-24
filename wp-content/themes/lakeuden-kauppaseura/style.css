@@ -4937,7 +4937,8 @@ body.lks-menu-open {
 
 .lks-person-card__eyebrow,
 .lks-about-board__members .lks-person-card__eyebrow {
-	min-height: 2.8em;
+	/* Reserve three lines so long responsibilities do not push a name lower. */
+	min-height: 4.2em;
 	margin: 0 0 0.7rem;
 	color: var(--lks-gold-text);
 	font-size: 0.68rem;

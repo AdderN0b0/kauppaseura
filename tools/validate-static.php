@@ -239,7 +239,10 @@ foreach ( $files as $file ) {
 				expect( schema_has_type( $schema, $required_type ), $errors, $relative, "JSON-LD graph must contain {$required_type}" );
 			}
 			expect( 'https://schema.org' === ( $schema['@context'] ?? '' ), $errors, $relative, 'JSON-LD graph must use the Schema.org context' );
-			if ( in_array( $relative, array( 'meista/index.html', 'jaseneksi/index.html' ), true ) ) {
+			$visible_people_placeholders = $xpath->query(
+				'//*[@data-lks-person-placeholder="true" or @data-lks-testimonial-placeholder="true"]'
+			)->length;
+			if ( $visible_people_placeholders > 0 ) {
 				expect( ! schema_has_type( $schema, 'Person' ), $errors, $relative, 'placeholder people must not generate Person structured data' );
 			}
 		}
@@ -310,8 +313,15 @@ foreach ( $files as $file ) {
 			} else {
 				$src_path = (string) parse_url( $image->getAttribute( 'src' ), PHP_URL_PATH );
 				$stem     = pathinfo( rawurldecode( $src_path ), PATHINFO_FILENAME );
+				$classes  = ' ' . preg_replace( '/\s+/', ' ', trim( $image->getAttribute( 'class' ) ) ) . ' ';
+				$is_named_person_portrait = str_contains( $classes, ' lks-person-portrait__image ' );
 				a11y_expect( ! preg_match( '/\.(?:avif|gif|jpe?g|png|svg|webp)$/i', $alt ), $errors, $relative, "image alt must not be a filename ({$alt})" );
-				a11y_expect( '' === $stem || normalized_token( $alt ) !== normalized_token( $stem ), $errors, $relative, "image alt must not repeat its filename ({$alt})" );
+				a11y_expect(
+					$is_named_person_portrait || '' === $stem || normalized_token( $alt ) !== normalized_token( $stem ),
+					$errors,
+					$relative,
+					"image alt must not repeat its filename ({$alt})"
+				);
 			}
 		}
 	}
