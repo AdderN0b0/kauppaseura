@@ -1102,10 +1102,17 @@ body.lks-menu-open {
 	position: relative;
 	display: block;
 	aspect-ratio: 16 / 10;
+	margin: 0;
 	overflow: hidden;
 	background:
 		linear-gradient(135deg, rgba(227, 189, 79, 0.18), transparent 55%),
 		var(--lks-navy);
+}
+
+.lks-blog-card__media-link {
+	display: block;
+	width: 100%;
+	height: 100%;
 }
 
 .lks-blog-card__media::after {
@@ -1114,6 +1121,7 @@ body.lks-menu-open {
 	inset: 0;
 	background: linear-gradient(180deg, transparent 55%, rgba(9, 35, 58, 0.36));
 	opacity: 0;
+	pointer-events: none;
 	transition: opacity 240ms ease;
 }
 
@@ -1209,15 +1217,21 @@ body.lks-menu-open {
 	text-decoration: none;
 }
 
-.lks-blog-card__content > p {
+.lks-blog-card__content > p:not(.lks-blog-card__action) {
 	margin: 0 0 1.5rem;
 	color: #4d6271;
 	font-size: 0.96rem;
 	line-height: 1.68;
 }
 
-.lks-blog-card__content > .lks-arrow-link {
-	margin-top: auto;
+.lks-blog-card__action {
+	margin: auto 0 0;
+}
+
+/* Guard against paragraph wrappers left by older cached shortcode markup. */
+.lks-blog-card > p {
+	display: none;
+	margin: 0;
 }
 
 .lks-blog-card--lead {
@@ -1245,6 +1259,20 @@ body.lks-menu-open {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: clamp(1.25rem, 2vw, 2rem);
+}
+
+@media (min-width: 701px) {
+	/*
+	 * Keep the editorial grid on shared text baselines even when publication
+	 * details or headlines wrap onto a different number of lines.
+	 */
+	.lks-blog-grid .lks-blog-card__meta {
+		min-height: 4.5rem;
+	}
+
+	.lks-blog-grid .lks-blog-card h2 {
+		min-height: 3em;
+	}
 }
 
 .lks-blog-pagination {

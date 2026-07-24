@@ -581,10 +581,12 @@ function lks_blog_render_card( $post, $feature = false ) {
 	ob_start();
 	?>
 	<article class="<?php echo esc_attr( $class ); ?>">
-		<a class="lks-blog-card__media<?php echo $image ? '' : ' is-empty'; ?>" href="<?php echo esc_url( get_permalink( $post ) ); ?>" tabindex="-1" aria-hidden="true">
-			<?php if ( $image ) : ?><?php echo get_the_post_thumbnail( $post, $feature ? 'large' : 'medium_large', array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php endif; ?>
-			<span class="lks-blog-card__arrow">↗</span>
-		</a>
+		<figure class="lks-blog-card__media<?php echo $image ? '' : ' is-empty'; ?>">
+			<a class="lks-blog-card__media-link" href="<?php echo esc_url( get_permalink( $post ) ); ?>" tabindex="-1" aria-hidden="true">
+				<?php if ( $image ) : ?><?php echo get_the_post_thumbnail( $post, $feature ? 'large' : 'medium_large', array( 'alt' => '', 'loading' => 'lazy', 'decoding' => 'async' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?><?php endif; ?>
+				<span class="lks-blog-card__arrow">↗</span>
+			</a>
+		</figure>
 		<div class="lks-blog-card__content">
 			<div class="lks-blog-card__meta">
 				<?php echo lks_blog_render_publication_line( $post ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -592,7 +594,7 @@ function lks_blog_render_card( $post, $feature = false ) {
 			</div>
 			<h2><a href="<?php echo esc_url( get_permalink( $post ) ); ?>"><?php echo esc_html( get_the_title( $post ) ); ?></a></h2>
 			<?php if ( $excerpt ) : ?><p><?php echo esc_html( $excerpt ); ?></p><?php endif; ?>
-			<a class="lks-arrow-link" href="<?php echo esc_url( get_permalink( $post ) ); ?>">Lue kirjoitus <span aria-hidden="true">→</span></a>
+			<p class="lks-blog-card__action"><a class="lks-arrow-link" href="<?php echo esc_url( get_permalink( $post ) ); ?>">Lue kirjoitus <span aria-hidden="true">→</span></a></p>
 		</div>
 	</article>
 	<?php

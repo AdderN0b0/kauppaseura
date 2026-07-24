@@ -391,6 +391,91 @@ try {
     Add-Check ($homeMetadata.scripts -eq 1 -and $missingHomeTypes.Count -eq 0) "Homepage exposes one graph with Organization, WebSite, WebPage, and BreadcrumbList"
     Add-Check ($homeMetadata.canonical -eq $homeMetadata.ogUrl -and -not $homeMetadata.hasLocalUrl) "Homepage canonical, Open Graph, and schema URLs are production-safe"
 
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/blogi/"})
+    Start-Sleep -Seconds 2
+    $desktopBlog = Get-BrowserValue @'
+(() => {
+    const cards = [...document.querySelectorAll(".lks-blog-grid .lks-blog-card")];
+    const groupedRows = cards.reduce((rows, card) => {
+        const rowKey = Math.round(card.getBoundingClientRect().top);
+        rows[rowKey] ||= [];
+        const content = card.querySelector(".lks-blog-card__content");
+        const meta = card.querySelector(".lks-blog-card__meta");
+        const title = card.querySelector("h2");
+        const excerpt = content?.querySelector(":scope > p:not(.lks-blog-card__action)");
+        const link = content?.querySelector(".lks-blog-card__action .lks-arrow-link");
+        rows[rowKey].push({
+            contentTop: Math.round(content?.getBoundingClientRect().top ?? 0),
+            metaTop: Math.round(meta?.getBoundingClientRect().top ?? 0),
+            titleTop: Math.round(title?.getBoundingClientRect().top ?? 0),
+            excerptTop: excerpt ? Math.round(excerpt.getBoundingClientRect().top) : null,
+            linkBottom: Math.round(link?.getBoundingClientRect().bottom ?? 0)
+        });
+        return rows;
+    }, {});
+    const rows = Object.values(groupedRows).filter((row) => row.length > 1);
+    const spread = (key) => Math.max(0, ...rows.map((row) => {
+        const positions = row.map((card) => card[key]).filter((value) => value !== null);
+        return positions.length < 2 ? 0 : Math.max(...positions) - Math.min(...positions);
+    }));
+    return {
+        cards: cards.length,
+        pairedRows: rows.length,
+        contentSpread: spread("contentTop"),
+        metaSpread: spread("metaTop"),
+        titleSpread: spread("titleTop"),
+        excerptSpread: spread("excerptTop"),
+        linkSpread: spread("linkBottom"),
+        invalidDirectParagraphs: cards.reduce(
+            (count, card) => count + card.querySelectorAll(":scope > p").length,
+            0
+        ),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+})()
+'@
+    Add-Check ($desktopBlog.cards -ge 2 -and $desktopBlog.pairedRows -ge 1) "Blog archive renders paired editorial cards on desktop"
+    Write-Host ("INFO  Blog alignment spreads (px): content={0}, meta={1}, title={2}, excerpt={3}, link={4}" -f $desktopBlog.contentSpread, $desktopBlog.metaSpread, $desktopBlog.titleSpread, $desktopBlog.excerptSpread, $desktopBlog.linkSpread)
+    Add-Check ($desktopBlog.invalidDirectParagraphs -eq 0) "Blog shortcode output contains no stray direct paragraph wrappers"
+    Add-Check ($desktopBlog.contentSpread -le 1 -and $desktopBlog.metaSpread -le 1) "Blog card metadata starts on a shared desktop baseline"
+    Add-Check ($desktopBlog.titleSpread -le 1) "Blog card titles start on a shared desktop baseline"
+    Add-Check ($desktopBlog.excerptSpread -le 1) "Blog card excerpts start on a shared desktop baseline"
+    Add-Check ($desktopBlog.linkSpread -le 1) "Blog card reading links end on a shared desktop baseline"
+    Add-Check (-not $desktopBlog.overflow) "Blog archive fits the desktop viewport"
+
+    [void](Send-Cdp "Emulation.setDeviceMetricsOverride" @{
+        width = 390
+        height = 844
+        deviceScaleFactor = 1
+        mobile = $true
+    })
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/blogi/"})
+    Start-Sleep -Seconds 2
+    $mobileBlog = Get-BrowserValue @'
+(() => {
+    const grid = document.querySelector(".lks-blog-grid");
+    const card = grid?.querySelector(".lks-blog-card");
+    const meta = card?.querySelector(".lks-blog-card__meta");
+    const title = card?.querySelector("h2");
+    return {
+        columns: grid ? getComputedStyle(grid).gridTemplateColumns.split(" ").length : 0,
+        metaMinHeight: meta ? getComputedStyle(meta).minHeight : "",
+        titleMinHeight: title ? getComputedStyle(title).minHeight : "",
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+})()
+'@
+    Add-Check ($mobileBlog.columns -eq 1) "Blog cards collapse to one column on mobile"
+    Add-Check ($mobileBlog.metaMinHeight -in @("0px", "auto") -and $mobileBlog.titleMinHeight -in @("0px", "auto")) "Mobile blog cards do not retain desktop alignment whitespace"
+    Add-Check (-not $mobileBlog.overflow) "Blog archive fits the mobile viewport"
+
+    [void](Send-Cdp "Emulation.setDeviceMetricsOverride" @{
+        width = 1280
+        height = 800
+        deviceScaleFactor = 1
+        mobile = $false
+    })
+
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/meista/"})
     Start-Sleep -Seconds 2
     [void](Get-BrowserValue '(() => { document.querySelector(".lks-about-board")?.scrollIntoView(); return true; })()')
@@ -447,6 +532,42 @@ try {
     Add-Check ($article.authorAlt -eq "Heikki Kangas") "Author portrait uses media-library alt text"
     Add-Check ($article.nav.Count -ge 1 -and ($article.nav | Where-Object { $_.tabIndex -ne 0 }).Count -eq 0) "Article navigation links remain keyboard reachable"
     Add-Check ($article.schemaTypes -contains "BlogPosting") "Article preserves BlogPosting structured data"
+
+    [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/?p=21"})
+    Start-Sleep -Seconds 2
+    [void](Get-BrowserValue '(() => { document.querySelector(".lks-article-authors")?.scrollIntoView(); return true; })()')
+    Start-Sleep -Milliseconds 500
+    $multiAuthorArticle = Get-BrowserValue @'
+(() => {
+    const cards = [...document.querySelectorAll(".lks-article-authors .lks-author-card")];
+    return {
+        names: cards.map((card) => card.querySelector("strong")?.textContent.trim()),
+        portraits: cards.map((card) => {
+            const image = card.querySelector("img");
+            return {
+                alt: image?.alt.trim(),
+                loaded: Boolean(image?.complete && image?.naturalWidth > 0)
+            };
+        }),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+})()
+'@
+    $expectedMultiAuthors = @(
+        "Anssi Murtonen",
+        "Liisa Ojala",
+        ("Martti Kaunism{0}ki" -f [char]0x00E4),
+        "Paula Takamaa"
+    )
+    Add-Check (
+        $multiAuthorArticle.names.Count -eq $expectedMultiAuthors.Count -and
+        ($expectedMultiAuthors | Where-Object { $_ -notin $multiAuthorArticle.names }).Count -eq 0
+    ) "Multi-author article uses the four reviewed writer names"
+    Add-Check (
+        $multiAuthorArticle.portraits.Count -eq $expectedMultiAuthors.Count -and
+        ($multiAuthorArticle.portraits | Where-Object { $_.alt -notin $expectedMultiAuthors -or -not $_.loaded }).Count -eq 0
+    ) "Every multi-author portrait loads with the matching accessible name"
+    Add-Check (-not $multiAuthorArticle.overflow) "Multi-author cards fit the desktop viewport"
 
     [void](Send-Cdp "Page.navigate" @{url = "$($BaseUrl.TrimEnd('/'))/tapahtumat/"})
     Start-Sleep -Seconds 2
